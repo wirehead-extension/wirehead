@@ -1,16 +1,18 @@
 {
     "manifest_version": 2,
-   
+
     "name": "Wirehead",
     "description": "This app helps you maintain your focus on the internet",
     "version": "1.0",
-   
+
     "browser_action": {
       "default_popup": "index.html"
     },
+    "options_page": "dashboard.html",
     "permissions": [
       "history",
-      "storage"
+      "storage",
+      "tabs"
     ],
     "content_scripts": [
       {
