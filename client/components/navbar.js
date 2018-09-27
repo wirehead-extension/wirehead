@@ -3,10 +3,13 @@ import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
 import {logout} from '../store'
+// import {wrapStore} from 'react-chrome-redux'
+// wrapStore(store, {portName: "example-port"})
 
 const Navbar = ({handleClick, isLoggedIn}) => (
   <div>
     <h1>Wirehead</h1>
+    <h2>{}</h2>
     <nav>
       {isLoggedIn ? (
         <div>
