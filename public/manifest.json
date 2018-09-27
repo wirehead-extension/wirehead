@@ -6,18 +6,12 @@
     "version": "1.0",
 
     "browser_action": {
-<<<<<<< HEAD
       "default_popup": "popup.html"
     },
     "options_ui": {
         "page": "dashboard.html",
         "open_in_tab": true
     },
-=======
-      "default_popup": "index.html"
-    },
-    "options_page": "dashboard.html",
->>>>>>> c7b60d1992f74221cf23ee3b33c660819d6eb247
     "permissions": [
       "history",
       "storage",
@@ -26,16 +20,8 @@
     "content_scripts": [
       {
         "matches": ["http://*/*", "https://*/*"],
-<<<<<<< HEAD
         "js": ["popup.bundle.js", "dashboard.bundle.js"],
         "run_at": "document_start"
       }
     ]
   }
-=======
-        "js": ["bundle.js"],
-        "run_at": "document_start"
-      }
-    ]
-  }
->>>>>>> c7b60d1992f74221cf23ee3b33c660819d6eb247
