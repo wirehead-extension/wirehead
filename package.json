@@ -49,6 +49,7 @@
     "pg-hstore": "^2.3.2",
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
+    "react-chrome-redux": "^2.0.0-alpha.4",
     "react-dom": "^16.5.2",
     "react-redux": "^5.0.2",
     "react-router-dom": "^4.3.1",

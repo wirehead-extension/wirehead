@@ -12,6 +12,11 @@
         "page": "dashboard.html",
         "open_in_tab": true
     },
+    "options_page": "dashboard.html",
+    "background": {
+      "scripts": ["eventPage.js"],
+      "persistent": false
+    },
     "permissions": [
       "history",
       "storage",
