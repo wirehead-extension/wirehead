@@ -1,6 +1,6 @@
 {
   "name": "wirehead",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "An intelligent productivity extension for Chrome",
   "engines": {
     "node": ">= 7.0.0"

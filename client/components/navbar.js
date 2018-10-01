@@ -1,59 +1,23 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import {connect} from 'react-redux'
-import {Link} from 'react-router-dom'
-import {logout} from '../store'
-// import {wrapStore} from 'react-chrome-redux'
-// wrapStore(store, {portName: "example-port"})
+import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 
-const Navbar = ({handleClick, isLoggedIn}) => (
-  <div>
-    <h1>Wirehead</h1>
-    <h2>{}</h2>
-    <nav>
-      {isLoggedIn ? (
-        <div>
-          {/* The navbar will show these links after you log in */}
-          <Link to="/home">Home</Link>
-          <a href="#" onClick={handleClick}>
-            Logout
-          </a>
-        </div>
-      ) : (
-        <div>
-          {/* The navbar will show these links before you log in */}
-          <Link to="/login">Login</Link>
-          <Link to="/signup">Sign Up</Link>
-        </div>
-      )}
-    </nav>
-    <hr />
-  </div>
-)
-
-/**
- * CONTAINER
- */
-const mapState = state => {
-  return {
-    isLoggedIn: !!state.user.id
-  }
+class Navbar extends React.Component {
+    render(){
+        return(
+            <ul>
+                <li>
+                    <Link to="/">Visualizations</Link>
+                </li>
+                <li>
+                    <Link to="/siteconfig">Site Config</Link>
+                </li>
+                <li>
+                    <Link to="/appconfig">App Config</Link>
+                </li>
+            </ul>
+        )
+      }
 }
 
-const mapDispatch = dispatch => {
-  return {
-    handleClick() {
-      dispatch(logout())
-    }
-  }
-}
-
-export default connect(mapState, mapDispatch)(Navbar)
-
-/**
- * PROP TYPES
- */
-Navbar.propTypes = {
-  handleClick: PropTypes.func.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired
-}
+export default Navbar

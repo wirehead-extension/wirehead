@@ -6,7 +6,11 @@
     "version": "1.0",
 
     "browser_action": {
-      "default_popup": "index.html"
+      "default_popup": "popup.html"
+    },
+    "options_ui": {
+        "page": "dashboard.html",
+        "open_in_tab": true
     },
     "options_page": "dashboard.html",
     "background": {
@@ -21,7 +25,7 @@
     "content_scripts": [
       {
         "matches": ["http://*/*", "https://*/*"],
-        "js": ["bundle.js"],
+        "js": ["popup.bundle.js", "dashboard.bundle.js"],
         "run_at": "document_start"
       }
     ]
