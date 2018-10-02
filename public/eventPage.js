@@ -227,7 +227,7 @@ function timeInSecond(newDate) {
 
 function currentTabRecoder(tabs) {
   var newDate = new Date()
-
+  console.log(tabs[0])
   chrome.storage.sync.get(datas => {
     chrome.storage.sync.set({
       currentTabId: tabs[0].id,
@@ -353,14 +353,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         location: request.origin,
         data: {dbKey: 1, ultimateOriginKey: 1}
       }) */
-    }
-    if (request.action === 'tab-start') {
-      var addRequest = historyStore.add({url: tab.url, start: new Date()})
-      addRequest.onsuccess = function(event) {
-        //console.log(event)
-        //console.log(event.target)
-        //console.log(event.target.result)
-      }
     }
   }
 
