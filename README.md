@@ -6,7 +6,7 @@ We are building it
 
 ## Build instructions
 
-- Instructions to add as an extension to Chrome:
+Instructions to add as an extension to Chrome:
 
 - "npm run build-client" to create your `*/bundle.js` files in your public folder.
 
