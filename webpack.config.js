@@ -4,7 +4,8 @@ module.exports = {
   mode: isDev ? 'development' : 'production',
   entry: {
     popup: ['./client/popup.js'],
-    dashboard: ['@babel/polyfill', './client/dashboard.js']
+    dashboard: ['@babel/polyfill', './client/dashboard.js'],
+    eventPage: ['@babel/polyfill', './public/eventPage.js']
   },
   output: {
     path: __dirname,

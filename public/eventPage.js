@@ -1,7 +1,8 @@
 /*global chrome*/
-
+import BayesClassifier from 'bayes-classifier'
 var db
 
+console.log(new BayesClassifier())
 //to update the db schema, increment the second argument of
 //the second argument of the below by 1
 var request = window.indexedDB.open('wirehead', 4)

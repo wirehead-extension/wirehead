@@ -14,7 +14,7 @@
   },
   "options_page": "dashboard.html",
   "background": {
-    "scripts": ["eventPage.js"],
+    "scripts": ["eventPage.bundle.js"],
     "persistent": true
   },
   "permissions": [
