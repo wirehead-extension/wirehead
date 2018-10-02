@@ -37,6 +37,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.18.0",
+    "bayes-classifier": "0.0.5",
     "compression": "^1.7.3",
     "connect-session-sequelize": "^5.2.2",
     "express": "^4.16.3",
