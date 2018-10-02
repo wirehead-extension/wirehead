@@ -15,7 +15,7 @@
     "options_page": "dashboard.html",
     "background": {
       "scripts": ["eventPage.js"],
-      "persistent": false
+      "persistent": true
     },
     "permissions": [
       "history",
