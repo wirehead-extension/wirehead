@@ -1,6 +1,5 @@
 /*global chrome*/
 var db
-var wireheadHistory
 var request = window.indexedDB.open('wirehead', 3)
 
 request.onerror = function(err) {
@@ -9,11 +8,7 @@ request.onerror = function(err) {
 
 request.onsuccess = function(event) {
   db = event.target.result
-  if (db.objectStoreNames.history) {
-    wireheadHistory = db.objectStoreNames.history
-    //request.onupgradeneeded(event);
-  }
-  console.log(db)
+  console.log('db created')
 }
 
 request.onupgradeneeded = function(event) {
@@ -56,6 +51,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
   var current = timeInSecond(newDate)
   chrome.tabs.get(activeInfo.tabId, function(tab) {
+    console.log(tab)
     var transaction = db.transaction(['history'], 'readwrite')
     transaction.oncomplete = function(event) {
       console.log('woohoo')
@@ -64,7 +60,12 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
       console.error(event)
     }
     var objectStore = transaction.objectStore('history')
-    objectStore.add({url: tab.url, start: new Date()})
+    var addRequest = objectStore.add({url: tab.url, start: new Date()})
+    addRequest.onsuccess = function(event) {
+      console.log(event)
+      console.log(event.target)
+      console.log(event.target.result)
+    }
     var mainUrl = urlCutter(tab.url)
 
     chrome.storage.sync.get(datas => {
@@ -333,3 +334,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
 //   //   })
 //   // }
 // )
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  console.log('req', request, 'sender', sender)
+})

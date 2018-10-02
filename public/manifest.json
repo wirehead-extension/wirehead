@@ -30,5 +30,11 @@
   ],
   "incognito": "split",
   "minimum_chrome_version": "55",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["contentScript.js"]
+    }
+  ],
   "web_accessible_resources": ["dashboard.html"]
 }
