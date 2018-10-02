@@ -5,14 +5,15 @@
 We are building it
 
 ## Build instructions
-*Instructions to add as an extension to Chrome:
 
-*"npm run build-client" to create your ``*/bundle.js`` files in your public folder.
+Instructions to add as an extension to Chrome:
 
-*Point your Chrome browser to "chrome://extensions/"
+- "npm run build-client" to create your `*/bundle.js` files in your public folder.
 
-*Make sure "Developer mode" is on in the upper right corner.
+- Point your Chrome browser to "chrome://extensions/"
 
-*Click "Load unpacked" in the upper left corner.
+- Make sure "Developer mode" is on in the upper right corner.
 
-*Navigate to our project and select the "public" folder.
+- Click "Load unpacked" in the upper left corner.
+
+- Navigate to our project and select the "public" folder.
