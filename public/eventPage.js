@@ -1,16 +1,46 @@
+/*global chrome*/
+var db
+var wireheadHistory
+var request = window.indexedDB.open('wirehead', 3)
+
+request.onerror = function(err) {
+  console.error(err)
+}
+
+request.onsuccess = function(event) {
+  db = event.target.result
+  if (db.objectStoreNames.history) {
+    wireheadHistory = db.objectStoreNames.history
+    //request.onupgradeneeded(event);
+  }
+  console.log(db)
+}
+
+request.onupgradeneeded = function(event) {
+  db = event.target.result
+  wireheadHistory = db.createObjectStore('history', {autoIncrement: true})
+  //history.createIndex("url", "url", { unique: false });
+  //history.createIndex("start", "start", { unique: false });
+  /* history.transaction.oncomplete = function(event) {
+    var historyWrite = db
+      .transaction("history", "readwrite")
+      .objectStore("history");
+    historyWrite.add({ url: "a", start: 1 }); 
+  };*/
+}
+
 chrome.storage.sync.set({
-  timeHistory:[],
+  timeHistory: [],
   timeEnded: [],
-  totalTime: [],
+  totalTime: []
 })
 
-chrome.windows.onFocusChanged.addListener(function(windowInfo){
+chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   // if(windowInfo < 0) {
   //   break
   // }
 
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-
     currentTabRecoder(tabs)
   })
 })
@@ -19,50 +49,59 @@ chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
   currentTabRecoder(tabs)
 })
 
-chrome.tabs.onActivated.addListener(
-  function(activeInfo) {
-    var newDate = new Date();
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+  var newDate = new Date()
 
-    var dateString = dateConverter(newDate)
+  var dateString = dateConverter(newDate)
 
-    var current = timeInSecond(newDate)
-    chrome.tabs.get(activeInfo.tabId, function(tab) {
-      var mainUrl = urlCutter(tab.url)
+  var current = timeInSecond(newDate)
+  chrome.tabs.get(activeInfo.tabId, function(tab) {
+    var transaction = db.transaction(['history'], 'readwrite')
+    transaction.oncomplete = function(event) {
+      console.log('woohoo')
+    }
+    transaction.onerror = function(event) {
+      console.error(event)
+    }
+    var objectStore = transaction.objectStore('history')
+    objectStore.add({url: tab.url, start: new Date()})
+    var mainUrl = urlCutter(tab.url)
 
-      chrome.storage.sync.get(datas=> {
-        chrome.storage.sync.set({
-          currentTabId: activeInfo.tabId,
-          currentTabTime: current,
-          currentTabOpen: dateString,
-          currentTabUrl: mainUrl,
-          currentTabTitle: tab.title,
-          timeHistory: [
-            ...datas.timeHistory, {
-              tabId: activeInfo.tabId,
-              title: tab.title,
-              url: mainUrl,
-              time: dateString,
-              timeCal: current,
-            }],
-            // .sort((a,b) => {
-            //   return a.timeCal < b.timeCal
-            // }),
-          timeEnded: [...datas.timeEnded],
-          totalTime: [...datas.totalTime]
-          });
-        })
+    chrome.storage.sync.get(datas => {
+      chrome.storage.sync.set({
+        currentTabId: activeInfo.tabId,
+        currentTabTime: current,
+        currentTabOpen: dateString,
+        currentTabUrl: mainUrl,
+        currentTabTitle: tab.title,
+        timeHistory: [
+          ...datas.timeHistory,
+          {
+            tabId: activeInfo.tabId,
+            title: tab.title,
+            url: mainUrl,
+            time: dateString,
+            timeCal: current
+          }
+        ],
+        // .sort((a,b) => {
+        //   return a.timeCal < b.timeCal
+        // }),
+        timeEnded: [...datas.timeEnded],
+        totalTime: [...datas.totalTime]
       })
-  timerEnding(current);
-  }
-)
+    })
+  })
+  timerEnding(current)
+})
 
 function timerEnding(initialTab) {
-  var newDate = new Date();
+  var newDate = new Date()
   var current = timeInSecond(newDate)
 
   var dateString = dateConverter(newDate)
 
-  chrome.storage.sync.get(datas=>{
+  chrome.storage.sync.get(datas => {
     // chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     //   // alert(tabs[0].id)
     //   alert(current)
@@ -82,14 +121,12 @@ function timerEnding(initialTab) {
     //   timeAddUp(newValue)
     // })
 
-    chrome.tabs.query({active: false}, tabs=>{
-      tabs.forEach(tab=>{
-
-        if(tab.id === datas.currentTabId) {
-
+    chrome.tabs.query({active: false}, tabs => {
+      tabs.forEach(tab => {
+        if (tab.id === datas.currentTabId) {
           var timeInfo
           datas.timeHistory.forEach(data => {
-            if(data.tabId === tab.id) {
+            if (data.tabId === tab.id) {
               timeInfo = data.timeCal
             }
           })
@@ -101,14 +138,14 @@ function timerEnding(initialTab) {
             title: tab.title,
             url: mainUrl,
             time: dateString,
-            timeCal: (current-(timeInfo || initialTab))
+            timeCal: current - (timeInfo || initialTab)
           }
           chrome.storage.sync.set({
             ...datas,
             timeEnded: [...datas.timeEnded, newValue],
             totalTime: [...datas.totalTime]
           })
-          timeAddUp(newValue);
+          timeAddUp(newValue)
         }
       })
     })
@@ -116,23 +153,25 @@ function timerEnding(initialTab) {
 }
 
 function timeAddUp(addTime) {
-  chrome.storage.sync.get(datas=>{
-    var calculatedTime = {url: addTime.url,
-      totalTimeConsume: addTime.timeCal}
-    datas.totalTime.forEach(data=>{
+  chrome.storage.sync.get(datas => {
+    var calculatedTime = {
+      url: addTime.url,
+      totalTimeConsume: addTime.timeCal
+    }
+    datas.totalTime.forEach(data => {
       if (data.url === addTime.url) {
         calculatedTime = {
           url: addTime.url,
-          totalTimeConsume: (data.totalTimeConsume + addTime.timeCal)
+          totalTimeConsume: data.totalTimeConsume + addTime.timeCal
         }
       }
     })
     var addedTime = datas.totalTime.filter(data => {
-      return (data.url !== addTime.url && data.url)
+      return data.url !== addTime.url && data.url
     })
     chrome.storage.sync.set({
       timeEnded: [...datas.timeEnded],
-      totalTime: [...addedTime, calculatedTime].sort((a,b)=>{
+      totalTime: [...addedTime, calculatedTime].sort((a, b) => {
         return a.totalTimeConsume > b.totalTimeConsume
       })
     })
@@ -140,40 +179,45 @@ function timeAddUp(addTime) {
 }
 
 function urlCutter(url) {
-  var mainUrl = ""
-    if(url.indexOf(".com") > -1) {
-      mainUrl = url.slice(0, url.indexOf(".com") + 4)
-    } else if(url.indexOf(".org") > -1) {
-      mainUrl = url.slice(0, url.indexOf(".org") + 4)
-    } else if(url.indexOf(".io") > -1) {
-      mainUrl = url.slice(0, url.indexOf(".io") + 3)
-    } else if(url.indexOf(".net") > -1) {
-      mainUrl = url.slice(0, url.indexOf(".net") + 4)
-    } else {
-      mainUrl = url
-    }
+  var mainUrl = ''
+  if (url.indexOf('.com') > -1) {
+    mainUrl = url.slice(0, url.indexOf('.com') + 4)
+  } else if (url.indexOf('.org') > -1) {
+    mainUrl = url.slice(0, url.indexOf('.org') + 4)
+  } else if (url.indexOf('.io') > -1) {
+    mainUrl = url.slice(0, url.indexOf('.io') + 3)
+  } else if (url.indexOf('.net') > -1) {
+    mainUrl = url.slice(0, url.indexOf('.net') + 4)
+  } else {
+    mainUrl = url
+  }
   return mainUrl
 }
 
 function dateConverter(newDate) {
-  var dateString = "Today's date is: ";
+  var dateString = "Today's date is: "
 
-  dateString += (newDate.getMonth() + 1) + "/";
-  dateString += newDate.getDate() + "/";
-  dateString += newDate.getFullYear() + " ";
-  dateString += newDate.getHours() + ":";
-  dateString += newDate.getMinutes() + ":";
-  dateString += newDate.getSeconds();
+  dateString += newDate.getMonth() + 1 + '/'
+  dateString += newDate.getDate() + '/'
+  dateString += newDate.getFullYear() + ' '
+  dateString += newDate.getHours() + ':'
+  dateString += newDate.getMinutes() + ':'
+  dateString += newDate.getSeconds()
 
   return dateString
 }
 
 function timeInSecond(newDate) {
-  return newDate.getSeconds() + newDate.getMinutes() * 60 + newDate.getHours() * 3600 + newDate.getDate() * 86400
+  return (
+    newDate.getSeconds() +
+    newDate.getMinutes() * 60 +
+    newDate.getHours() * 3600 +
+    newDate.getDate() * 86400
+  )
 }
 
 function currentTabRecoder(tabs) {
-  var newDate = new Date();
+  var newDate = new Date()
 
   chrome.storage.sync.get(datas => {
     chrome.storage.sync.set({
@@ -182,76 +226,80 @@ function currentTabRecoder(tabs) {
       currentTabOpen: dateConverter(newDate),
       currentTabUrl: urlCutter(tabs[0].url),
       currentTabTitle: tabs[0].title,
-      timeHistory: [...datas.timeHistory,{
+      timeHistory: [
+        ...datas.timeHistory,
+        {
           tabId: tabs[0].id,
           title: tabs[0].title,
           url: urlCutter(tabs[0].url),
           time: dateConverter(newDate),
           timeCal: timeInSecond(newDate)
-        }],
-        // .sort((a,b) => {
-        //   return a.timeCal < b.timeCal
-        // }),
+        }
+      ],
+      // .sort((a,b) => {
+      //   return a.timeCal < b.timeCal
+      // }),
       timeEnded: [...datas.timeEnded],
-      totalTime: [...datas.totalTime,{
-        url: urlCutter(tabs[0].url),
-        totalTimeConsume: 0,
-      }]
+      totalTime: [
+        ...datas.totalTime,
+        {
+          url: urlCutter(tabs[0].url),
+          totalTimeConsume: 0
+        }
+      ]
       // totalTime: [...datas.totalTime]
-    });
+    })
   })
   timerEnding(timeInSecond(newDate))
 }
 
-chrome.tabs.onUpdated.addListener(
-  function(tabId, changeInfo) {
-    // alert(urlCutter(changeInfo.url))
-    // var mainUrl = ""
-    // if(changeInfo.url.indexOf(".com") > -1) {
-    //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".com") + 4)
-    // } else if(changeInfo.url.indexOf(".org") > -1) {
-    //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".org") + 4)
-    // } else if(changeInfo.url.indexOf(".io") > -1) {
-    //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".io") + 3)
-    // } else if(changeInfo.url.indexOf(".net") > -1) {
-    //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".net") + 4)
-    // } else {
-    //   mainUrl = changeInfo.url
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
+  // alert(urlCutter(changeInfo.url))
+  // var mainUrl = ""
+  // if(changeInfo.url.indexOf(".com") > -1) {
+  //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".com") + 4)
+  // } else if(changeInfo.url.indexOf(".org") > -1) {
+  //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".org") + 4)
+  // } else if(changeInfo.url.indexOf(".io") > -1) {
+  //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".io") + 3)
+  // } else if(changeInfo.url.indexOf(".net") > -1) {
+  //   mainUrl = changeInfo.url.slice(0, changeInfo.url.indexOf(".net") + 4)
+  // } else {
+  //   mainUrl = changeInfo.url
+  // }
+  chrome.storage.sync.get(datas => {
+    // if(datas.currentTabUrl !== mainUrl) {
+    // alert(datas.currentTabUrl)
     // }
-    chrome.storage.sync.get(datas=>{
-      // if(datas.currentTabUrl !== mainUrl) {
-        // alert(datas.currentTabUrl)
-      // }
-    })
+  })
 })
 
-chrome.tabs.onCreated.addListener(
-  function(tab) {
-    var newDate = new Date();
-    var current = timeInSecond(newDate)
-    var dateString = dateConverter(newDate)
-    var mainUrl = urlCutter(tab.url)
+chrome.tabs.onCreated.addListener(function(tab) {
+  var newDate = new Date()
+  var current = timeInSecond(newDate)
+  var dateString = dateConverter(newDate)
+  var mainUrl = urlCutter(tab.url)
 
-    chrome.storage.sync.get(datas=> {
-
-      chrome.storage.sync.set({
-        currentTabId: tab.id,
-        currentTabTime: current,
-        currentTabUrl: mainUrl,
-        timeHistory: [
-          ...datas.timeHistory, {
-            tabId: tab.id,
-            title: tab.title,
-            url: mainUrl,
-            time: dateString,
-            timeCal: current,
-          }],
-        timeEnded: [...datas.timeEnded],
-        totalTime: [...datas.totalTime]
-        });
+  chrome.storage.sync.get(datas => {
+    chrome.storage.sync.set({
+      currentTabId: tab.id,
+      currentTabTime: current,
+      currentTabUrl: mainUrl,
+      timeHistory: [
+        ...datas.timeHistory,
+        {
+          tabId: tab.id,
+          title: tab.title,
+          url: mainUrl,
+          time: dateString,
+          timeCal: current
+        }
+      ],
+      timeEnded: [...datas.timeEnded],
+      totalTime: [...datas.totalTime]
     })
-  }
-)
+  })
+})
 
 // chrome.tabs.onRemoved.addListener(
 //   function(removeInfo) {
@@ -285,4 +333,3 @@ chrome.tabs.onCreated.addListener(
 //   //   })
 //   // }
 // )
-
