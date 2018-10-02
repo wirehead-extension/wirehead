@@ -55,6 +55,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
   var dateString = dateConverter(newDate)
 
   var current = timeInSecond(newDate)
+  ///!!!!!
   chrome.tabs.get(activeInfo.tabId, function(tab) {
     var transaction = db.transaction(['history'], 'readwrite')
     transaction.oncomplete = function(event) {
@@ -349,3 +350,19 @@ chrome.tabs.onCreated.addListener(function(tab) {
 //   },
 //   ['blocking']
 // )
+
+//Test of naive bayes
+// const BayesClassifier = require('bayes-classifier')
+// var classifier = new BayesClassifier()
+
+// const workDocuments = ['work github remote api', 'vr cryptocurrency networking']
+// const playDocuments = [
+//   'video games fortnite Youtube meme',
+//   'facebook minecraft compilation'
+// ]
+// classifier.addDocuments(workDocuments, 'work')
+// classifier.addDocuments(playDocuments, 'play')
+// classifier.train()
+
+// console.log(classifier.classify('vr blockchain cryptocurrency github'))
+// console.log(classifier.getClassifications('facebook meme page'))

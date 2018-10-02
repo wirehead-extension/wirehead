@@ -4,7 +4,7 @@ module.exports = {
   mode: isDev ? 'development' : 'production',
   entry: {
     popup: ['@babel/polyfill', './client/popup.js'],
-    tinyPopup: ['@babel/polyfill', './client/tinyPopup.js'],
+    tinyPopup: ['@babel/polyfill', './client/tiny-popup.js'],
     dashboard: ['@babel/polyfill', './client/dashboard.js']
   },
   output: {
