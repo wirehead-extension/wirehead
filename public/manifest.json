@@ -1,32 +1,28 @@
 {
-    "manifest_version": 2,
+  "manifest_version": 2,
 
-    "name": "Wirehead",
-    "description": "This app helps you maintain your focus on the internet",
-    "version": "1.0",
+  "name": "Wirehead",
+  "description": "This app helps you maintain your focus on the internet",
+  "version": "1.0",
 
-    "browser_action": {
-      "default_popup": "popup.html"
-    },
-    "options_ui": {
-        "page": "dashboard.html",
-        "open_in_tab": true
-    },
-    "options_page": "dashboard.html",
-    "background": {
-      "scripts": ["eventPage.js"],
-      "persistent": true
-    },
-    "permissions": [
-      "history",
-      "storage",
-      "tabs"
-    ],
-    "content_scripts": [
-      {
-        "matches": ["http://*/*", "https://*/*"],
-        "js": ["popup.bundle.js", "dashboard.bundle.js"],
-        "run_at": "document_start"
-      }
-    ]
-  }
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "dashboard.html",
+    "open_in_tab": true
+  },
+  "options_page": "dashboard.html",
+  "background": {
+    "scripts": ["eventPage.js"],
+    "persistent": true
+  },
+  "permissions": ["history", "storage", "tabs"],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["popup.bundle.js", "dashboard.bundle.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
