@@ -43,6 +43,9 @@ chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
+  chrome.browserAction.setIcon(
+    Math.random() > 0.5 ? {path: './green.png'} : {path: './red.png'}
+  )
   var newDate = new Date()
 
   var dateString = dateConverter(newDate)
