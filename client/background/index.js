@@ -47,7 +47,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     db.history
       .put({url: tab.url, start: new Date()})
       .then(i => {
-        console.log('wrote' + i)
+        console.log('wrote ' + i)
       })
       .catch(err => {
         console.error(err)
