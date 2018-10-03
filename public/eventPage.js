@@ -1,6 +1,7 @@
 /*global chrome*/
 var db
 var wireheadHistory
+var wireheadModel
 var request = window.indexedDB.open('wirehead', 3)
 
 request.onerror = function(err) {
@@ -13,12 +14,17 @@ request.onsuccess = function(event) {
     wireheadHistory = db.objectStoreNames.history
     //request.onupgradeneeded(event);
   }
+  if (db.objectStoreNames.model) {
+    wireheadModel = db.objectStoreNames.model
+    //request.onupgradeneeded(event);
+  }
   console.log(db)
 }
 
 request.onupgradeneeded = function(event) {
   db = event.target.result
   wireheadHistory = db.createObjectStore('history', {autoIncrement: true})
+  wireheadModel = db.createObjectStore('model', {autoIncrement: true})
   //history.createIndex("url", "url", { unique: false });
   //history.createIndex("start", "start", { unique: false });
   /* history.transaction.oncomplete = function(event) {
