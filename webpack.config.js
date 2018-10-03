@@ -3,7 +3,8 @@ const isDev = process.env.NODE_ENV === 'development'
 module.exports = {
   mode: isDev ? 'development' : 'production',
   entry: {
-    popup: ['./client/popup.js'],
+    popup: ['@babel/polyfill', './client/popup.js'],
+    tinyPopup: ['@babel/polyfill', './client/tinyPopup.js'],
     dashboard: ['@babel/polyfill', './client/dashboard.js'],
     eventPage: ['@babel/polyfill', './client/background']
   },

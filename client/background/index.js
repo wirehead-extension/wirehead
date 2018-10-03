@@ -7,7 +7,8 @@ The structure of the background scripts is as follows:
 *bayesClassifier.js is for use by Kevin
 *don't hesitate to add new files as needed!
 */
-import classifer from './bayesClassifier'
+import classifier from './bayesClassifier'
+import {updateBayesModel, getBayesModel} from './bayesUtils'
 import {
   timerEnding,
   urlCutter,
