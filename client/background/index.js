@@ -98,6 +98,15 @@ chrome.tabs.onCreated.addListener(function(tab) {
   var mainUrl = urlCutter(tab.url)
 
   chrome.storage.sync.get(datas => {
+
+    var newValue = {
+      id: tab.id,
+      title: tab.title,
+      url: mainUrl,
+      time: dateString,
+      timeCal: current
+    }
+
     chrome.storage.sync.set({
       currentTabId: tab.id,
       currentTabTime: current,
@@ -117,12 +126,14 @@ chrome.tabs.onCreated.addListener(function(tab) {
       timeEnded: [...datas.timeEnded],
       totalTime: [...datas.totalTime]
     })
+    // timeAddUp(newValue)
   })
 })
 
 //An Event Listener to store data when URL has been changed
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
-  if (changeInfo.url) {
+
+  if(changeInfo.url || changeInfo.title) {
     var newDate = new Date()
     var current = timeInSecond(newDate)
     var dateString = dateConverter(newDate)
@@ -135,7 +146,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
       title = changeInfo.title
     }
 
-    chrome.storage.sync.get(datas => {
+  chrome.storage.sync.get(datas => {
       var timeInfo
       datas.timeHistory.forEach(data => {
         if (data.tabId === tabId) {
@@ -171,6 +182,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
         totalTime: [...datas.totalTime]
       })
       timeAddUp(newValue)
+
     })
   }
 })
