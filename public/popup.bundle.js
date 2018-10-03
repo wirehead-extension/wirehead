@@ -91,10 +91,7 @@
   !*** ./client/popup.js ***!
   \*************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
+/***/ (function(module, exports) {
 
 document.getElementById('popup');
 
