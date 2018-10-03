@@ -16,7 +16,7 @@ import {
   currentTabRecoder,
   activeTabRecoder,
   timeAddUp
-} from './eventPage'
+} from './utils'
 import db from './db'
 
 chrome.storage.sync.set({
