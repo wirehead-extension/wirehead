@@ -42,6 +42,9 @@ chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
+  chrome.browserAction.setIcon(
+    Math.random() > 0.5 ? {path: './green.png'} : {path: './red.png'}
+  )
   var newDate = new Date()
 
   var dateString = dateConverter(newDate)
@@ -98,6 +101,14 @@ chrome.tabs.onCreated.addListener(function(tab) {
   var mainUrl = urlCutter(tab.url)
 
   chrome.storage.sync.get(datas => {
+    var newValue = {
+      id: tab.id,
+      title: tab.title,
+      url: mainUrl,
+      time: dateString,
+      timeCal: current
+    }
+
     chrome.storage.sync.set({
       currentTabId: tab.id,
       currentTabTime: current,
@@ -117,12 +128,13 @@ chrome.tabs.onCreated.addListener(function(tab) {
       timeEnded: [...datas.timeEnded],
       totalTime: [...datas.totalTime]
     })
+    // timeAddUp(newValue)
   })
 })
 
 //An Event Listener to store data when URL has been changed
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
-  if (changeInfo.url) {
+  if (changeInfo.url || changeInfo.title) {
     var newDate = new Date()
     var current = timeInSecond(newDate)
     var dateString = dateConverter(newDate)

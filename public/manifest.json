@@ -4,6 +4,12 @@
   "name": "Wirehead",
   "description": "This app helps you maintain your focus on the internet",
   "version": "0.0.1",
+<<<<<<< HEAD
+=======
+  "icons": {
+    "16": "gray.png"
+  },
+>>>>>>> 6ca9fbb3167a5639d38551794470e7fa9cde7000
   "browser_action": {
     "default_popup": "popup.html"
   },
