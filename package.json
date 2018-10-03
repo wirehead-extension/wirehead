@@ -37,6 +37,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.18.0",
+    "bayes-classifier": "0.0.5",
     "compression": "^1.7.3",
     "connect-session-sequelize": "^5.2.2",
     "d3": "^5.7.0",
@@ -54,6 +55,7 @@
     "pg-hstore": "^2.3.2",
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
+    "react-chrome-redux": "^2.0.0-alpha.4",
     "react-dom": "^16.5.2",
     "react-redux": "^5.0.2",
     "react-router-dom": "^4.3.1",

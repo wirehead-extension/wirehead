@@ -3,9 +3,9 @@ const isDev = process.env.NODE_ENV === 'development'
 module.exports = {
   mode: isDev ? 'development' : 'production',
   entry: {
-    popup: './client/popup.js',
-    dashboard: './client/dashboard.js',
-    babel: '@babel/polyfill'
+    popup: ['./client/popup.js'],
+    dashboard: ['@babel/polyfill', './client/dashboard.js'],
+    eventPage: ['@babel/polyfill', './public/eventPage.js']
   },
   output: {
     path: __dirname,
