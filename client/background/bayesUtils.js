@@ -14,3 +14,19 @@ export function getBayesModel() {
     return model
   })
 }
+
+//CODE FOR TESTING
+// const workDocuments = [
+//   'coding github version history api',
+//   'vr fullstack blockchain'
+// ]
+// const playDocuments = [
+//   'video games fortnite Youtube meme',
+//   'facebook minecraft compilation'
+// ]
+// classifier.addDocuments(workDocuments, 'work')
+// classifier.addDocuments(playDocuments, 'play')
+// classifier.train()
+
+// updateBayesModel(JSON.stringify(classifier))
+// console.log('getBayesModel', getBayesModel())

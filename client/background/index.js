@@ -26,21 +26,6 @@ chrome.storage.sync.set({
   totalTime: []
 })
 
-const workDocuments = [
-  'coding github version history api',
-  'vr fullstack blockchain'
-]
-const playDocuments = [
-  'video games fortnite Youtube meme',
-  'facebook minecraft compilation'
-]
-classifier.addDocuments(workDocuments, 'work')
-classifier.addDocuments(playDocuments, 'play')
-classifier.train()
-
-updateBayesModel(JSON.stringify(classifier))
-console.log('getBayesModel', getBayesModel())
-
 //Store the data when a chrome window switched
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out
