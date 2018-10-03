@@ -1,4 +1,4 @@
-import db from './db'
+import db from '../db'
 
 export function updateBayesModel(bayesModel) {
   db.transaction('rw', db.bayesModel, function*() {
