@@ -1,13 +1,18 @@
 /*global chrome*/
+import BayesClassifier from 'bayes-classifier'
 var db
 var wireheadHistory
 var wireheadModel
-var request = window.indexedDB.open('wirehead', 3)
+
+console.log(new BayesClassifier())
+
+//to update the db schema, increment the second argument of
+//the second argument of the below by 1
+var request = window.indexedDB.open('wirehead', 5)
 
 request.onerror = function(err) {
   console.error(err)
 }
-
 request.onsuccess = function(event) {
   db = event.target.result
   if (db.objectStoreNames.history) {
@@ -18,23 +23,45 @@ request.onsuccess = function(event) {
     wireheadModel = db.objectStoreNames.model
     //request.onupgradeneeded(event);
   }
-  console.log(db)
+  console.log('db created')
 }
 
+//The below initializes our database with *only* history
+//To initialize with more data stores, edit the below &&
+//change the second argument to the window.indexedDB.open()
+//function above
 request.onupgradeneeded = function(event) {
   db = event.target.result
-  wireheadHistory = db.createObjectStore('history', {autoIncrement: true})
-  wireheadModel = db.createObjectStore('model', {autoIncrement: true})
-  //history.createIndex("url", "url", { unique: false });
-  //history.createIndex("start", "start", { unique: false });
-  /* history.transaction.oncomplete = function(event) {
-    var historyWrite = db
-      .transaction("history", "readwrite")
-      .objectStore("history");
-    historyWrite.add({ url: "a", start: 1 });
-  };*/
+
+  const modelStore = db.createObjectStore('model', {autoIncrement: true})
+  modelStore.createIndex('model', 'model', {unique: false})
+
+  const historyStore = db.createObjectStore('history', {autoIncrement: true})
+  historyStore.createIndex('url', 'url', {unique: false})
+  historyStore.createIndex('origin', 'origin', {unique: false})
+  historyStore.createIndex('start', 'start', {unique: false})
+  const summaryHistoryStore = db.createObjectStore('summaryHistory', {
+    keyPath: 'url'
+  })
+  summaryHistoryStore.createIndex('url', 'url', {unique: true})
 }
 
+console.log('db is...', db)
+///////<<<JUST GOING TO COPY THIS MORE OR LESS>>>
+var modelWriteTransaction = db.transaction('model', 'readwrite')
+modelWriteTransaction.oncomplete = function(event) {
+  console.log('woohoo', event)
+}
+modelWriteTransaction.onerror = function(event) {
+  console.error(event)
+}
+var modelStore = modelWriteTransaction.objectStore('model')
+var addRequestModel = modelStore.add({model: 'hello worold!'})
+addRequestModel.onsuccess = function(event) {
+  console.log('success')
+}
+
+//The meat of the logic
 chrome.storage.sync.set({
   timeHistory: [],
   timeEnded: [],
@@ -61,17 +88,23 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
   var dateString = dateConverter(newDate)
 
   var current = timeInSecond(newDate)
-  ///!!!!!
   chrome.tabs.get(activeInfo.tabId, function(tab) {
-    var transaction = db.transaction(['history'], 'readwrite')
-    transaction.oncomplete = function(event) {
+    //this code creates a transaction and uses it to write to the db
+    var historyWriteTransaction = db.transaction(['history'], 'readwrite')
+    historyWriteTransaction.oncomplete = function(event) {
       console.log('woohoo')
     }
-    transaction.onerror = function(event) {
+    historyWriteTransaction.onerror = function(event) {
       console.error(event)
     }
-    var objectStore = transaction.objectStore('history')
-    objectStore.add({url: tab.url, start: new Date()})
+    var historyStore = historyWriteTransaction.objectStore('history')
+    var addRequest = historyStore.add({url: tab.url, start: new Date()})
+    addRequest.onsuccess = function(event) {
+      //console.log(event)
+      console.log(event.target)
+      //console.log(event.target.result)
+    }
+
     var mainUrl = urlCutter(tab.url)
 
     chrome.storage.sync.get(datas => {
@@ -225,7 +258,7 @@ function timeInSecond(newDate) {
 
 function currentTabRecoder(tabs) {
   var newDate = new Date()
-
+  console.log(tabs[0])
   chrome.storage.sync.get(datas => {
     chrome.storage.sync.set({
       currentTabId: tabs[0].id,
@@ -341,6 +374,21 @@ chrome.tabs.onCreated.addListener(function(tab) {
 //   // }
 // )
 
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.action) {
+    if (request.action === 'follow-link') {
+      sendResponse({dbKey: 1, ultimateOriginKey: 1})
+      /* chrome.runtime.sendMessage(sender.id, {
+        action: 'sendDbLocation',
+        location: request.origin,
+        data: {dbKey: 1, ultimateOriginKey: 1}
+      }) */
+    }
+  }
+
+  console.log('req', request, 'sender', sender)
+})
+
 //Stuff here is to block websites
 // :^)
 //Just need to reference the list of sites we're going to block
@@ -372,3 +420,4 @@ chrome.tabs.onCreated.addListener(function(tab) {
 
 // console.log(classifier.classify('vr blockchain cryptocurrency github'))
 // console.log(classifier.getClassifications('facebook meme page'))
+//listens for all events emitted by page content scripts

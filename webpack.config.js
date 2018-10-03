@@ -5,7 +5,8 @@ module.exports = {
   entry: {
     popup: ['@babel/polyfill', './client/popup.js'],
     tinyPopup: ['@babel/polyfill', './client/tiny-popup.js'],
-    dashboard: ['@babel/polyfill', './client/dashboard.js']
+    dashboard: ['@babel/polyfill', './client/dashboard.js'],
+    eventPage: ['@babel/polyfill', './public/eventPage.js']
   },
   output: {
     path: __dirname,
