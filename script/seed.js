@@ -1,5 +1,4 @@
 //uncomment code in db.js to seed the data!
-
 const playSites = [
   'facebook.com',
   'instagram.com',
@@ -102,7 +101,7 @@ const generateSite = doing =>
 
 const history = []
 
-for (let i = 0; i < 380; i++) {
+for (let i = 0; i < 367; i++) {
   const dayStart = yearStart + fullDay * i
   let currentTime = dayStart + generateTimeOfflineLength()
   const workPlaySwitchProbability = Math.sin(Math.random()) * 0.2
