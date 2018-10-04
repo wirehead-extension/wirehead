@@ -10,182 +10,138 @@ The structure of the background scripts is as follows:
 import classifier from './bayesClassifier'
 import {updateBayesModel, getBayesModel} from './bayesUtils'
 import {
-  timerEnding,
-  urlCutter,
   dateConverter,
   timeInSecond,
-  currentTabRecoder,
   activeTabRecoder,
-  timeAddUp
 } from './utils'
 import db from '../db'
-
-chrome.storage.sync.set({
-  timeHistory: [],
-  timeEnded: [],
-  totalTime: []
-})
 
 //Store the data when a chrome window switched
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out
   //When it focused out, outcome of windowInfo = -1
-  if (windowInfo > 0) {
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      currentTabRecoder(tabs)
-    })
-  }
+  // if (windowInfo > 0) {
+  //   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+  //     // activeTabRecoder(tabs[0].id)
+  //     // console.log(tabs[0])
+  //     var url = new URL(tabs[0].url)
+
+  //     db.history.toArray().then(result=>{
+  //       var idx = result.length-1
+  //       return result[idx]
+  //     })
+  //     .then(data=>{
+  //       db.history.update(data.id, {origin: new Date(), timeTotal: ((new Date() - data.start)/1000)})
+  //     })
+
+  //     //Post start time data when open the tab
+  //     db.history
+  //     .put({url: url.hostname, start: new Date(), origin: undefined, timeTotal: 0, title: tabs[0].title})
+  //     .then(i => {
+  //       console.log('wrote ' + i)
+  //     })
+  //     .catch(err => {
+  //       console.error(err)
+  //     })
+  //   })
+  // }
 })
 
 //Initial store the data right after re-load
 chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-  currentTabRecoder(tabs)
+
 })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   chrome.browserAction.setIcon(
     Math.random() > 0.5 ? {path: './green.png'} : {path: './red.png'}
   )
-  var newDate = new Date()
 
-  var dateString = dateConverter(newDate)
-
-  var current = timeInSecond(newDate)
   //get detail information of activated tab
   chrome.tabs.get(activeInfo.tabId, function(tab) {
+    //this is a silly function that changes the badge text
+    chrome.browserAction.setBadgeText({
+      text: new URL(tab.url).hostname.slice(0, 3)
+    })
     //this code creates a transaction and uses it to write to the db
+    var url = new URL(tab.url)
+
+    //Update database when revisit the site
+    // db.history.orderBy('url').eachUniqueKey(key=>{
+    //   db.history.where({url: key}).toArray().then(result=>{
+    //     var idx = result.length-1
+    //     if(result[idx].url === url.hostname && !result[idx].origin) {
+    //       id = result[idx].id
+    //       timeGap = (newDate - result[idx].start)/1000
+    //     }
+    //   })
+    // })
+    // .then(()=>{
+    //   db.history.update(id, {origin: newDate, timeTotal: timeGap})
+    // })
+    // .catch(err => {
+    //   console.error(err)
+    // })
+
+    //Update time end when focus out of the tab
+    db.history.toArray().then(result=>{
+      var idx = result.length-1
+      return result[idx]
+    })
+    .then(data=>{
+      db.history.update(data.id, {timeEnd: new Date(), timeTotal: ((new Date() - data.timeStart)/1000)})
+    })
+
+    //Post start time data when open the tab
     db.history
-      .put({url: tab.url, start: new Date()})
-      .then(i => {
-        console.log('wrote ' + i)
-      })
-      .catch(err => {
-        console.error(err)
-      })
-
-    var mainUrl = urlCutter(tab.url)
-    //call stored data
-    chrome.storage.sync.get(datas => {
-      //store current tab details
-      chrome.storage.sync.set({
-        currentTabId: activeInfo.tabId,
-        currentTabTime: current,
-        currentTabOpen: dateString,
-        currentTabUrl: mainUrl,
-        currentTabTitle: tab.title,
-        timeHistory: [
-          ...datas.timeHistory,
-          {
-            tabId: activeInfo.tabId,
-            title: tab.title,
-            url: mainUrl,
-            time: dateString,
-            timeCal: current
-          }
-        ],
-        // .sort((a,b) => {
-        //   return a.timeCal < b.timeCal
-        // }),
-        timeEnded: [...datas.timeEnded],
-        totalTime: [...datas.totalTime]
-      })
+    .put({url: url.hostname, timeStart: new Date(), timeEnd: undefined, timeTotal: 0, label: undefined})
+    .then(i => {
+      console.log('wrote ' + i)
     })
-  })
-  timerEnding(current)
-})
-
-//An Event Listener store data when create a new Tab
-chrome.tabs.onCreated.addListener(function(tab) {
-  var newDate = new Date()
-  var current = timeInSecond(newDate)
-  var dateString = dateConverter(newDate)
-  var mainUrl = urlCutter(tab.url)
-
-  chrome.storage.sync.get(datas => {
-    var newValue = {
-      id: tab.id,
-      title: tab.title,
-      url: mainUrl,
-      time: dateString,
-      timeCal: current
-    }
-
-    chrome.storage.sync.set({
-      currentTabId: tab.id,
-      currentTabTime: current,
-      currentTabUrl: mainUrl,
-      currentTabOpen: dateString,
-      currentTabTitle: tab.title,
-      timeHistory: [
-        ...datas.timeHistory,
-        {
-          tabId: tab.id,
-          title: tab.title,
-          url: mainUrl,
-          time: dateString,
-          timeCal: current
-        }
-      ],
-      timeEnded: [...datas.timeEnded],
-      totalTime: [...datas.totalTime]
+    .catch(err => {
+      console.error(err)
     })
-    // timeAddUp(newValue)
   })
 })
 
 //An Event Listener to store data when URL has been changed
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
-  if (changeInfo.url || changeInfo.title) {
-    var newDate = new Date()
-    var current = timeInSecond(newDate)
-    var dateString = dateConverter(newDate)
-    var mainUrl
-    var title
-    if (changeInfo.url) {
-      mainUrl = urlCutter(changeInfo.url)
-    }
-    if (changeInfo.title) {
-      title = changeInfo.title
-    }
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+  if(tab.active && tab.status === 'complete') {
+    // var newDate = new Date();
+    var url = new URL(tab.url);
 
-    chrome.storage.sync.get(datas => {
-      var timeInfo
-      datas.timeHistory.forEach(data => {
-        if (data.tabId === tabId) {
-          timeInfo = data.timeCal
-        }
-      })
+    //Update time end when focus out of the tab
+    db.history.toArray().then(result=>{
+      var idx = result.length-1
+      return result[idx]
+    })
+    .then(data=>{
+      db.history.update(data.id, {timeEnd: new Date(), timeTotal: ((new Date() - data.timeStart)/1000)})
+    })
 
-      var newValue = {
-        id: tabId,
-        title: title,
-        url: mainUrl,
-        time: dateString,
-        timeCal: current - datas.currentTabTime
-      }
-
-      chrome.storage.sync.set({
-        currentTabId: tabId,
-        currentTabTime: current,
-        currentTabUrl: mainUrl,
-        currentTabOpen: dateString,
-        currentTabTitle: title,
-        timeHistory: [
-          ...datas.timeHistory,
-          {
-            tabId: tabId,
-            title: title,
-            url: mainUrl,
-            time: dateString,
-            timeCal: current - timeInfo
-          }
-        ],
-        timeEnded: [...datas.timeEnded, newValue],
-        totalTime: [...datas.totalTime]
-      })
-      timeAddUp(newValue)
+    //Post start time data when open the tab
+    db.history
+    .put({url: url.hostname, timeStart: new Date(), timeEnd: undefined, timeTotal: 0, label: undefined})
+    .then(i => {
+      console.log('wrote ' + i)
+    })
+    .catch(err => {
+      console.error(err)
     })
   }
+})
+
+//An Event Listener to store stop information when close the tab
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+  var newDate = new Date();
+
+  db.history.toArray().then(result=>{
+    var idx = result.length-1
+    return result[idx]
+  })
+  .then(data=>{
+    db.history.update(data.id, {timeEnd: newDate, timeTotal: ((newDate - data.timeStart)/1000)})
+  })
 })
 
 //listens for all events emitted by page content scripts
