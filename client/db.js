@@ -8,7 +8,8 @@ const db = new Dexie('wirehead')
 db.version(5).stores({
   history: '++id, url, timeStart, timeEnd, timeTotal, label',
   summaryHistory: 'url',
-  trainingData: '++id, document, label'
+  trainingData: '++id, document, label',
+  bayesModel: '++, model'
 })
 
 //db.history.bulkAdd(history)

@@ -223,6 +223,7 @@ function makeNotification() {
   )
   chrome.notifications.onButtonClicked.addListener(function() {
     console.log('click')
+    db.trainingData.put({document: '', label: ''})
   })
 }
 
