@@ -59,6 +59,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
   //get detail information of activated tab
   chrome.tabs.get(activeInfo.tabId, function(tab) {
+    //this is a silly function that changes the badge text
+    chrome.browserAction.setBadgeText({
+      text: new URL(tab.url).hostname.slice(0, 3)
+    })
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
 
