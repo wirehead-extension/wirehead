@@ -214,13 +214,16 @@ function makeNotification() {
   chrome.notifications.create(
     {
       type: 'basic',
-      title: 'Noti',
-      message:
-        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      buttons: [{title: 'work'}, {title: 'play'}]
+      title: 'Train the Wirehead AI',
+      iconUrl: 'gray.png',
+      message: '\n Classify this page as work or play --->',
+      buttons: [{title: 'This is work'}, {title: 'This is play'}]
     },
     function(id) {}
   )
+  chrome.notifications.onButtonClicked.addListener(function() {
+    console.log('click')
+  })
 }
 
 chrome.alarms.onAlarm.addListener(function(alarm) {
