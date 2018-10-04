@@ -1,4 +1,5 @@
 //uncomment code in db.js to seed the data!
+//get dates from the number below by calling new Date(milliseconds)
 const playSites = [
   'facebook.com',
   'instagram.com',
