@@ -26,6 +26,8 @@ chrome.storage.sync.set({
   totalTime: []
 })
 
+console.log('db', db)
+
 //Store the data when a chrome window switched
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out
@@ -202,4 +204,27 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   }
 
   //console.log('req', request, 'sender', sender)
+})
+
+console.log('popup please')
+
+chrome.alarms.create('alarm', {periodInMinutes: 0.1})
+
+chrome.alarms.onAlarm.addListener(function(alarm) {
+  console.log('wow')
+  chrome.notifications.create(
+    'Noti',
+    {
+      type: 'basic',
+      iconUrl: 'gray.png',
+      title: 'Noti',
+      message:
+        'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      priority: 1
+      // buttons: [{title: 'work'}, {title: 'play'}]
+    },
+    function(id) {
+      console.log('Last error:', chrome.runtime.lastError)
+    }
+  )
 })
