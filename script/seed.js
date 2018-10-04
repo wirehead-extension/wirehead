@@ -115,8 +115,8 @@ for (let i = 0; i < 367; i++) {
       const endTime = currentTime + generateTimeOnSiteLength()
       const totalTime = endTime - currentTime
       history.push({
-        timeStart: currentTime,
-        timeEnd: endTime,
+        timeStart: new Date(currentTime),
+        timeEnd: new Date(endTime),
         timeTotal: totalTime,
         url: site,
         label: whatDoing
