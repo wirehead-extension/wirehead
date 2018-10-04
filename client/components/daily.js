@@ -17,9 +17,86 @@ class Daily extends React.Component {
     componentDidMount() {
     }
 
+    componentWillUnmount() {
+        this.removeDashboard('svg')
+        this.removeDashboard('table')
+    }
+
+    removeDashboard(className){
+        d3.selectAll(className).remove()
+    }
+
+
+
     createDashboard(id, data){
+
+            var topFiveTotal = [];
+            var topFivePlay = [];
+            var topFiveWork = [];
+            var totalWork = 0;
+            var totalPlay = 0;
+
+            const findTopFiveTotal = (dataSet) => {
+                let sortedArr = dataSet.sort(function(a, b){return b.timeTotal - a.timeTotal})
+                return sortedArr.slice(0,5)
+            }
+            const findTopFivePlay = (dataSet) => {
+                let playArr = dataSet.filter(e => e.label === 'play')
+                return playArr.sort(function(a, b){return b.timeTotal - a.timeTotal}).slice(0,5)
+            }
+            const findTopFiveWork = (dataSet) => {
+                let playArr = dataSet.filter(e => e.label === 'work')
+                return playArr.sort(function(a, b){return b.timeTotal - a.timeTotal}).slice(0,5)
+            }
+            const findTotalWork = (dataSet) => {
+                let total = 0;
+                for (let i = 0; i < dataSet.length; i++){
+                    if(dataSet[i].label === 'play'){
+                        total += dataSet[i].timeTotal
+                    }
+                }
+                return total
+            }
+            const findTotalPlay = (dataSet) => {
+                let total = 0;
+                for (let i = 0; i < dataSet.length; i++){
+                    if(dataSet[i].label === 'work'){
+                        total += dataSet[i].timeTotal
+                    }
+                }
+                return total
+            }
+
+            topFiveTotal = findTopFiveTotal(this.props.data)
+            topFivePlay = findTopFivePlay(this.props.data)
+            topFiveWork = findTopFiveWork(this.props.data)
+            totalWork = findTotalWork(this.props.data)
+            totalPlay = findTotalPlay(this.props.data)
+
+            console.log('this is topFiveTotal', topFiveTotal);
+            console.log('this is topFiveWork', topFiveWork);
+            console.log('this is topFivePlay', topFivePlay);
+            console.log('this is totalWork', totalWork);
+            console.log('this is totalPlay', totalPlay);
+
             var barColor = 'steelblue';
             function segColor(c){ return {work:"#807dba", play:"#e08214"}[c]; }
+
+            // calculate total frequency by segment for all state.
+            var tF = ['play','work'].map(function(d){ 
+                return {type:d, time: d3.sum(data.map(function(t){ 
+                    if (t.label === d){
+                    return t.timeTotal;
+                }}))}; 
+            });    
+            console.log('this is tf', tF)
+            
+            // calculate total frequency by state for all segment.
+            var sF = topFiveTotal.map(function(d){return [d.urlOrigin,d.timeTotal,d.label];});
+            console.log('this is sf for histomogram', sF)
+            var hG = histoGram(sF), // create the histogram.
+                pC = pieChart(tF), // create the pie-chart.
+                leg= legend(tF);  // create the legend.
             
 
             // function to handle histogram.
@@ -27,22 +104,23 @@ class Daily extends React.Component {
                 console.log('this is fd', fD)
                 var hG={},
                     hGDim = {t: 60, r: 0, b: 30, l: 0};
-                hGDim.w = 500 - hGDim.l - hGDim.r;
+                hGDim.w = (500 - hGDim.l - hGDim.r) / 1.5;
                 hGDim.h = 300 - hGDim.t - hGDim.b;
                     
                 //create svg for histogram.
                 var hGsvg = d3.select(id).append("svg")
+                    .attr("class", "chart")
                     .attr("width", hGDim.w + hGDim.l + hGDim.r)
                     .attr("height", hGDim.h + hGDim.t + hGDim.b).append("g")
                     .attr("transform", "translate(" + hGDim.l + "," + hGDim.t + ")");
         
                 // create function for x-axis mapping.
-                var x = d3.scaleBand([0, hGDim.w], 0.2)
-                        .range([0, hGDim.w])
+                var x = d3.scaleBand([0, hGDim.w/1.8], 0.1)
+                        .range([0, hGDim.w/1.5])
                         .domain(fD.map(function(d) { return d[0]; }));
         
                 // Add x-axis to the histogram svg.
-                hGsvg.append("g").attr("class", "x axis")
+                hGsvg.append("g").attr("class", "x-axis")
                     .attr("transform", "translate(0," + hGDim.h + ")")
                     .call(d3.axisBottom(x));
         
@@ -59,7 +137,7 @@ class Daily extends React.Component {
                 bars.append("rect")
                     .attr("x", function(d) { return x(d[0]); })
                     .attr("y", function(d) { return y(d[1]); })
-                    .attr("width", x.bandwidth())
+                    .attr("width", x.bandwidth()/1.5)
                     .attr("height", function(d) { return hGDim.h - y(d[1]); })
                     .attr('fill',barColor)
                     
@@ -71,6 +149,7 @@ class Daily extends React.Component {
                 
                 // create function to update the bars. This will be used by pie-chart.
                 hG.update = function(nD, color){
+                    console.log('this is the new data for histomogram', nD)
                     // update the domain of the y-axis map to reflect change in frequencies.
                     y.domain([0, d3.max(nD, function(d) { return d[1]; })]);
                     
@@ -86,7 +165,19 @@ class Daily extends React.Component {
                     // transition the frequency labels location and change value.
                     bars.select("text").transition().duration(500)
                         .text(function(d){ return d3.format(",")(d[1])})
-                        .attr("y", function(d) {return y(d[1])-5; });            
+                        .attr("y", function(d) {return y(d[1])-5; });
+                    
+                    hGsvg.selectAll(".x-axis").remove()
+                    // change the axis tick marks to match new data
+                    x = d3.scaleBand([0, hGDim.w], 0.2)
+                        .range([0, hGDim.w])
+                        .domain(nD.map(function(d) { return d[0]; }));
+
+
+
+                        hGsvg.append("g").attr("class", "x-axis")
+                        .attr("transform", "translate(0," + hGDim.h + ")")
+                        .call(d3.axisBottom(x));
                 }        
                 return hG;
             }
@@ -99,6 +190,7 @@ class Daily extends React.Component {
                         
                 // create svg for pie chart.
                 var piesvg = d3.select(id).append("svg")
+                    .attr("class", "chart")
                     .attr("width", pieDim.w).attr("height", pieDim.h).append("g")
                     .attr("transform", "translate("+pieDim.w/2+","+pieDim.h/2+")");
                 
@@ -106,7 +198,7 @@ class Daily extends React.Component {
                 var arc = d3.arc().outerRadius(pieDim.r - 10).innerRadius(0);
         
                 // create a function to compute the pie slice angles.
-                var pie = d3.pie().sort(null).value(function(d) { return d.timeTotal; });
+                var pie = d3.pie().sort(null).value(function(d) { return d.time; });
         
                 // Draw the pie slices.
                 piesvg.selectAll("path").data(pie(pD)).enter().append("path").attr("d", arc)
@@ -115,21 +207,33 @@ class Daily extends React.Component {
                     .on("mouseover",mouseover).on("mouseout",mouseout);
         
                 // create function to update pie-chart. This will be used by histogram.
-                pC.update = function(nD){
-                    piesvg.selectAll("path").data(pie(nD)).transition().duration(500)
-                        .attrTween("d", arcTween);
-                }        
+                // pC.update = function(nD){
+                //     piesvg.selectAll("path").data(pie(nD)).transition().duration(500)
+                //         .attrTween("d", arcTween);
+                // }        
+
                 // Utility function to be called on mouseover a pie slice.
                 function mouseover(d){
+                    console.log('this is the input for mouseover, d: ', d)
+                    if(d.data.type === 'work'){
+                        hG.update(topFiveWork.map(function(t){
+                            return [t.urlOrigin,t.timeTotal,t.label];}), segColor(d.data.type))
+                    } else if (d.data.type === 'play'){
+                        hG.update(topFivePlay.map(function(t){
+                            return [t.urlOrigin,t.timeTotal,t.label];}), segColor(d.data.type))
+                    }
                     // call the update function of histogram with new data.
-                    hG.update(data.map(function(v){ 
-                        return [v.State,v.freq[d.data.type]];}),segColor(d.data.type));
+                    // hG.update(data.map(function(v){ 
+                    //     return [v.label,v.time[d.data.type]];}),segColor(d.data.type));
                 }
+
+                var sF = topFiveTotal.map(function(d){return [d.urlOrigin,d.timeTotal,d.label];});
+
                 //Utility function to be called on mouseout a pie slice.
-                function mouseout(d){
+                function mouseout(){
                     // call the update function of histogram with all data.
-                    hG.update(data.map(function(v){
-                        return [v.State,v.total];}), barColor);
+                    hG.update(topFiveTotal.map(function(t){
+                        return [t.urlOrigin,t.timeTotal,t.label];}), barColor);
                 }
                 // Animating the pie-slice requiring a custom function which specifies
                 // how the intermediate paths should be drawn.
@@ -147,7 +251,7 @@ class Daily extends React.Component {
                 var leg = {};
                     
                 // create table for legend.
-                var legend = d3.select(id).append("table").attr('class','legend');
+                var legend = d3.select(id).append("table").attr('class','legend')
                 
                 // create one row per segment.
                 var tr = legend.append("tbody").selectAll("tr").data(lD).enter().append("tr");
@@ -159,10 +263,10 @@ class Daily extends React.Component {
                     
                 // create the second column for each segment.
                 tr.append("td").text(function(d){ return d.type;});
-        
+
                 // create the third column for each segment.
                 tr.append("td").attr("class",'legendFreq')
-                    .text(function(d){ return d3.format(",")(d.timeTotal);});
+                    .text(function(d){ return d3.format(",")(d.time) + ' seconds';});
         
                 // create the fourth column for each segment.
                 tr.append("td").attr("class",'legendPerc')
@@ -181,24 +285,13 @@ class Daily extends React.Component {
                 }
                 
                 function getLegend(d,aD){ // Utility function to compute percentage.
-                    return d3.format("%")(d.freq/d3.sum(aD.map(function(v){ return v.freq; })));
+                    return d3.format("%")(d.time/d3.sum(aD.map(function(v){ return v.time; }))).slice(0,5) + '%';
                 }
         
                 return leg;
             }
             
-            // calculate total frequency by segment for all state.
-            var tF = ['play','work'].map(function(d){ 
-                return {type:d, time: d3.sum(data.map(function(t){ return t.timeTotal;}))}; 
-            });    
-            console.log('this is tf', tF)
-            
-            // calculate total frequency by state for all segment.
-            var sF = data.map(function(d){return [d.urlOrigin,d.timeTotal];});
-        
-            var hG = histoGram(sF), // create the histogram.
-                pC = pieChart(tF), // create the pie-chart.
-                leg= legend(tF);  // create the legend.
+
         
     }
 

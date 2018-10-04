@@ -29,6 +29,9 @@ body{
   width:1060px;
   margin:50px auto;
 }
+#dashboard{
+  width: 1060px
+}
 path {  stroke: #fff; }
 path:hover {  opacity:0.9; }
 rect:hover {  fill:blue; }
