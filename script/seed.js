@@ -1,3 +1,5 @@
+//uncomment code in db.js to seed the data!
+
 const playSites = [
   'facebook.com',
   'instagram.com',
@@ -68,7 +70,7 @@ const generateTimeOfflineLength = () =>
   Math.sin(Math.random() * 1.1752011) * 60 * 60 * 6 * 1000
 
 const generateTimeOnSiteLength = () =>
-  Math.sin(Math.sin(Math.random())) * 1.1752011 * 60 * 60 * 1000
+  Math.sin(Math.sin(Math.random() * 1.1752011)) * 15 * 60 * 1000
 
 const yearStart = new Date(2017, 9, 1).valueOf()
 const fullDay = 60 * 60 * 24 * 1000
@@ -125,4 +127,4 @@ for (let i = 0; i < 380; i++) {
   }
 }
 
-console.log(history)
+export default history
