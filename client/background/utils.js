@@ -54,3 +54,19 @@ export function timeCalculator(time) {
   }
   return timeUsage
 }
+
+//Stuff here is to block websites
+// :^)
+//Just need to reference the list of sites we're going to block
+
+// chrome.webRequest.onBeforeRequest.addListener(
+//   function(details) {
+//     return {
+//       cancel: blockedSites.some(site => details.url.indexOf(site.name) !== -1)
+//     }
+//   },
+//   {
+//     urls: ['<all_urls>']
+//   },
+//   ['blocking']
+// )

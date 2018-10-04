@@ -1,0 +1,1 @@
+document.getElementById('tiny-popup')

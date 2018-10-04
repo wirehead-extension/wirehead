@@ -7,7 +7,8 @@ The structure of the background scripts is as follows:
 *bayesClassifier.js is for use by Kevin
 *don't hesitate to add new files as needed!
 */
-import classifer from './bayesClassifier'
+import classifier from './bayesClassifier'
+import {updateBayesModel, getBayesModel} from './bayesUtils'
 import {
   dateConverter,
   timeInSecond,
@@ -52,7 +53,9 @@ chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-  // var newDate = new Date()
+  chrome.browserAction.setIcon(
+    Math.random() > 0.5 ? {path: './green.png'} : {path: './red.png'}
+  )
 
   //get detail information of activated tab
   chrome.tabs.get(activeInfo.tabId, function(tab) {

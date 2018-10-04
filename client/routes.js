@@ -12,7 +12,8 @@ class Routes extends Component {
 
     return (
       <Switch>
-        <Route exact path="/" component={Visualizations} />
+        <Route exact path="/" component={Visualizations}  />
+        <Route path="/weekly" component={Visualizations} />
         <Route path="/siteconfig" component={SiteConfig} />
         <Route path="/appconfig" component={AppConfig} />
       </Switch>
