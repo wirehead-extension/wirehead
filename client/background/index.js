@@ -150,20 +150,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 //NOTFICATION STUFF IS BELOW
 
 //User will be annoyed with notifications way too often for demo purposes
-chrome.alarms.create('alarm', {periodInMinutes: 0.1})
+// chrome.alarms.create('alarm', {periodInMinutes: 0.1})
 
-chrome.alarms.onAlarm.addListener(function(alarm) {
-  initNotification()
-})
+// chrome.alarms.onAlarm.addListener(function(alarm) {
+//   initNotification()
+// })
 //I needed to break notification-making into two functions because querying tabs is asynchronus
-function initNotification() {
-  //If there's an active page, get the page title and init a notification
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs) {
-      makeNotification(tabs[0].title)
-    }
-  })
-}
+// function initNotification() {
+//   //If there's an active page, get the page title and init a notification
+//   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+//     if (tabs) {
+//       makeNotification(tabs[0].title)
+//     }
+//   })
+// }
 function makeNotification(tabName) {
   chrome.notifications.create({
     type: 'basic',
