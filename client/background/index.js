@@ -18,7 +18,7 @@ import {
   activeTabRecoder,
   timeAddUp
 } from './utils'
-import db from './db'
+import db from '../db'
 
 chrome.storage.sync.set({
   timeHistory: [],
