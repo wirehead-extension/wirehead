@@ -70,7 +70,7 @@ const generateTimeOfflineLength = () =>
   Math.sin(Math.random() * 1.1752011) * 60 * 60 * 6 * 1000
 
 const generateTimeOnSiteLength = () =>
-  Math.sin(Math.sin(Math.random() * 1.1752011)) * 15 * 60 * 1000
+  Math.sin(Math.sin(Math.random() * 1.1752011)) * 15 * 60 * 1000 + 500
 
 const yearStart = new Date(2017, 9, 1).valueOf()
 const fullDay = 60 * 60 * 24 * 1000
