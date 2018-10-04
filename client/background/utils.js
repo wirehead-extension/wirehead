@@ -14,35 +14,8 @@ export function dateConverter(newDate) {
   return dateString
 }
 
-export function timeInSecond(newDate) {
-  return (
-    newDate.getSeconds() +
-    newDate.getMinutes() * 60 +
-    newDate.getHours() * 3600 +
-    newDate.getDate() * 86400
-  )
-}
-
-//Function for store the data when switch into another window
-export function activeTabRecoder(tabId) {
-  var newDate = new Date()
-  var dateString = dateConverter(newDate)
-
-  var current = timeInSecond(newDate)
-  chrome.tabs.get(tabId, function(tab) {
-    var url = new URL(tab.url)
-
-    chrome.storage.sync.set({
-      currentTabId: tab.id,
-      currentTabTime: current,
-      currentTabOpen: dateString,
-      currentTabUrl: url.hostname,
-      currentTabTitle: tab.title,
-    })
-  })
-}
-
-export function timeCalculator(time) {
+export function timeCalculator(times) {
+  var time = times/1000
   var timeUsage
   if (time < 60) {
     timeUsage = Math.floor(time) + ' sec'

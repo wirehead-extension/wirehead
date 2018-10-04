@@ -12,45 +12,48 @@ import {updateBayesModel, getBayesModel} from './bayesUtils'
 import {
   dateConverter,
   timeInSecond,
-  activeTabRecoder,
 } from './utils'
 import db from '../db'
 
+var currentWindow
+
 //Store the data when a chrome window switched
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
-  //Prevent error when all of the windows are focused out
-  //When it focused out, outcome of windowInfo = -1
-  // if (windowInfo > 0) {
-  //   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-  //     // activeTabRecoder(tabs[0].id)
-  //     // console.log(tabs[0])
-  //     var url = new URL(tabs[0].url)
+  //Prevent error when all of the windows are focused out which is -1
+  //It runs only currentWindow ID has been changed
+  if (windowInfo > 0 && windowInfo !== currentWindow) {
+    currentWindow = windowInfo
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if(tabs[0]) {
+    var url = new URL(tabs[0].url)
 
-  //     db.history.toArray().then(result=>{
-  //       var idx = result.length-1
-  //       return result[idx]
-  //     })
-  //     .then(data=>{
-  //       db.history.update(data.id, {origin: new Date(), timeTotal: ((new Date() - data.start)/1000)})
-  //     })
+    // Update time end when focus out of the tab
+    db.history.toArray().then(result=>{
+      var idx = result.length-1
+      return result[idx]
+    })
+    .then(data=>{
+      db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
+    })
 
-  //     //Post start time data when open the tab
-  //     db.history
-  //     .put({url: url.hostname, start: new Date(), origin: undefined, timeTotal: 0, title: tabs[0].title})
-  //     .then(i => {
-  //       console.log('wrote ' + i)
-  //     })
-  //     .catch(err => {
-  //       console.error(err)
-  //     })
-  //   })
-  // }
+    //Post start time data when open the tab
+    db.history
+    .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
+    .then(i => {
+      console.log('wrote ' + i)
+    })
+    .catch(err => {
+      console.error(err)
+    })
+    }
+  })
+  }
 })
 
 //Initial store the data right after re-load
-chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+// chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
 
-})
+// })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   chrome.browserAction.setIcon(
@@ -62,35 +65,18 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
 
-    //Update database when revisit the site
-    // db.history.orderBy('url').eachUniqueKey(key=>{
-    //   db.history.where({url: key}).toArray().then(result=>{
-    //     var idx = result.length-1
-    //     if(result[idx].url === url.hostname && !result[idx].origin) {
-    //       id = result[idx].id
-    //       timeGap = (newDate - result[idx].start)/1000
-    //     }
-    //   })
-    // })
-    // .then(()=>{
-    //   db.history.update(id, {origin: newDate, timeTotal: timeGap})
-    // })
-    // .catch(err => {
-    //   console.error(err)
-    // })
-
     //Update time end when focus out of the tab
     db.history.toArray().then(result=>{
       var idx = result.length-1
       return result[idx]
     })
     .then(data=>{
-      db.history.update(data.id, {timeEnd: new Date(), timeTotal: ((new Date() - data.timeStart)/1000)})
+      db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
     })
 
     //Post start time data when open the tab
     db.history
-    .put({url: url.hostname, timeStart: new Date(), timeEnd: undefined, timeTotal: 0, label: undefined})
+    .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
     .then(i => {
       console.log('wrote ' + i)
     })
@@ -103,40 +89,46 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 //An Event Listener to store data when URL has been changed
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   if(tab.active && tab.status === 'complete') {
-    // var newDate = new Date();
     var url = new URL(tab.url);
+    var currentUrl
 
+    //Give 1.5 sec of loading time
     //Update time end when focus out of the tab
     db.history.toArray().then(result=>{
       var idx = result.length-1
+      currentUrl = result[idx].url
       return result[idx]
     })
     .then(data=>{
-      db.history.update(data.id, {timeEnd: new Date(), timeTotal: ((new Date() - data.timeStart)/1000)})
+      if (currentUrl !== url.hostname) {
+        db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
+      }
     })
-
-    //Post start time data when open the tab
-    db.history
-    .put({url: url.hostname, timeStart: new Date(), timeEnd: undefined, timeTotal: 0, label: undefined})
-    .then(i => {
-      console.log('wrote ' + i)
-    })
-    .catch(err => {
-      console.error(err)
+    .then(()=>{
+      if (currentUrl !== url.hostname) {
+        db.history
+        .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
+        .then(i => {
+          console.log('wrote ' + i)
+        })
+        .catch(err => {
+          console.error(err)
+        })
+      }
     })
   }
 })
 
 //An Event Listener to store stop information when close the tab
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-  var newDate = new Date();
+  var newDate = new Date().valueOf();
 
   db.history.toArray().then(result=>{
     var idx = result.length-1
     return result[idx]
   })
   .then(data=>{
-    db.history.update(data.id, {timeEnd: newDate, timeTotal: ((newDate - data.timeStart)/1000)})
+    db.history.update(data.id, {timeEnd: newDate, timeTotal: newDate - data.timeStart})
   })
 })
 
