@@ -38,6 +38,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bayes-classifier": "0.0.5",
+    "bulma": "^0.7.1",
     "compression": "^1.7.3",
     "connect-session-sequelize": "^5.2.2",
     "dexie": "^2.0.4",
@@ -100,5 +101,13 @@
     "supertest": "^3.3.0",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wirehead-extension/wirehead.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wirehead-extension/wirehead/issues"
+  },
+  "homepage": "https://github.com/wirehead-extension/wirehead#readme"
 }
