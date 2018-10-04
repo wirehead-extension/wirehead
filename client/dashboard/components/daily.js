@@ -92,7 +92,7 @@ class Daily extends React.Component {
             console.log('this is tf', tF)
             
             // calculate total frequency by state for all segment.
-            var sF = topFiveTotal.map(function(d){return [d.urlOrigin,d.timeTotal,d.label];});
+            var sF = topFiveTotal.map(function(d){return [d.url,d.timeTotal,d.label];});
             console.log('this is sf for histomogram', sF)
             var hG = histoGram(sF), // create the histogram.
                 pC = pieChart(tF), // create the pie-chart.
@@ -217,23 +217,23 @@ class Daily extends React.Component {
                     console.log('this is the input for mouseover, d: ', d)
                     if(d.data.type === 'work'){
                         hG.update(topFiveWork.map(function(t){
-                            return [t.urlOrigin,t.timeTotal,t.label];}), segColor(d.data.type))
+                            return [t.url,t.timeTotal,t.label];}), segColor(d.data.type))
                     } else if (d.data.type === 'play'){
                         hG.update(topFivePlay.map(function(t){
-                            return [t.urlOrigin,t.timeTotal,t.label];}), segColor(d.data.type))
+                            return [t.url,t.timeTotal,t.label];}), segColor(d.data.type))
                     }
                     // call the update function of histogram with new data.
                     // hG.update(data.map(function(v){ 
                     //     return [v.label,v.time[d.data.type]];}),segColor(d.data.type));
                 }
 
-                var sF = topFiveTotal.map(function(d){return [d.urlOrigin,d.timeTotal,d.label];});
+                var sF = topFiveTotal.map(function(d){return [d.url,d.timeTotal,d.label];});
 
                 //Utility function to be called on mouseout a pie slice.
                 function mouseout(){
                     // call the update function of histogram with all data.
                     hG.update(topFiveTotal.map(function(t){
-                        return [t.urlOrigin,t.timeTotal,t.label];}), barColor);
+                        return [t.url,t.timeTotal,t.label];}), barColor);
                 }
                 // Animating the pie-slice requiring a custom function which specifies
                 // how the intermediate paths should be drawn.
