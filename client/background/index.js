@@ -210,21 +210,24 @@ console.log('popup please')
 
 chrome.alarms.create('alarm', {periodInMinutes: 0.1})
 
-chrome.alarms.onAlarm.addListener(function(alarm) {
-  console.log('wow')
+function makeNotification() {
   chrome.notifications.create(
-    'Noti',
     {
       type: 'basic',
-      iconUrl: 'gray.png',
       title: 'Noti',
       message:
         'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      priority: 1
-      // buttons: [{title: 'work'}, {title: 'play'}]
+      buttons: [{title: 'work'}, {title: 'play'}]
     },
-    function(id) {
-      console.log('Last error:', chrome.runtime.lastError)
-    }
+    function(id) {}
   )
+}
+
+chrome.alarms.onAlarm.addListener(function(alarm) {
+  console.log('wow')
+  makeNotification()
+})
+
+chrome.notifications.onClicked.addListener(function(notificationId) {
+  chrome.notifications.clear(notificationId, function() {})
 })
