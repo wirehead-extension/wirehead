@@ -17,15 +17,15 @@ db.history.toArray().then(result=>{
 })
 .then(data=>{
   document.querySelector('#current').innerText =
-  "Name: " +
-  data.title +
+  "URL: " +
+  data.url +
   '\n' +
   "Currently opened at " +
-  dateConverter(data.start) +
+  dateConverter(data.timeStart) +
   '\n' +
   "Currently has stayed on this website: " +
-  timeCalculator(timeInSecond(new Date())-timeInSecond(data.start))
-  currentTime = timeInSecond(new Date())-timeInSecond(data.start)
+  timeCalculator(timeInSecond(new Date())-timeInSecond(data.timeStart))
+  currentTime = timeInSecond(new Date())-timeInSecond(data.timeStart)
   currentUrl = data.url
 })
 

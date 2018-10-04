@@ -85,12 +85,12 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
       return result[idx]
     })
     .then(data=>{
-      db.history.update(data.id, {origin: new Date(), timeTotal: ((new Date() - data.start)/1000)})
+      db.history.update(data.id, {timeEnd: new Date(), timeTotal: ((new Date() - data.timeStart)/1000)})
     })
 
     //Post start time data when open the tab
     db.history
-    .put({url: url.hostname, start: new Date(), origin: undefined, timeTotal: 0, title: tab.title})
+    .put({url: url.hostname, timeStart: new Date(), timeEnd: undefined, timeTotal: 0, label: undefined})
     .then(i => {
       console.log('wrote ' + i)
     })
@@ -112,12 +112,12 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       return result[idx]
     })
     .then(data=>{
-      db.history.update(data.id, {origin: new Date(), timeTotal: ((new Date() - data.start)/1000)})
+      db.history.update(data.id, {timeEnd: new Date(), timeTotal: ((new Date() - data.timeStart)/1000)})
     })
 
     //Post start time data when open the tab
     db.history
-    .put({url: url.hostname, start: new Date(), origin: undefined, timeTotal: 0, title: tab.title})
+    .put({url: url.hostname, timeStart: new Date(), timeEnd: undefined, timeTotal: 0, label: undefined})
     .then(i => {
       console.log('wrote ' + i)
     })
@@ -136,7 +136,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     return result[idx]
   })
   .then(data=>{
-    db.history.update(data.id, {origin: newDate, timeTotal: ((newDate - data.start)/1000)})
+    db.history.update(data.id, {timeEnd: newDate, timeTotal: ((newDate - data.timeStart)/1000)})
   })
 })
 
