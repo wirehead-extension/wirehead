@@ -15,10 +15,4 @@ db.history.get(1, s => {
   }
 })
 
-db.history
-  .where('timeStart')
-  .between(1506834231806.7793, 1506844231806.7793)
-  .sortBy('url')
-  .then(a => console.log(a))
-
 export default db

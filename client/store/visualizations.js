@@ -43,8 +43,8 @@ export const fetchData = (periodStart, periodEnd, preprocessingParameter) => {
       const siteKeys = Object.keys(sites)
       const sitesArray = siteKeys.map(site => ({
         url: site,
-        work: sites[site].work,
-        play: sites[site].play
+        work: sites[site].work || 0,
+        play: sites[site].play || 0
       }))
       dispatch(gotData(sitesArray))
     } else if (preprocessingParameter === 'detail') {

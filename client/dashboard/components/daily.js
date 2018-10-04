@@ -2,6 +2,7 @@ import React from 'react'
 import {connect} from 'react-redux'
 import {fetchData} from '../../store'
 import {withRouter} from 'react-router-dom'
+import {humanTime} from '../utils'
 import * as d3 from 'd3'
 
 class Daily extends React.Component {
@@ -177,7 +178,7 @@ class Daily extends React.Component {
       bars
         .append('text')
         .text(function(d) {
-          return d3.format(',')(d[1])
+          return humanTime(d[1])
         })
         .attr('x', function(d) {
           return x(d[0]) + x.bandwidth() / 2
@@ -220,7 +221,7 @@ class Daily extends React.Component {
           .transition()
           .duration(500)
           .text(function(d) {
-            return d3.format(',')(d[1])
+            return humanTime(d[1])
           })
           .attr('y', function(d) {
             return y(d[1]) - 5
@@ -390,7 +391,7 @@ class Daily extends React.Component {
       tr.append('td')
         .attr('class', 'legendFreq')
         .text(function(d) {
-          return d3.format(',')(d.time) + ' seconds'
+          return humanTime(d.time)
         })
 
       // create the fourth column for each segment.
@@ -410,7 +411,7 @@ class Daily extends React.Component {
 
         // update the frequencies.
         l.select('.legendFreq').text(function(d) {
-          return d3.format(',')(d.freq)
+          return humanTime(d.freq)
         })
 
         // update the percentage column.
