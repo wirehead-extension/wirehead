@@ -19,8 +19,8 @@ class Daily extends React.Component {
     )
  */
     this.props.fetchData(
-      new Date(2018, 9, 1).valueOf(),
-      new Date(2018, 9, 2).valueOf(),
+      new Date().setHours(0,0,0,0).valueOf,
+      new Date().setHours(23,59,59,999).valueOf(),
       'sumBySite'
     )
   }
