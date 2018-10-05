@@ -215,6 +215,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 //NOTFICATION STUFF IS BELOW
 
+/* //User will be annoyed with notifications way too often for demo purposes
+chrome.alarms.create('alarm', { periodInMinutes: 0.2 })
+
+chrome.alarms.onAlarm.addListener(function (alarm) {
+  initNotification()
+}) */
+
 // I needed to break notification-making into two functions because querying tabs is asynchronus
 function initNotification() {
   //If there's an active page, get the page title and init a notification
