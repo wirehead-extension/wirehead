@@ -20,12 +20,15 @@
     "persistent": true
   },
   "permissions": [
+    "alarms",
     "tabs",
     "storage",
     "history",
+    "notifications",
     "unlimitedStorage",
     "http://*/*",
     "https://*/*",
+    "<all_urls>",
     "chrome://favicon/*",
     "contextMenus",
     "cookies"
