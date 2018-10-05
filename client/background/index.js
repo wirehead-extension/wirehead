@@ -8,6 +8,7 @@ The structure of the background scripts is as follows:
 *don't hesitate to add new files as needed!
 */
 import {
+  getBayesModel,
   updateBayesModel,
   getClassifications,
   classifyDocument
@@ -69,31 +70,10 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   //get detail information of activated tab
   chrome.tabs.get(activeInfo.tabId, async function(tab) {
-    //this is a silly function that changes the badge text
-    const pageClassification = await classifyDocument(tab.title)
-    const probabilities = await getClassifications(tab.title)
-    const certainty =
-      ((probabilities[0].value > probabilities[1].value
-        ? probabilities[0].value
-        : probabilities[1].value) /
-        (probabilities[0].value + probabilities[1].value)) *
-      100
-
-    console.log('certqinty', certainty)
-    console.log('pageClassification', pageClassification)
-    if (pageClassification) {
-      chrome.browserAction.setIcon(
-        pageClassification === 'work'
-          ? {path: './green.png'}
-          : {path: './red.png'}
-      )
-    } else {
-      chrome.browserAction.setIcon({path: './gray.png'})
+    const model = await getBayesModel()
+    if (model) {
+      updateIcon(tab)
     }
-
-    chrome.browserAction.setBadgeText({
-      text: String(certainty).slice(0, 2) + '%'
-    })
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
 
@@ -206,6 +186,37 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   //console.log('req', request, 'sender', sender)
 })
 
+//This function updates the icon and badge according to ML prediction
+async function updateIcon(tab) {
+  //page classification is either "work" or "play"
+  const pageClassification = await classifyDocument(tab.title)
+  //We format the raw output of machine learning model (const probabilities, decimals)
+  const probabilities = await getClassifications(tab.title)
+  //as a percentage (certainty)
+  let certainty
+  if (probabilities) {
+    certainty =
+      (probabilities[0].value /
+        (probabilities[0].value + probabilities[1].value)) *
+      100
+  }
+
+  if (pageClassification) {
+    chrome.browserAction.setIcon(
+      pageClassification === 'work'
+        ? {path: './green.png'}
+        : {path: './red.png'}
+    )
+  } else {
+    chrome.browserAction.setIcon({path: './gray.png'})
+  }
+  if (certainty) {
+    chrome.browserAction.setBadgeText({
+      text: String(certainty).slice(0, 2) + '%'
+    })
+  }
+}
+
 //NOTFICATION STUFF IS BELOW
 
 //User will be annoyed with notifications way too often for demo purposes
@@ -219,11 +230,12 @@ function initNotification() {
   //If there's an active page, get the page title and init a notification
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0]) {
-      makeNotification(tabs[0].title)
+      makeNotification()
     }
   })
 }
-function makeNotification(tabName) {
+function makeNotification() {
+  chrome.notifications.onButtonClicked.removeListener(handleButton)
   chrome.notifications.create({
     type: 'basic',
     title: 'Train the Wirehead AI',
@@ -231,13 +243,18 @@ function makeNotification(tabName) {
     message: 'Classify this page as work or play --->',
     buttons: [{title: 'This is work'}, {title: 'This is play'}]
   })
-  chrome.notifications.onButtonClicked.addListener(function handleButton(
-    notificationId,
-    buttonIndex
-  ) {
-    chrome.notifications.onButtonClicked.removeListener(handleButton)
+  chrome.notifications.onButtonClicked.addListener(handleButton)
+}
 
-    //Is this page title associated with work or with play?
+function handleButton(notificationId, buttonIndex) {
+  //Is this page title associated with work or with play?
+  let tabName
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, async function(
+    tabs
+  ) {
+    tabName = tabs[0].title
+    console.log('tabName', tabName)
+
     let label
     if (buttonIndex === 0) {
       label = 'work'
@@ -249,8 +266,7 @@ function makeNotification(tabName) {
       document: tabName,
       label: label
     })
-    //provisional, for demonstration only (we don't want to update bayes model so often-- maybe once a day)
-    //might slow down your computer if you have a lot of stuff in 'trainingdata' db
-    updateBayesModel()
+    await updateBayesModel()
+    updateIcon(tabs[0])
   })
 }
