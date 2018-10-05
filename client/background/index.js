@@ -186,6 +186,37 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   //console.log('req', request, 'sender', sender)
 })
 
+//This function updates the icon and badge according to ML prediction
+async function updateIcon(tab) {
+  //page classification is either "work" or "play"
+  const pageClassification = await classifyDocument(tab.title)
+  //We format the raw output of machine learning model (const probabilities, decimals)
+  const probabilities = await getClassifications(tab.title)
+  //as a percentage (certainty)
+  let certainty
+  if (probabilities) {
+    certainty =
+      (probabilities[0].value /
+        (probabilities[0].value + probabilities[1].value)) *
+      100
+  }
+
+  if (pageClassification) {
+    chrome.browserAction.setIcon(
+      pageClassification === 'work'
+        ? {path: './green.png'}
+        : {path: './red.png'}
+    )
+  } else {
+    chrome.browserAction.setIcon({path: './gray.png'})
+  }
+  if (certainty) {
+    chrome.browserAction.setBadgeText({
+      text: String(certainty).slice(0, 2) + '%'
+    })
+  }
+}
+
 //NOTFICATION STUFF IS BELOW
 
 //User will be annoyed with notifications way too often for demo purposes
@@ -238,35 +269,4 @@ function handleButton(notificationId, buttonIndex) {
     await updateBayesModel()
     updateIcon(tabs[0])
   })
-}
-
-//This function updates the icon and badge according to ML prediction
-async function updateIcon(tab) {
-  //page classification is either "work" or "play"
-  const pageClassification = await classifyDocument(tab.title)
-  //We format the raw output of machine learning model (const probabilities, decimals)
-  const probabilities = await getClassifications(tab.title)
-  //as a percentage (certainty)
-  let certainty
-  if (probabilities) {
-    certainty =
-      (probabilities[0].value /
-        (probabilities[0].value + probabilities[1].value)) *
-      100
-  }
-
-  if (pageClassification) {
-    chrome.browserAction.setIcon(
-      pageClassification === 'work'
-        ? {path: './green.png'}
-        : {path: './red.png'}
-    )
-  } else {
-    chrome.browserAction.setIcon({path: './gray.png'})
-  }
-  if (certainty) {
-    chrome.browserAction.setBadgeText({
-      text: String(certainty).slice(0, 2) + '%'
-    })
-  }
 }
