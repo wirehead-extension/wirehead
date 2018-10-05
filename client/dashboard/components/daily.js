@@ -12,6 +12,12 @@ class Daily extends React.Component {
   }
 
   componentDidMount() {
+    /* this.props.fetchData(
+      new Date(2018, 8, 29).valueOf(),
+      new Date(2018, 9, 2).valueOf(),
+      'sumByDayBySite'
+    )
+ */
     this.props.fetchData(
       new Date(2018, 9, 1).valueOf(),
       new Date(2018, 9, 2).valueOf(),
