@@ -13,6 +13,7 @@ import {
   classifyDocument
 } from './bayesClassifier'
 import {dateConverter, timeInSecond} from './utils'
+import {initLearnMoreNotification} from './newUserTest'
 import db from '../db'
 
 var currentWindow
@@ -26,7 +27,13 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0]) {
         var url = new URL(tabs[0].url)
-
+        //test for whether a model exists
+        //TODO: change number to "1" before deploying
+        db.bayesModel.get(100000, m => {
+          if (!m) {
+            initLearnMoreNotification(tabs[0])
+          }
+        })
         // Update time end when focus out of the tab
         db.history
           .toArray()
