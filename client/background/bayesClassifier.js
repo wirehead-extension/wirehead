@@ -16,7 +16,6 @@ export async function updateBayesModel() {
       }
     })
   })
-
   //Retrain the model (if we have both some work and some play documents)
   if (workDocuments.length > 0 && playDocuments.length > 0) {
     const classifier = new BayesClassifier()
@@ -28,8 +27,6 @@ export async function updateBayesModel() {
     db.transaction('rw', db.bayesModel, function*() {
       yield db.bayesModel.put({id: 0, model: JSON.stringify(classifier)})
     })
-    //returns true if model was actually updated
-    return true
   }
 }
 
@@ -61,6 +58,5 @@ export async function getClassifications(document) {
   const model = await getBayesModel()
   const classifier = new BayesClassifier()
   classifier.restore(JSON.parse(model))
-  console.log('hi', classifier.getClassifications(document))
   return classifier.getClassifications(document)
 }
