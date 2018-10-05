@@ -12,9 +12,9 @@ db.version(5).stores({
 })
 
 db.history.get(1, s => {
-  if (!s) {
-    db.history.bulkAdd(history)
-  }
+  // if (!s) {
+  //   db.history.bulkAdd(history)
+  // }
 })
 
 export default db

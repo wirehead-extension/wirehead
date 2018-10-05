@@ -4,7 +4,7 @@ module.exports = {
   mode: isDev ? 'development' : 'production',
   entry: {
     dashboard: ['@babel/polyfill', './client/dashboard'],
-    popup: ['@babel/polyfill', './client/popup.js'],
+    popup: ['@babel/polyfill', './client/popup/popup.js'],
     eventPage: ['@babel/polyfill', './client/background']
   },
   output: {
