@@ -2,13 +2,9 @@ import db from '../db'
 import {
   timeCalculator,
   dateConverter,
-  timeInSecond
 } from '../background/utils'
 
-// db.history.get({url: "chrome://extensions/"}, result => {
-//   console.log(result)
-// })
-
+//Current Page Information
 var currentTime = 0
 var currentUrl
 db.history.toArray().then(result=>{
@@ -21,14 +17,16 @@ db.history.toArray().then(result=>{
   data.url +
   '\n' +
   "Currently opened at " +
-  dateConverter(data.timeStart) +
+  dateConverter(new Date(data.timeStart)) +
   '\n' +
   "Currently has stayed on this website: " +
-  timeCalculator(timeInSecond(new Date())-timeInSecond(data.timeStart))
-  currentTime = timeInSecond(new Date())-timeInSecond(data.timeStart)
+  timeCalculator(new Date().valueOf()-data.timeStart)
+  currentTime = new Date().valueOf()-data.timeStart
   currentUrl = data.url
 })
 
+//Monitoring top 5 high total time of usage
+var collect = []
 db.history.orderBy('url').eachUniqueKey(key=>{
   console.log('keys', key)
   db.history.where({url: key}).toArray().then(result=>{
@@ -37,59 +35,22 @@ db.history.orderBy('url').eachUniqueKey(key=>{
     result.forEach(data=>{
       totalSpend += data.timeTotal
     })
-    // document.querySelector('#list').innerText = "URL " + key + " is :" + timeCalculator(totalSpend)
-    // timeTopFive(result)
-    var newDiv = document.createElement('div')
+    currentUrl === key ? totalSpend += currentTime : totalSpend
+
+    collect.push({url: key, time: totalSpend})
+  })
+}).then(()=>{
+  var test = collect.sort((a,b)=>{
+    return Math.floor(a.time) > Math.floor(b.time)
+  }).slice(-5)
+  test.forEach(elem=>{
+    var newDiv = document.createElement('ul')
     var objectDiv = document.querySelector('#list')
     objectDiv.insertBefore(newDiv, objectDiv.firstChild)
-    newDiv.appendChild(document.createTextNode('URL:' + key + ' /'))
-    currentUrl === key ?
-    newDiv.appendChild(document.createTextNode(timeCalculator(totalSpend + currentTime)))
+    newDiv.appendChild(document.createTextNode('URL:' + elem.url + ' /'))
+    currentUrl === elem.url ?
+    newDiv.appendChild(document.createTextNode(timeCalculator(elem.time)))
     :
-    newDiv.appendChild(document.createTextNode(timeCalculator(totalSpend)))
+    newDiv.appendChild(document.createTextNode(timeCalculator(elem.time)))
   })
 })
-
-
-function timeTopFive(datas) {
-    var totalSpend = 0
-    console.log('result:',datas)
-    datas.forEach(data=>{
-      totalSpend += data.timeTotal
-    })
-
-    return totalSpend
-  }
-
-  // var timesave
-  // var newTab = {
-  //   url: datas.currentTabUrl,
-  //   time: timeInSecond(newDate) - datas.currentTabTime
-  // }
-  // datas.totalTime.forEach(data => {
-  //   if (data.url === datas.currentTabUrl) {
-  //     timesave = data.totalTimeConsume
-  //     newTab = undefined
-  //   }
-  // })
-
-  // var currentTopList = datas.totalTime.map(data => {
-  //   var currentRunningTime = 0
-  //   if (datas.currentTabUrl === data.url) {
-  //     currentRunningTime = timeInSecond(newDate) - datas.currentTabTime + (timesave || 0)
-  //   }
-  //   return {
-  //     url: data.url,
-  //     time: currentRunningTime || data.totalTimeConsume
-  //   }
-  // })
-
-  // if (newTab) {
-  //   currentTopList.push(newTab)
-  // }
-
-  // return currentTopList
-  //   .sort((a, b) => {
-  //     return a.time > b.time
-  //   })
-  //   .slice(-5)
