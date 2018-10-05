@@ -14,7 +14,7 @@ import {
   classifyDocument
 } from './bayesClassifier'
 import {dateConverter, timeInSecond} from './utils'
-import {initLearnMoreNotification} from './newUserTest'
+import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
 
 var currentWindow
@@ -75,7 +75,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     if (model) {
       updateIcon(tab)
     } else {
-      initLearnMoreNotification()
+      makeLearnMoreNotification()
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)

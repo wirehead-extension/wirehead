@@ -1,5 +1,5 @@
 //Prompts user to learn more about app if there's no model
-function makeLearnMoreNotification() {
+export function makeLearnMoreNotification() {
   chrome.notifications.create('dashboard.html#about', {
     type: 'basic',
     title: 'Thanks for downloading Wirehead!',
@@ -15,8 +15,4 @@ function makeLearnMoreNotification() {
     chrome.tabs.create({url: notificationId})
     chrome.notifications.onButtonClicked.removeListener(handleClick)
   })
-}
-
-export function initLearnMoreNotification() {
-  makeLearnMoreNotification()
 }
