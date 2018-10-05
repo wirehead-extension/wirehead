@@ -7,7 +7,11 @@ The structure of the background scripts is as follows:
 *bayesClassifier.js is for use by Kevin
 *don't hesitate to add new files as needed!
 */
-import {updateBayesModel, getClassifications} from './bayesClassifier'
+import {
+  updateBayesModel,
+  getClassifications,
+  classifyDocument
+} from './bayesClassifier'
 import {dateConverter, timeInSecond} from './utils'
 import db from '../db'
 
@@ -19,30 +23,41 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //It runs only currentWindow ID has been changed
   if (windowInfo > 0 && windowInfo !== currentWindow) {
     currentWindow = windowInfo
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if(tabs[0]) {
-    var url = new URL(tabs[0].url)
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      if (tabs[0]) {
+        var url = new URL(tabs[0].url)
 
-    // Update time end when focus out of the tab
-    db.history.toArray().then(result=>{
-      var idx = result.length-1
-      return result[idx]
-    })
-    .then(data=>{
-      db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-    })
+        // Update time end when focus out of the tab
+        db.history
+          .toArray()
+          .then(result => {
+            var idx = result.length - 1
+            return result[idx]
+          })
+          .then(data => {
+            db.history.update(data.id, {
+              timeEnd: new Date().valueOf(),
+              timeTotal: new Date().valueOf() - data.timeStart
+            })
+          })
 
-    //Post start time data when open the tab
-    db.history
-    .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
-    .then(i => {
-      console.log('wrote ' + i)
+        //Post start time data when open the tab
+        db.history
+          .put({
+            url: url.hostname,
+            timeStart: new Date().valueOf(),
+            timeEnd: undefined,
+            timeTotal: 0,
+            label: undefined
+          })
+          .then(i => {
+            console.log('wrote ' + i)
+          })
+          .catch(err => {
+            console.error(err)
+          })
+      }
     })
-    .catch(err => {
-      console.error(err)
-    })
-    }
-  })
   }
 })
 
@@ -52,83 +67,127 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 // })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-  chrome.browserAction.setIcon(
-    Math.random() > 0.5 ? {path: './green.png'} : {path: './red.png'}
-  )
-
   //get detail information of activated tab
-  chrome.tabs.get(activeInfo.tabId, function(tab) {
+  chrome.tabs.get(activeInfo.tabId, async function(tab) {
     //this is a silly function that changes the badge text
+    const pageClassification = await classifyDocument(tab.title)
+    const probabilities = await getClassifications(tab.title)
+    const certainty =
+      ((probabilities[0].value > probabilities[1].value
+        ? probabilities[0].value
+        : probabilities[1].value) /
+        (probabilities[0].value + probabilities[1].value)) *
+      100
+
+    console.log('certqinty', certainty)
+    console.log('pageClassification', pageClassification)
+    if (pageClassification) {
+      chrome.browserAction.setIcon(
+        pageClassification === 'work'
+          ? {path: './green.png'}
+          : {path: './red.png'}
+      )
+    } else {
+      chrome.browserAction.setIcon({path: './gray.png'})
+    }
+
     chrome.browserAction.setBadgeText({
-      text: new URL(tab.url).hostname.slice(0, 3)
+      text: String(certainty).slice(0, 2) + '%'
     })
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
 
     //Update time end when focus out of the tab
-    db.history.toArray().then(result=>{
-      var idx = result.length-1
-      return result[idx]
-    })
-    .then(data=>{
-      db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-    })
+    db.history
+      .toArray()
+      .then(result => {
+        var idx = result.length - 1
+        return result[idx]
+      })
+      .then(data => {
+        db.history.update(data.id, {
+          timeEnd: new Date().valueOf(),
+          timeTotal: new Date().valueOf() - data.timeStart
+        })
+      })
 
     //Post start time data when open the tab
     db.history
-    .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
-    .then(i => {
-      console.log('wrote ' + i)
-    })
-    .catch(err => {
-      console.error(err)
-    })
+      .put({
+        url: url.hostname,
+        timeStart: new Date().valueOf(),
+        timeEnd: undefined,
+        timeTotal: 0,
+        label: undefined
+      })
+      .then(i => {
+        console.log('wrote ' + i)
+      })
+      .catch(err => {
+        console.error(err)
+      })
   })
 })
 
 //An Event Listener to store data when URL has been changed
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-  if(tab.active && tab.status === 'complete') {
-    var url = new URL(tab.url);
+  if (tab.active && tab.status === 'complete') {
+    var url = new URL(tab.url)
     var currentUrl
 
     //Update time end when focus out of the tab
-    db.history.toArray().then(result=>{
-      var idx = result.length-1
-      currentUrl = result[idx].url
-      return result[idx]
-    })
-    .then(data=>{
-      if (currentUrl !== url.hostname) {
-        db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-      }
-    })
-    .then(()=>{
-      if (currentUrl !== url.hostname) {
-        db.history
-        .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
-        .then(i => {
-          console.log('wrote ' + i)
-        })
-        .catch(err => {
-          console.error(err)
-        })
-      }
-    })
+    db.history
+      .toArray()
+      .then(result => {
+        var idx = result.length - 1
+        currentUrl = result[idx].url
+        return result[idx]
+      })
+      .then(data => {
+        if (currentUrl !== url.hostname) {
+          db.history.update(data.id, {
+            timeEnd: new Date().valueOf(),
+            timeTotal: new Date().valueOf() - data.timeStart
+          })
+        }
+      })
+      .then(() => {
+        if (currentUrl !== url.hostname) {
+          db.history
+            .put({
+              url: url.hostname,
+              timeStart: new Date().valueOf(),
+              timeEnd: undefined,
+              timeTotal: 0,
+              label: undefined
+            })
+            .then(i => {
+              console.log('wrote ' + i)
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
+      })
   }
 })
 
 //An Event Listener to store stop information when close the tab
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-  var newDate = new Date().valueOf();
+  var newDate = new Date().valueOf()
 
-  db.history.toArray().then(result=>{
-    var idx = result.length-1
-    return result[idx]
-  })
-  .then(data=>{
-    db.history.update(data.id, {timeEnd: newDate, timeTotal: newDate - data.timeStart})
-  })
+  db.history
+    .toArray()
+    .then(result => {
+      var idx = result.length - 1
+      return result[idx]
+    })
+    .then(data => {
+      db.history.update(data.id, {
+        timeEnd: newDate,
+        timeTotal: newDate - data.timeStart
+      })
+    })
 })
 
 //listens for all events emitted by page content scripts
@@ -150,20 +209,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 //NOTFICATION STUFF IS BELOW
 
 //User will be annoyed with notifications way too often for demo purposes
-// chrome.alarms.create('alarm', {periodInMinutes: 0.1})
+chrome.alarms.create('alarm', {periodInMinutes: 0.2})
 
-// chrome.alarms.onAlarm.addListener(function(alarm) {
-//   initNotification()
-// })
-//I needed to break notification-making into two functions because querying tabs is asynchronus
-// function initNotification() {
-//   //If there's an active page, get the page title and init a notification
-//   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-//     if (tabs) {
-//       makeNotification(tabs[0].title)
-//     }
-//   })
-// }
+chrome.alarms.onAlarm.addListener(function(alarm) {
+  initNotification()
+})
+// I needed to break notification-making into two functions because querying tabs is asynchronus
+function initNotification() {
+  //If there's an active page, get the page title and init a notification
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      makeNotification(tabs[0].title)
+    }
+  })
+}
 function makeNotification(tabName) {
   chrome.notifications.create({
     type: 'basic',
@@ -193,6 +252,5 @@ function makeNotification(tabName) {
     //provisional, for demonstration only (we don't want to update bayes model so often-- maybe once a day)
     //might slow down your computer if you have a lot of stuff in 'trainingdata' db
     updateBayesModel()
-    getClassifications('github')
   })
 }
