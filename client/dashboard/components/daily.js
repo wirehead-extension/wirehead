@@ -3,26 +3,46 @@ import {connect} from 'react-redux'
 import {fetchData} from '../../store'
 import {withRouter} from 'react-router-dom'
 import {humanTime} from '../utils'
+import Calendar from 'react-datepicker'
+import moment from 'moment'
+//need a css loader
+//import 'react-datepicker/dist/react-datepicker.css'
 import * as d3 from 'd3'
 
 class Daily extends React.Component {
   constructor() {
     super()
     this.createDashboard = this.createDashboard.bind(this)
+    this.state = {
+      date: moment()
+    }
+  }
+
+  handleChange(e) {
+    console.log(e.target.value)
   }
 
   componentDidMount() {
+    this.props.fetchData(
+      new Date().setHours(0, 0, 0, 0).valueOf() - 15 * 24 * 60 * 60000,
+      new Date().setHours(0, 0, 0, 0).valueOf() - 14 * 24 * 60 * 60000,
+      'sumBySite'
+    )
+
+    //a number of days
     /* this.props.fetchData(
       new Date(2018, 8, 29).valueOf(),
       new Date(2018, 9, 2).valueOf(),
       'sumByDayBySite'
     )
  */
-    this.props.fetchData(
+
+    //today
+    /* this.props.fetchData(
       new Date().setHours(0, 0, 0, 0).valueOf(),
       new Date().setHours(23, 59, 59, 999).valueOf(),
       'sumBySite'
-    )
+    ) */
   }
 
   componentWillUnmount() {
@@ -451,7 +471,12 @@ class Daily extends React.Component {
     if (this.props.data.length) {
       this.createDashboard('#dashboard', this.props.data)
       console.log('these are the props', this.props)
-      return <div id="dashboard" />
+      return (
+        <React.Fragment>
+          {/* <Calendar selected={this.state.date} onChange={this.handleChange} /> */}
+          <div id="dashboard" />
+        </React.Fragment>
+      )
     } else {
       return <div id="dashboard" />
     }
