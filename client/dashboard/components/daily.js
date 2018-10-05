@@ -115,13 +115,13 @@ class Daily extends React.Component {
                     .attr("transform", "translate(" + hGDim.l + "," + hGDim.t + ")");
         
                 // create function for x-axis mapping.
-                var x = d3.scaleBand([0, hGDim.w/1.8], 0.1)
-                        .range([0, hGDim.w/1.5])
+                var x = d3.scaleBand([0, hGDim.w], 0.1)
+                        .range([0, hGDim.w])
                         .domain(fD.map(function(d) { return d[0]; }));
         
                 // Add x-axis to the histogram svg.
                 hGsvg.append("g").attr("class", "x-axis")
-                    .attr("transform", "translate(0," + hGDim.h + ")")
+                    .attr("transform", "translate(-11," + hGDim.h + ")")
                     .call(d3.axisBottom(x));
         
                 // Create function for y-axis map.
@@ -143,7 +143,7 @@ class Daily extends React.Component {
                     
                 //Create the frequency labels above the rectangles.
                 bars.append("text").text(function(d){ return d3.format(",")(d[1])})
-                    .attr("x", function(d) { return x(d[0])+x.bandwidth()/2; })
+                    .attr("x", function(d) { return x(d[0])+x.bandwidth()/3; })
                     .attr("y", function(d) { return y(d[1])-5; })
                     .attr("text-anchor", "middle");
                 
@@ -169,14 +169,14 @@ class Daily extends React.Component {
                     
                     hGsvg.selectAll(".x-axis").remove()
                     // change the axis tick marks to match new data
-                    x = d3.scaleBand([0, hGDim.w], 0.2)
+                    x = d3.scaleBand([0, hGDim.w], 0.1)
                         .range([0, hGDim.w])
                         .domain(nD.map(function(d) { return d[0]; }));
 
 
 
                         hGsvg.append("g").attr("class", "x-axis")
-                        .attr("transform", "translate(0," + hGDim.h + ")")
+                        .attr("transform", "translate(-11," + hGDim.h + ")")
                         .call(d3.axisBottom(x));
                 }        
                 return hG;

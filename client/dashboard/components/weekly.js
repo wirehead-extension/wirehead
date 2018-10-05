@@ -8,92 +8,178 @@ import { tsv, csv, json } from 'd3-fetch'
 const dataSet = require('dsv-loader!./data.tsv')
 
 class Weekly extends React.Component {
-
-    componentDidMount() {
-        this.createBarChart()
+    constructor(){
+        super()
+        // this.createChart = this.createChart.bind(this)
+        // var datearray = [];
+        // var colorrange = [];
     }
+    componentDidMount() {
+        this.createChart()    
 
-    createBarChart(){
+    }
+    
 
-        var svg = d3.select("svg"),
-        margin = {top: 20, right: 20, bottom: 30, left: 50},
-        width = svg.attr("width") - margin.left - margin.right,
-        height = svg.attr("height") - margin.top - margin.bottom;
 
-        var parseDate = d3.timeParse("%Y %b %d");
+    createChart(dataset, color){
 
-        var x = d3.scaleTime().range([0, width]),
-            y = d3.scaleLinear().range([height, 0]),
-            z = d3.scaleOrdinal(d3.schemeCategory10);
+        let colorrange = ["#B30000", "#E34A33", "#FC8D59", "#FDBB84", "#FDD49E", "#FEF0D9"];
 
-        var stack = d3.stack();
+        let strokecolor = colorrange[0];
 
-        var area = d3.area()
-            .x(function(d, i) { return x(d.data.date); })
-            .y0(function(d) { return y(d[0]); })
-            .y1(function(d) { return y(d[1]); });
+        var format = d3.timeFormat("%m/%d/%y");
 
-        var g = svg.append("g")
+        var margin = {top: 20, right: 40, bottom: 30, left: 30};
+        var width = document.body.clientWidth - margin.left - margin.right;
+        var height = 400 - margin.top - margin.bottom;
+
+        var tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "remove")
+            .style("position", "absolute")
+            .style("z-index", "20")
+            .style("visibility", "hidden")
+            .style("top", "30px")
+            .style("left", "55px");
+
+        var x = d3.scaleTime()
+            .range([0, width]);
+
+        var y = d3.scaleLinear()
+            .range([height-10, 0]);
+
+        var z = d3.scaleOrdinal()
+            .range(colorrange);
+
+        var xAxis = d3.axisBottom(x)
+            .ticks(d3.timeWeeks);
+
+        var yAxis = d3.axisLeft(y)
+
+        var yAxisr = d3.axisRight(y)
+
+        var stack = d3.stack()
+            .offset("silhouette")
+            .values(function(d) { return d.values; })
+            .x(function(d) { return d.date; })
+            .y(function(d) { return d.value; });
+
+        var nest = d3.nest()
+            .key(function(d) { return d.key; });
+
+        var area = d3.svg.area()
+            .interpolate("cardinal")
+            .x(function(d) { return x(d.date); })
+            .y0(function(d) { return y(d.y0); })
+            .y1(function(d) { return y(d.y0 + d.y); });
+
+        var svg = d3.select(".chart").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            function type(d, i, columns) {
-            d.date = parseDate(d.date);
-            for (var i = 1, n = columns.length; i < n; ++i) d[columns[i]] = d[columns[i]] / 100;
-            return d;
-            }
-
-        tsv("data.tsv", type).then(function(data) {
-        
-        var keys = data.columns.slice(1);
-
-        x.domain(d3.extent(data, function(d) { return d.date; }));
-        z.domain(keys);
-        stack.keys(keys);
-
-        var layer = g.selectAll(".layer")
-            .data(stack(data))
-            .enter().append("g")
-            .attr("class", "layer");
-
-        layer.append("path")
-            .attr("class", "area")
-            .style("fill", function(d) { return z(d.key); })
-            .attr("d", area);
-
-        layer.filter(function(d) { return d[d.length - 1][1] - d[d.length - 1][0] > 0.01; })
-            .append("text")
-            .attr("x", width - 6)
-            .attr("y", function(d) { return y((d[d.length - 1][0] + d[d.length - 1][1]) / 2); })
-            .attr("dy", ".35em")
-            .style("font", "10px sans-serif")
-            .style("text-anchor", "end")
-            .text(function(d) { return d.key; });
-
-        g.append("g")
-            .attr("class", "axis axis--x")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
-
-        g.append("g")
-            .attr("class", "axis axis--y")
-            .call(d3.axisLeft(y).ticks(10, "%"));
-        }).catch(function(e){
-            console.log('This is the error', e)
+        var graph = d3.csv(csvpath, function(data) {
+        data.forEach(function(d) {
+            d.date = format.parse(d.date);
+            d.value = +d.value;
         });
 
+        var layers = stack(nest.entries(data));
 
-}
+        x.domain(d3.extent(data, function(d) { return d.date; }));
+        y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
+
+        svg.selectAll(".layer")
+            .data(layers)
+            .enter().append("path")
+            .attr("class", "layer")
+            .attr("d", function(d) { return area(d.values); })
+            .style("fill", function(d, i) { return z(i); });
 
 
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
 
+        svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + width + ", 0)")
+            .call(yAxis.orient("right"));
 
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis.orient("left"));
 
+        svg.selectAll(".layer")
+            .attr("opacity", 1)
+            .on("mouseover", function(d, i) {
+            svg.selectAll(".layer").transition()
+            .duration(250)
+            .attr("opacity", function(d, j) {
+                return j != i ? 0.6 : 1;
+            })})
 
+            .on("mousemove", function(d, i) {
+            mousex = d3.mouse(this);
+            mousex = mousex[0];
+            var invertedx = x.invert(mousex);
+            invertedx = invertedx.getMonth() + invertedx.getDate();
+            var selected = (d.values);
+            for (var k = 0; k < selected.length; k++) {
+                datearray[k] = selected[k].date
+                datearray[k] = datearray[k].getMonth() + datearray[k].getDate();
+            }
 
+            mousedate = datearray.indexOf(invertedx);
+            pro = d.values[mousedate].value;
 
+            d3.select(this)
+            .classed("hover", true)
+            .attr("stroke", strokecolor)
+            .attr("stroke-width", "0.5px"), 
+            tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" ).style("visibility", "visible");
+            
+            })
+            .on("mouseout", function(d, i) {
+            svg.selectAll(".layer")
+            .transition()
+            .duration(250)
+            .attr("opacity", "1");
+            d3.select(this)
+            .classed("hover", false)
+            .attr("stroke-width", "0px"), tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" ).style("visibility", "hidden");
+        })
+            
+        var vertical = d3.select(".chart")
+                .append("div")
+                .attr("class", "remove")
+                .style("position", "absolute")
+                .style("z-index", "19")
+                .style("width", "1px")
+                .style("height", "380px")
+                .style("top", "10px")
+                .style("bottom", "30px")
+                .style("left", "0px")
+                .style("background", "#fff");
+
+        d3.select(".chart")
+            .on("mousemove", function(){  
+                mousex = d3.mouse(this);
+                mousex = mousex[0] + 5;
+                vertical.style("left", mousex + "px" )})
+            .on("mouseover", function(){  
+                mousex = d3.mouse(this);
+                mousex = mousex[0] + 5;
+                vertical.style("left", mousex + "px")});
+        });
+
+    }
     render(){
         console.log(this.props)
         console.log(dataSet)
+        chart("data.csv", "orange");
         return(
             <svg ref={node => this.node = node}
             width={500} height={500} />
