@@ -17,6 +17,6 @@ function makeLearnMoreNotification() {
   })
 }
 
-export function initLearnMoreNotification(tab) {
-  if (tab) makeLearnMoreNotification()
+export function initLearnMoreNotification() {
+  makeLearnMoreNotification()
 }

@@ -16,7 +16,6 @@ export async function updateBayesModel() {
       }
     })
   })
-
   //Retrain the model (if we have both some work and some play documents)
   if (workDocuments.length > 0 && playDocuments.length > 0) {
     const classifier = new BayesClassifier()
@@ -37,7 +36,12 @@ export async function getBayesModel() {
   await db.transaction('rw', db.bayesModel, function*() {
     model = yield db.bayesModel.get(0)
   })
-  return model.model
+  //This is causing an error
+  if (model) {
+    return model.model
+  } else {
+    return null
+  }
 }
 
 // given a document, returns either "work" or "play"
@@ -49,11 +53,10 @@ export async function classifyDocument(document) {
 }
 
 // given a document, returns the relative probabilities of work or play
-//(not sure if we'll need this)
+//in this format: [{label: "play", value: 0.013}{label: "work", value: 0.026}]
 export async function getClassifications(document) {
   const model = await getBayesModel()
   const classifier = new BayesClassifier()
   classifier.restore(JSON.parse(model))
-  console.log('hi', classifier.getClassifications(document))
   return classifier.getClassifications(document)
 }
