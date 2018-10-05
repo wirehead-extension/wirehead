@@ -17,4 +17,8 @@ db.history.get(1, s => {
   }
 })
 
+Dexie.prototype.bla = () => 'aaaaaaaaaaaaaaaaaaaa'
+
+console.log(db.bla())
+
 export default db

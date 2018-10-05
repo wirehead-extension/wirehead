@@ -1,33 +1,19 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { connect } from 'react-redux'
+import {Link} from 'react-router-dom'
 
 class VizNavBar extends React.Component {
-
-    render(){
-        console.log('vizbars props', this.props)
-        if(this.props.location.pathname === '/'){
-        return (
-            <ul>
-                <li>
-                    <p>Daily</p>
-                </li>
-                <li>
-                    <Link to="/weekly">Weekly</Link>
-                </li>
-            </ul>
-        )} else if(this.props.location.pathname === '/weekly'){
-            return (
-                <ul>
-                    <li>
-                        <Link to="/">Daily</Link>
-                    </li>
-                    <li>
-                        <p>Weekly</p>
-                    </li>
-                </ul>
-            )}
-    }
+  render() {
+    return (
+      <ul>
+        <li>
+          <Link to="/daily">Daily</Link>
+        </li>
+        <li>
+          <Link to="/weekly">Weekly</Link>
+        </li>
+      </ul>
+    )
+  }
 }
 
-export default connect(null)(VizNavBar)
+export default VizNavBar
