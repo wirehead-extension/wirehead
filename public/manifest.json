@@ -42,5 +42,11 @@
       "js": ["contentScript.js"]
     }
   ],
-  "web_accessible_resources": ["dashboard.html"]
+  "web_accessible_resources": [
+    "dashboard.*",
+    "style.css",
+    "eventPage.*",
+    "popup.*",
+    "index.js"
+  ]
 }
