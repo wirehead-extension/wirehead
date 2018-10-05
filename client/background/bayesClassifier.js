@@ -28,6 +28,8 @@ export async function updateBayesModel() {
     db.transaction('rw', db.bayesModel, function*() {
       yield db.bayesModel.put({id: 0, model: JSON.stringify(classifier)})
     })
+    //returns true if model was actually updated
+    return true
   }
 }
 
@@ -37,7 +39,12 @@ export async function getBayesModel() {
   await db.transaction('rw', db.bayesModel, function*() {
     model = yield db.bayesModel.get(0)
   })
-  return model.model
+  //This is causing an error
+  if (model) {
+    return model.model
+  } else {
+    return null
+  }
 }
 
 // given a document, returns either "work" or "play"
