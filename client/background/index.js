@@ -235,7 +235,6 @@ function handleButton(notificationId, buttonIndex) {
       document: tabName,
       label: label
     })
-    //If
     await updateBayesModel()
     updateIcon(tabs[0])
   })
@@ -251,9 +250,7 @@ async function updateIcon(tab) {
   let certainty
   if (probabilities) {
     certainty =
-      ((probabilities[0].value > probabilities[1].value
-        ? probabilities[0].value
-        : probabilities[1].value) /
+      (probabilities[0].value /
         (probabilities[0].value + probabilities[1].value)) *
       100
   }

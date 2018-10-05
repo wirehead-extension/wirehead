@@ -53,7 +53,7 @@ export async function classifyDocument(document) {
 }
 
 // given a document, returns the relative probabilities of work or play
-//(not sure if we'll need this)
+//in this format: [{label: "play", value: 0.013}{label: "work", value: 0.026}]
 export async function getClassifications(document) {
   const model = await getBayesModel()
   const classifier = new BayesClassifier()
