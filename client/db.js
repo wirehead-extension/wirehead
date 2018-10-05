@@ -16,4 +16,5 @@ db.history.get(1, s => {
   //   db.history.bulkAdd(history)
   // }
 })
+
 export default db

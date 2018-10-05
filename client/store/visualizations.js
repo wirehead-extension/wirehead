@@ -1,115 +1,96 @@
+import db from '../db'
+
 /**
  * ACTION TYPES
  */
 
+const GOT_DATA = 'GOT_DATA'
 
 /**
  * INITIAL STATE
  */
-const initialState = {
-    data: [
-      { 
-        urlOrigin: 'Amazon',
-        timeStart: new Date('2018-10-03T08:24:00'),
-        timeEnd: new Date('2018-10-03T08:34:00'),
-        timeTotal: 600,
-        label: 'play'
-      },
-      { 
-        urlOrigin: 'Youtube',
-        timeStart: new Date('2018-10-03T08:34:00'),
-        timeEnd: new Date('2018-10-03T09:00:00'),
-        timeTotal: 1560,
-        label: 'play'
-      },
-      { 
-        urlOrigin: 'Twitch',
-        timeStart: new Date('2018-10-03T09:20:00'),
-        timeEnd: new Date('2018-10-03T10:20:00'),
-        timeTotal: 3600,
-        label: 'play'
-      },
-      { 
-        urlOrigin: 'Github',
-        timeStart: new Date('2018-10-03T10:30:00'),
-        timeEnd: new Date('2018-10-03T10:45:00'),
-        timeTotal: 900,
-        label: 'work'
-      },
-      { 
-        urlOrigin: 'Medium',
-        timeStart: new Date('2018-10-03T10:45:00'),
-        timeEnd: new Date('2018-10-03T11:10:00'),
-        timeTotal: 1500,
-        label: 'work'
-      },
-      { 
-        urlOrigin: 'Twitter',
-        timeStart: new Date('2018-10-03T11:10:00'),
-        timeEnd: new Date('2018-10-03T11:20:00'),
-        timeTotal: 600,
-        label: 'play'
-      },
-      { 
-        urlOrigin: 'MDN',
-        timeStart: new Date('2018-10-03T11:20:00'),
-        timeEnd: new Date('2018-10-03T12:20:00'),
-        timeTotal: 3600,
-        label: 'work'
-      },
-      { 
-        urlOrigin: 'Stack Overflow',
-        timeStart: new Date('2018-10-03T12:30:00'),
-        timeEnd: new Date('2018-10-03T12:40:00'),
-        timeTotal: 600,
-        label: 'work'
-      },
-      { 
-        urlOrigin: 'Reddit',
-        timeStart: new Date('2018-10-03T13:40:00'),
-        timeEnd: new Date('2018-10-03T14:00:00'),
-        timeTotal: 1200,
-        label: 'play'
-      },
-      { 
-        urlOrigin: 'Misc',
-        timeStart: new Date('2018-10-03T14:00:00'),
-        timeEnd: new Date('2018-10-03T14:05:00'),
-        timeTotal: 300,
-        label: 'play'
-      },
-      { 
-        urlOrigin: 'Hackernoon',
-        timeStart: new Date('2018-10-03T14:45:00'),
-        timeEnd: new Date('2018-10-03T15:05:00'),
-        timeTotal: 1200,
-        label: 'work'
-      },
-      { 
-        urlOrigin: 'Misc',
-        timeStart: new Date('2018-10-03T15:05:00'),
-        timeEnd: new Date('2018-10-03T15:05:40'),
-        timeTotal: 2400,
-        label: 'Work'
-      }  
-    ]
-}
-
+const initialState = []
 
 /**
  * ACTION CREATORS
  */
 
+const gotData = data => ({type: GOT_DATA, data})
+
 /**
  * THUNK CREATORS
  */
 
+export const fetchData = (periodStart, periodEnd, preprocessingParameter) => {
+  return async dispatch => {
+    const data = await db.history
+      .where('timeStart')
+      .between(periodStart, periodEnd)
+      .toArray()
+
+    if (preprocessingParameter === 'sumBySite') {
+      const sites = {}
+      data.forEach(site => {
+        if (!sites[site.url]) {
+          sites[site.url] = {}
+          sites[site.url][site.label] = site.timeTotal
+        } else {
+          sites[site.url][site.label]
+            ? (sites[site.url][site.label] += site.timeTotal)
+            : (sites[site.url][site.label] = site.timeTotal)
+        }
+      })
+      const siteKeys = Object.keys(sites)
+      const sitesArray = siteKeys.map(site => ({
+        url: site,
+        work: sites[site].work || 0,
+        play: sites[site].play || 0
+      }))
+      dispatch(gotData(sitesArray))
+    } else if (preprocessingParameter === 'sumByDayBySite') {
+      const result = []
+      const days = []
+      for (let i = 0; periodStart + i * 60000 * 60 * 24 < periodEnd; i++) {
+        days.push(periodStart + i * 60000 * 60 * 24)
+      }
+      for (const day of days) {
+        const sites = {}
+        const dayData = data.filter(
+          site =>
+            site.timeStart >= day && site.timeStart < day + i * 60000 * 60 * 24
+        )
+        dayData.forEach(site => {
+          if (!sites[site.url]) {
+            sites[site.url] = {}
+            sites[site.url][site.label] = site.timeTotal
+          } else {
+            sites[site.url][site.label]
+              ? (sites[site.url][site.label] += site.timeTotal)
+              : (sites[site.url][site.label] = site.timeTotal)
+          }
+        })
+        const siteKeys = Object.keys(sites)
+        const sitesArray = siteKeys.map(site => ({
+          url: site,
+          work: sites[site].work || 0,
+          play: sites[site].play || 0
+        }))
+        result.push(sitesArray)
+      }
+      dispatch(gotData(result))
+    } else if (preprocessingParameter === 'detail') {
+      dispatch(gotData(data))
+    }
+  }
+}
 
 /**
  * REDUCER
  */
 export default function(state = initialState, action) {
   switch (action.type) {
+    case GOT_DATA:
+      return action.data
     default:
       return state
   }
