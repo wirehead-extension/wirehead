@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
-import history from '../script/seed'
-import trainingData from '../script/bayesClassifierTraining'
+import history from '../../script/seed'
+import trainingData from '../../script/bayesClassifierTraining'
 
 const db = new Dexie('wirehead')
 db.version(5).stores({

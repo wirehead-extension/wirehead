@@ -3,7 +3,7 @@
 The structure of the background scripts is as follows:
 *index.js (this file), we have all our event listeners - I think they have to be here
 *utils.js is utility functions for use by index.js
-*db.js builds the db schema
+*db builds the db schema
 *bayesClassifier.js is for use by Kevin
 *don't hesitate to add new files as needed!
 */
