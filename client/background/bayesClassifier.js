@@ -17,6 +17,8 @@ export async function updateBayesModel() {
     })
   })
   //Retrain the model (if we have both some work and some play documents)
+  console.log('work docs length', workDocuments.length)
+  console.log('play docs length', playDocuments.length)
   if (workDocuments.length > 0 && playDocuments.length > 0) {
     const classifier = new BayesClassifier()
     classifier.addDocuments(workDocuments, 'work')
@@ -52,11 +54,33 @@ export async function classifyDocument(document) {
   return classifier.classify(document)
 }
 
-// given a document, returns the relative probabilities of work or play
-//in this format: [{label: "play", value: 0.013}{label: "work", value: 0.026}]
+// Given a document, returns the relative probabilities of work or play
+//In this format: [{label: "play", value: 0.013}{label: "work", value: 0.026}]
 export async function getClassifications(document) {
   const model = await getBayesModel()
   const classifier = new BayesClassifier()
   classifier.restore(JSON.parse(model))
   return classifier.getClassifications(document)
+}
+
+//We need to know how many training examples there are
+//in order to know how often to call updateBayesModel
+export async function getNumberOfTrainingExamples() {
+  let count
+  await db.transaction('rw', db.trainingData, function*() {
+    count = yield db.trainingData.count()
+  })
+  return count
+}
+
+//Delete 100 old db entries whenever we reach 10,000 training examples
+export async function deleteOldTrainingData() {
+  let dataOrderedByTime
+  await db.transaction('rw', db.trainingData, function*() {
+    dataOrderedByTime = yield db.trainingData.orderBy('time').toArray()
+  })
+  const idsToDelete = dataOrderedByTime.slice(0, 100).map(datum => datum.id)
+  await db.transaction('rw', db.trainingData, function*() {
+    yield db.trainingData.bulkDelete(idsToDelete)
+  })
 }

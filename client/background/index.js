@@ -11,7 +11,9 @@ import {
   getBayesModel,
   updateBayesModel,
   getClassifications,
-  classifyDocument
+  classifyDocument,
+  getNumberOfTrainingExamples,
+  deleteOldTrainingData
 } from './bayesClassifier'
 import {dateConverter, timeInSecond} from './utils'
 import db from '../db'
@@ -253,7 +255,6 @@ function handleButton(notificationId, buttonIndex) {
     tabs
   ) {
     tabName = tabs[0].title
-    console.log('tabName', tabName)
 
     let label
     if (buttonIndex === 0) {
@@ -264,9 +265,20 @@ function handleButton(notificationId, buttonIndex) {
 
     db.trainingData.add({
       document: tabName,
-      label: label
+      label: label,
+      time: new Date().getTime()
     })
-    await updateBayesModel()
-    updateIcon(tabs[0])
+    const numberExamples = await getNumberOfTrainingExamples()
+    //stop updating the machine learning model constantly if we have a good base of examples
+    const TRAINING_EXAMPLE_THRESHOLD = 2000
+    if (numberExamples < TRAINING_EXAMPLE_THRESHOLD) {
+      await updateBayesModel()
+      updateIcon(tabs[0])
+    }
+    //Delete older training data if we have accumulated a ton
+    // const MAX_TRAINING_EXAMPLES = 10000
+    // else if (numberExamples > 10000) {
+    deleteOldTrainingData()
+    // }
   })
 }
