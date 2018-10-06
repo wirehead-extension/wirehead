@@ -2,7 +2,7 @@
 
 //The meat of the logic
 export function dateConverter(newDate) {
-  var dateString = ""
+  var dateString = ''
 
   dateString += newDate.getMonth() + 1 + '/'
   dateString += newDate.getDate() + '/'
@@ -15,7 +15,7 @@ export function dateConverter(newDate) {
 }
 
 export function timeCalculator(times) {
-  var time = times/1000
+  var time = times / 1000
   var timeUsage
   if (time < 60) {
     timeUsage = Math.floor(time) + ' sec'
@@ -43,3 +43,5 @@ export function timeCalculator(times) {
 //   },
 //   ['blocking']
 // )
+
+//
