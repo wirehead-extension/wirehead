@@ -11,10 +11,17 @@ import {
   getBayesModel,
   updateBayesModel,
   getClassifications,
-  classifyDocument
+  classifyDocument,
+  getNumberOfTrainingExamples,
+  deleteOldTrainingData
 } from './bayesClassifier'
 import {dateConverter, timeInSecond} from './utils'
 import db from '../db'
+
+//We remake the bayes model less often when we have  LOTS  of examples
+const LOTS_OF_TRAINING_EXAMPLES = 2000
+//We cull old traingin examples from db after reaching MAX
+const MAX_TRAINING_EXAMPLES = 10000
 
 var currentWindow
 
@@ -27,7 +34,6 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0]) {
         var url = new URL(tabs[0].url)
-
         // Update time end when focus out of the tab
         db.history
           .toArray()
@@ -217,13 +223,31 @@ async function updateIcon(tab) {
   }
 }
 
+//This alarm should update the bayes model with new training data about one every day
+//but only if we have LOTS_OF_TRAINING_DATA (2000 lines in db)
+//which would make updating the model computationaly expensive
+//Otherwise, we can just update the model every time we add a single training datum
+chrome.alarms.create('train bayes model', {periodInMinutes: 1000})
+
+chrome.alarms.onAlarm.addListener(async function(alarm) {
+  if (alarm.name === 'train bayes model') {
+    const numberExamples = await getNumberOfTrainingExamples()
+
+    if (numberExamples >= LOTS_OF_TRAINING_EXAMPLES) {
+      updateBayesModel()
+    }
+  }
+})
+
 //NOTFICATION STUFF IS BELOW
 
 //User will be annoyed with notifications way too often for demo purposes
-chrome.alarms.create('alarm', {periodInMinutes: 0.2})
+chrome.alarms.create('initialize notification', {periodInMinutes: 0.2})
 
 chrome.alarms.onAlarm.addListener(function(alarm) {
-  initNotification()
+  if (alarm.name === 'initialize notification') {
+    initNotification()
+  }
 })
 // I needed to break notification-making into two functions because querying tabs is asynchronus
 function initNotification() {
@@ -247,13 +271,11 @@ function makeNotification() {
 }
 
 function handleButton(notificationId, buttonIndex) {
-  //Is this page title associated with work or with play?
   let tabName
   chrome.tabs.query({active: true, lastFocusedWindow: true}, async function(
     tabs
   ) {
     tabName = tabs[0].title
-    console.log('tabName', tabName)
 
     let label
     if (buttonIndex === 0) {
@@ -264,9 +286,18 @@ function handleButton(notificationId, buttonIndex) {
 
     db.trainingData.add({
       document: tabName,
-      label: label
+      label: label,
+      time: new Date().getTime()
     })
-    await updateBayesModel()
-    updateIcon(tabs[0])
+    const numberExamples = await getNumberOfTrainingExamples()
+    //stop constantly updating the bayes model if we have a lots of training examples, //so as not to make chrome really slow
+    if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
+      await updateBayesModel()
+      updateIcon(tabs[0])
+    }
+    //Delete older training data if we have accumulated a ton
+    else if (numberExamples > MAX_TRAINING_EXAMPLES) {
+      deleteOldTrainingData()
+    }
   })
 }
