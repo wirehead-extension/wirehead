@@ -17,8 +17,6 @@ export async function updateBayesModel() {
     })
   })
   //Retrain the model (if we have both some work and some play documents)
-  console.log('work docs length', workDocuments.length)
-  console.log('play docs length', playDocuments.length)
   if (workDocuments.length > 0 && playDocuments.length > 0) {
     const classifier = new BayesClassifier()
     classifier.addDocuments(workDocuments, 'work')

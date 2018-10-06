@@ -10,4 +10,8 @@ let data = trainingData.map(site => ({
   time: new Date().getTime()
 }))
 
+// while (data.length < 3000) {
+//   data = [...data, ...data]
+// }
+
 export default data
