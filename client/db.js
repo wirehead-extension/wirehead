@@ -10,6 +10,7 @@ db.version(5).stores({
   bayesModel: '++id, model'
 })
 
+//TODO: before entering production, remove the seed functionality!
 db.history.get(1, s => {
   if (!s) {
     db.history.bulkAdd(history)
