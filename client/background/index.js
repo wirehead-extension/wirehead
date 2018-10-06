@@ -34,7 +34,6 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0]) {
         var url = new URL(tabs[0].url)
-
         // Update time end when focus out of the tab
         db.history
           .toArray()
@@ -228,7 +227,7 @@ async function updateIcon(tab) {
 //but only if we have LOTS_OF_TRAINING_DATA (2000 lines in db)
 //which would make updating the model computationaly expensive
 //Otherwise, we can just update the model every time we add a single training datum
-chrome.alarms.create('train bayes model', {periodInMinutes: 0.2})
+chrome.alarms.create('train bayes model', {periodInMinutes: 1000})
 
 chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name === 'train bayes model') {
