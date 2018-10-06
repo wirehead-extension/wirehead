@@ -276,9 +276,9 @@ function handleButton(notificationId, buttonIndex) {
       updateIcon(tabs[0])
     }
     //Delete older training data if we have accumulated a ton
-    // const MAX_TRAINING_EXAMPLES = 10000
-    // else if (numberExamples > 10000) {
+    const MAX_TRAINING_EXAMPLES = 10000
+    else if (numberExamples > 10000) {
     deleteOldTrainingData()
-    // }
+    }
   })
 }
