@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 import history from '../../script/seed'
 import trainingData from '../../script/bayesClassifierTraining'
+import {getHistoryRange, splitByPeriod, sumBySite} from './dbUtils'
 
 const db = new Dexie('wirehead')
 db.version(5).stores({
@@ -18,8 +19,24 @@ db.history.get(1, s => {
   }
 })
 
-Dexie.prototype.bla = () => 'aaaaaaaaaaaaaaaaaaaa'
+Dexie.prototype.getFullHistory = function(startDate, endDate) {
+  return getHistoryRange(this, startDate, endDate).toArray()
+}
 
-console.log(db.bla())
+Dexie.prototype.getDailySummary = function(startDate, endDate) {
+  return splitByPeriod(this, 'day', startDate, endDate)
+}
+
+Dexie.prototype.getWeeklySummary = function(startDate, endDate) {
+  return splitByPeriod(this, 'week', startDate, endDate)
+}
+
+Dexie.prototype.getTotalSummary = function(startDate, endDate) {
+  return sumBySite(this, startDate, endDate)
+}
+
+console.log(db)
+
+console.log(db.getFullHistory(new Date() - 15 * 24 * 60 * 60000, 1))
 
 export default db
