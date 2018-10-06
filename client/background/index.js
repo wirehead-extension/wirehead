@@ -15,6 +15,7 @@ import {
   getNumberOfTrainingExamples,
   deleteOldTrainingData
 } from './bayesClassifier'
+import {initOptions, updateOptions, getOptions} from './options'
 import {dateConverter, timeInSecond} from './utils'
 import db from '../db'
 
@@ -24,9 +25,8 @@ const LOTS_OF_TRAINING_EXAMPLES = 2000
 const MAX_TRAINING_EXAMPLES = 10000
 
 var currentWindow
-
 //Store the data when a chrome window switched
-chrome.windows.onFocusChanged.addListener(function(windowInfo) {
+chrome.windows.onFocusChanged.addListener(async function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
   //It runs only currentWindow ID has been changed
   if (windowInfo > 0 && windowInfo !== currentWindow) {
