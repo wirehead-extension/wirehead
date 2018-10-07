@@ -3,34 +3,28 @@ import db from '../db'
 //There will only ever be one options object :)
 
 const defaultOptions = {
-  trainingPopupFrequency: 0.1,
+  trainingPopupFrequency: 0.3,
   allowTrainingPopups: true,
-  allowShaming: true,
-  id: 0
+  allowShaming: true
 }
-//takes a string and a number/bool
-export async function updateOptions(optionToUpdate, newValue) {
-  let options = await getOptions()
-  options[optionToUpdate] = newValue
-  console.log('options after put request', options)
+//takes an options object
+export async function updateOptions(newOptions) {
   await db.transaction('rw', db.options, function*() {
-    yield db.options.put(options)
+    yield db.options.put(newOptions, 1)
   })
 }
 
 export async function getOptions() {
   let options
   await db.transaction('rw', db.options, function*() {
-    options = yield db.options.get(0)
+    options = yield db.options.get(1)
   })
-  console.log('options after db call in get options', options)
   return options ? options : initOptions()
 }
 
 export async function initOptions() {
-  console.log('init-ing')
   await db.transaction('rw', db.options, function*() {
-    yield db.options.add(defaultOptions)
+    yield db.options.add(defaultOptions, 1)
   })
   return defaultOptions
 }
