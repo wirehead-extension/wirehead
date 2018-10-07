@@ -35,8 +35,8 @@ Dexie.prototype.getTotalSummary = function(startDate, endDate) {
   return sumBySite(this, startDate, endDate)
 }
 
-Dexie.prototype.todayTopFive = fucntion() {
-  return topFive(this, new(Date).setHours(0,0,0,0),1)
+Dexie.prototype.todayTopFive = function() {
+  return topFive(this, new Date.setHours(0, 0, 0, 0), 1)
 }
 
 export default db
