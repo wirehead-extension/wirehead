@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import {fetchData} from '../../store'
 import {withRouter} from 'react-router-dom'
 import {humanTime} from '../utils'
-import DatePicker from './DatePicker'
+import {DatePicker} from './'
 import * as d3 from 'd3'
 
 class Daily extends React.Component {
@@ -12,7 +12,7 @@ class Daily extends React.Component {
     this.createDashboard = this.createDashboard.bind(this)
   }
 
-  handleDateChange(date) {
+  handleDateChange = date => {
     this.props.fetchData(new Date(date), 1, 'sumBySite')
   }
 

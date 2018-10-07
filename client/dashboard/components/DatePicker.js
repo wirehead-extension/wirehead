@@ -8,7 +8,6 @@ export default class DatePicker extends React.Component {
   }
 
   handleChange = (e, {value}) => {
-    console.log(value)
     this.setState({date: value})
     this.props.handleDateChange(value)
   }
