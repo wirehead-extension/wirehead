@@ -33,9 +33,12 @@ export async function getDataPage(historyCollection, key, limit, page) {
 //takes a collection and returns an array of objects with keys {url, work, play}
 export async function sumBySite(db, startDate, endDate) {
   const historyCollection = getHistoryRange(db, startDate, endDate)
-  const sitesArray = await historyCollection.toArray()
+  return sumCollectionBySite(await historyCollection.toArray())
+}
+
+function sumCollectionBySite(array) {
   const sitesObject = {}
-  sitesArray.forEach(s => addOrInc(sitesObject, s.url, s.label, s.timeTotal))
+  array.forEach(s => addOrInc(sitesObject, s.url, s.label, s.timeTotal))
   const allSites = Object.keys(sitesObject)
   return allSites.map(s => ({
     url: s,
@@ -46,14 +49,15 @@ export async function sumBySite(db, startDate, endDate) {
 }
 
 export async function splitByPeriod(db, period, startDate, endDate) {
-  const historyCollection = getHistoryRange(db, startDate, endDate)
-  let msInPeriod
+  const sitesArray = await getHistoryRange(db, startDate, endDate).toArray()
+  endDate = makeDateRange(startDate, endDate)[1]
+  let msInPeriod = await getHistoryRange
   const datesSummary = []
   if (period === 'day') msInPeriod = msInDay
   else if (period === 'week') msInPeriod = msInDay * 7
   for (let i = startDate; i < endDate; i += msInPeriod) {
-    const periodSummary = await sumBySite(
-      historyCollection.filter(
+    const periodSummary = await sumCollectionBySite(
+      sitesArray.filter(
         item => item.timeStart >= i && item.timeStart < i + msInPeriod
       )
     )
