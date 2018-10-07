@@ -6,10 +6,10 @@ class VizNavBar extends React.Component {
     return (
       <ul>
         <li>
-          <Link to="/daily">Daily</Link>
+          <Link to="/viz/daily">Daily</Link>
         </li>
         <li>
-          <Link to="/weekly">Weekly</Link>
+          <Link to="/viz/weekly">Weekly</Link>
         </li>
       </ul>
     )
