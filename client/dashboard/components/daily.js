@@ -46,7 +46,9 @@ class Daily extends React.Component {
 
     const findTopFiveTotal = dataSet => {
       let sortedArr = dataSet.sort(function(a, b) {
-        return b.work + b.play - a.work - a.play
+        return (
+          b.work + b.play + b.uncategorized - a.work - a.play - a.uncategorized
+        )
       })
       return sortedArr.slice(0, 5)
     }
@@ -73,17 +75,17 @@ class Daily extends React.Component {
     const findTotalPlay = dataSet =>
       dataSet.reduce((acc, cur) => (cur.play ? acc + cur.play : acc), 0)
 
+    const findTotalUncategorized = dataSet =>
+      dataSet.reduce(
+        (acc, cur) => (cur.uncategorized ? acc + cur.uncategorized : acc),
+        0
+      )
+
     topFiveTotal = findTopFiveTotal(this.props.data)
     topFivePlay = findTopFivePlay(this.props.data)
     topFiveWork = findTopFiveWork(this.props.data)
     totalWork = findTotalWork(this.props.data)
     totalPlay = findTotalPlay(this.props.data)
-
-    console.log('this is topFiveTotal', topFiveTotal)
-    console.log('this is topFiveWork', topFiveWork)
-    console.log('this is topFivePlay', topFivePlay)
-    console.log('this is totalWork', totalWork)
-    console.log('this is totalPlay', totalPlay)
 
     var barColor = 'steelblue'
     function segColor(c) {
@@ -107,7 +109,7 @@ class Daily extends React.Component {
 
     // calculate total frequency by state for all segment.
     var sF = topFiveTotal.map(function(d) {
-      return [d.url, d.play, d.work]
+      return [d.url, d.play + d.work]
     })
     console.log('this is sf for histomogram', sF)
     var hG = histoGram(sF), // create the histogram.
