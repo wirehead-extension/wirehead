@@ -262,11 +262,12 @@ chrome.runtime.onInstalled.addListener(function(details) {
 //This makes a notification when alarm fires
 chrome.alarms.onAlarm.addListener(function(alarm) {
   if (alarm.name === 'make notification') {
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      if (tabs[0]) {
-        makeNotification()
-      }
-    })
+    if (getOptions().allowTrainingPopups === true)
+      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+        if (tabs[0]) {
+          makeNotification()
+        }
+      })
   }
 })
 
@@ -340,6 +341,3 @@ function checkForAlarmUpdates(numberExamples) {
     updateNotificationFrequency(60)
   }
 }
-
-// chrome.runtime.sendmessage
-// chrome.runtime.getmessage
