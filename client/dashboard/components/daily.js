@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import {fetchData} from '../../store'
 import {withRouter} from 'react-router-dom'
 import {humanTime} from '../utils'
-import moment from 'moment'
+import DatePicker from './DatePicker'
 import * as d3 from 'd3'
 
 class Daily extends React.Component {
