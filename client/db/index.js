@@ -36,8 +36,4 @@ Dexie.prototype.getTotalSummary = function(startDate, endDate) {
   return sumBySite(this, startDate, endDate)
 }
 
-console.log(db)
-
-console.log(db.getFullHistory(new Date() - 15 * 24 * 60 * 60000, 1))
-
 export default db
