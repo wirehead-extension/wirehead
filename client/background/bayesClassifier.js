@@ -16,7 +16,6 @@ export async function updateBayesModel() {
       }
     })
   })
-
   //Retrain the model (if we have both some work and some play documents)
   if (workDocuments.length > 0 && playDocuments.length > 0) {
     const classifier = new BayesClassifier()
@@ -37,7 +36,12 @@ export async function getBayesModel() {
   await db.transaction('rw', db.bayesModel, function*() {
     model = yield db.bayesModel.get(0)
   })
-  return model.model
+  //This is causing an error
+  if (model) {
+    return model.model
+  } else {
+    return null
+  }
 }
 
 // given a document, returns either "work" or "play"
@@ -48,12 +52,33 @@ export async function classifyDocument(document) {
   return classifier.classify(document)
 }
 
-// given a document, returns the relative probabilities of work or play
-//(not sure if we'll need this)
+// Given a document, returns the relative probabilities of work or play
+//In this format: [{label: "play", value: 0.013}{label: "work", value: 0.026}]
 export async function getClassifications(document) {
   const model = await getBayesModel()
   const classifier = new BayesClassifier()
   classifier.restore(JSON.parse(model))
-  console.log('hi', classifier.getClassifications(document))
   return classifier.getClassifications(document)
+}
+
+//We need to know how many training examples there are
+//in order to know how often to call updateBayesModel
+export async function getNumberOfTrainingExamples() {
+  let count
+  await db.transaction('rw', db.trainingData, function*() {
+    count = yield db.trainingData.count()
+  })
+  return count
+}
+
+//Delete 100 old db entries whenever we reach 10,000 training examples
+export async function deleteOldTrainingData() {
+  let dataOrderedByTime
+  await db.transaction('rw', db.trainingData, function*() {
+    dataOrderedByTime = yield db.trainingData.orderBy('time').toArray()
+  })
+  const idsToDelete = dataOrderedByTime.slice(0, 100).map(datum => datum.id)
+  await db.transaction('rw', db.trainingData, function*() {
+    yield db.trainingData.bulkDelete(idsToDelete)
+  })
 }
