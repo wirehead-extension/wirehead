@@ -20,11 +20,6 @@ form div {
   display: inline-block;
 }
 
-.content {
-  width: 300px;
-}
-
-
 body{
   width:1060px;
   margin:50px auto;
@@ -38,9 +33,9 @@ rect:hover {  fill:blue; }
 
 .axis path,
 .axis line {
-fill: none;
-stroke: #000;
-shape-rendering: crispEdges;
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
 
 .x.axis path {  display: none; }
@@ -57,4 +52,14 @@ shape-rendering: crispEdges;
 .legendFreq, .legendPerc{
   align:right;
   width:50px;
+}
+
+
+
+
+
+
+.content {
+  width: 300px;
+  text-align: center;
 }

@@ -8,7 +8,7 @@ The structure of the background scripts is as follows:
 *don't hesitate to add new files as needed!
 */
 import {updateBayesModel, getClassifications} from './bayesClassifier'
-import {dateConverter, timeInSecond} from './utils'
+import {dateConverter, timeInSecond, timeCalculator} from './utils'
 import db from '../db'
 
 var currentWindow
@@ -17,39 +17,35 @@ var currentWindow
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
   //It runs only currentWindow ID has been changed
+
   if (windowInfo > 0 && windowInfo !== currentWindow) {
     currentWindow = windowInfo
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if(tabs[0]) {
-    var url = new URL(tabs[0].url)
+      var url = new URL(tabs[0].url)
 
-    // Update time end when focus out of the tab
-    db.history.toArray().then(result=>{
-      var idx = result.length-1
-      return result[idx]
-    })
-    .then(data=>{
-      db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-    })
+      // Update time end when focus out of the tab
+      db.history.toArray().then(result=>{
+        var idx = result.length-1
+        return result[idx]
+      })
+      .then(data=>{
+        db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
+      })
 
-    //Post start time data when open the tab
-    db.history
-    .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
-    .then(i => {
-      console.log('wrote ' + i)
-    })
-    .catch(err => {
-      console.error(err)
-    })
+      //Post start time data when open the tab
+      db.history
+      .put({url: url.hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
+      .then(i => {
+        console.log('wrote ' + i)
+      })
+      .catch(err => {
+        console.error(err)
+      })
     }
   })
   }
 })
-
-//Initial store the data right after re-load
-// chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-
-// })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   chrome.browserAction.setIcon(
@@ -150,20 +146,33 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 //NOTFICATION STUFF IS BELOW
 
 //User will be annoyed with notifications way too often for demo purposes
-// chrome.alarms.create('alarm', {periodInMinutes: 0.1})
+chrome.alarms.create('alarm', {periodInMinutes: 5})
 
-// chrome.alarms.onAlarm.addListener(function(alarm) {
-//   initNotification()
-// })
+//User will be notified by hour how long they stayed on the website
+chrome.alarms.create('timer', {periodInMinutes: 0.1})
+
+//Timer keep tracks current time & if laptop is turned off
+chrome.alarms.create('tracker', {periodInMinutes: 0.1})
+
+chrome.alarms.onAlarm.addListener(function(alarm) {
+  if (alarm.name === 'timer') {
+    timeNotification()
+  } else if (alarm.name === 'alarm') {
+    initNotification()
+  } else if (alarm.name === 'tracker') {
+    timeTracker()
+  }
+})
 //I needed to break notification-making into two functions because querying tabs is asynchronus
-// function initNotification() {
-//   //If there's an active page, get the page title and init a notification
-//   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-//     if (tabs) {
-//       makeNotification(tabs[0].title)
-//     }
-//   })
-// }
+function initNotification() {
+  //If there's an active page, get the page title and init a notification
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      console.log(tabs)
+      makeNotification(tabs[0].title)
+    }
+  })
+}
 function makeNotification(tabName) {
   chrome.notifications.create({
     type: 'basic',
@@ -194,5 +203,68 @@ function makeNotification(tabName) {
     //might slow down your computer if you have a lot of stuff in 'trainingdata' db
     updateBayesModel()
     getClassifications('github')
+  })
+}
+
+
+
+function timeNotification() {
+  //If there's an active page, get the page title and init a notification
+
+
+  var current = new Date()
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      var url = new URL(tabs[0].url).hostname
+      db.history.where({url}).toArray().then(result=>{
+        var totalSpend = 0
+        var idx = result.length - 1
+
+        result.forEach(data=>{
+          if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
+          && new Date(data.timeStart).getMonth() === new Date().getMonth()
+          && new Date(data.timeStart).getDate() === new Date().getDate()) {
+            totalSpend += data.timeTotal
+          }
+        })
+        // var totalCurrentTime = totalSpend + (current - new Date(result[idx].timeStart))
+        var hourCalculator = Math.floor(totalSpend/3600000) * 3600000
+        console.log('title:',tabs[0].title, 'time:', totalSpend)
+        if (totalSpend > hourCalculator && totalSpend < hourCalculator + 6000 && totalSpend > 10000) {
+          makeTimeNotification(tabs[0].title, totalSpend)
+        }
+      })
+    }
+  })
+}
+
+function makeTimeNotification(title, time) {
+  var timeprint = timeCalculator(time)
+  chrome.notifications.create({
+    type: 'basic',
+    title: 'You spent time on this website',
+    iconUrl: 'heartwatch.png',
+    message: title.slice(0,30) + ' : \n' + timeprint
+  })
+}
+
+function timeTracker() {
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      db.history.toArray().then(result=>{
+        var idx = result.length-1
+        return result[idx]
+      })
+      .then(data=>{
+        if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000 && new Date(data.timeStart).getFullYear() === new Date().getFullYear()
+        && new Date(data.timeStart).getMonth() === new Date().getMonth()
+        && new Date(data.timeStart).getDate() === new Date().getDate()) {
+          db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
+        } else {
+          db.history
+          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
+        }
+      })
+    }
   })
 }

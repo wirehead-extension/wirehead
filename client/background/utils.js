@@ -23,9 +23,32 @@ export function timeCalculator(times) {
     timeUsage = Math.floor(time / 60) + ' min'
   } else if (time >= 3600 && time < 86400) {
     timeUsage =
-      Math.floor(time / 3600) + ' hrs' + Math.floor((time % 3600) / 60) + 'min'
+      Math.floor(time / 3600) + ' hr ' + Math.floor((time % 3600) / 60) + 'min'
   }
   return timeUsage
+}
+
+export function currentTimeCalculator(times) {
+  var time = times/1000
+  var smallUsage = ''
+  var hugeUsage = ''
+  if (time < 60) {
+    Math.floor(time) < 10 ? smallUsage = '0' + Math.floor(time) + ' sec' : smallUsage = Math.floor(time) + ' sec'
+  } else if (time >= 60 && time < 3600) {
+    Math.floor(time / 60) < 10 ? hugeUsage = '00:0' + Math.floor(time / 60) : hugeUsage = '00:' + Math.floor(time / 60)
+  } else if (time >= 3600 && time < 86400) {
+    if (Math.floor(time / 3600) < 10) {
+      hugeUsage += '0' + Math.floor(time / 3600) + ':'
+    } else {
+      hugeUsage += Math.floor(time / 3600) + ':'
+    }
+    if (Math.floor((time % 3600) / 60) < 10) {
+      hugeUsage += '0' + Math.floor((time % 3600) / 60)
+    } else {
+      hugeUsage += Math.floor((time % 3600) / 60)
+    }
+  }
+  return smallUsage || hugeUsage
 }
 
 //Stuff here is to block websites
