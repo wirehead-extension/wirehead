@@ -53,7 +53,8 @@
     "react-router-dom": "^4.3.1",
     "redux": "^4.0.0",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "semantic-ui-react": "^0.82.5"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -90,6 +91,7 @@
     "react-test-renderer": "^16.5.2",
     "redux-devtools-extension": "^2.13.5",
     "redux-mock-store": "^1.5.3",
+    "semantic-ui": "^2.4.0",
     "supertest": "^3.3.0",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2"
