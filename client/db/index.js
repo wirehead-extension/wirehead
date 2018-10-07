@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import history from '../../script/seed'
 import trainingData from '../../script/bayesClassifierTraining'
-import {getHistoryRange, splitByPeriod, sumBySite} from './dbUtils'
+import {getHistoryRange, splitByPeriod, sumBySite, topFive} from './dbUtils'
 
 const db = new Dexie('wirehead')
 db.version(5).stores({
@@ -33,6 +33,10 @@ Dexie.prototype.getWeeklySummary = function(startDate, endDate) {
 
 Dexie.prototype.getTotalSummary = function(startDate, endDate) {
   return sumBySite(this, startDate, endDate)
+}
+
+Dexie.prototype.todayTopFive = fucntion() {
+  return topFive(this, new(Date).setHours(0,0,0,0),1)
 }
 
 export default db
