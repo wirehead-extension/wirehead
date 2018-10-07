@@ -12,8 +12,8 @@ class Daily extends React.Component {
     this.createDashboard = this.createDashboard.bind(this)
   }
 
-  handleDateChange(e, {value}) {
-    this.props.fetchData(value, 1, 'sumBySite')
+  handleDateChange(date) {
+    this.props.fetchData(new Date(date), 1, 'sumBySite')
   }
 
   componentDidMount() {
@@ -452,7 +452,7 @@ class Daily extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <DatePicker onChange={this.handleDateChange} />
+        <DatePicker handleDateChange={this.handleDateChange} />
         <div id="dashboard" />
       </React.Fragment>
     )

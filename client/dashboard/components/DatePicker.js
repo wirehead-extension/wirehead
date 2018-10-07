@@ -7,6 +7,12 @@ export default class DatePicker extends React.Component {
     date: ''
   }
 
+  handleChange = (e, {value}) => {
+    console.log(value)
+    this.setState({date: value})
+    this.props.handleDateChange(value)
+  }
+
   render() {
     return (
       <Form>
@@ -15,7 +21,8 @@ export default class DatePicker extends React.Component {
           placeholder="Date"
           value={this.state.date}
           iconPosition="left"
-          onChange={this.props.handleChange}
+          onChange={this.handleChange}
+          dateFormat="MM/DD/YYYY"
         />
       </Form>
     )
