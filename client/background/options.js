@@ -3,7 +3,6 @@ import db from '../db'
 //There will only ever be one options object :)
 
 const defaultOptions = {
-  trainingPopupFrequency: 0.3,
   allowTrainingPopups: true,
   allowShaming: true
 }

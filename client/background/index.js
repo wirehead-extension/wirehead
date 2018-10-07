@@ -175,7 +175,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
       })
     })
 })
-
+//!!!!!!
 //listens for all events emitted by page content scripts
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action) {
@@ -312,7 +312,11 @@ function handleButton(notificationId, buttonIndex) {
       label: label,
       time: new Date().getTime()
     })
+
     const numberExamples = await getNumberOfTrainingExamples()
+    //Slowly decrease frequency of popup (in minutes) as user uses the extension more
+    checkForAlarmUpdates(numberExamples)
+
     //stop constantly updating the bayes model if we have a lots of training examples, //so as not to make chrome really slow
     if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
       await updateBayesModel()
@@ -324,3 +328,18 @@ function handleButton(notificationId, buttonIndex) {
     }
   })
 }
+
+function checkForAlarmUpdates(numberExamples) {
+  if (numberExamples === 100) {
+    updateNotificationFrequency(10)
+  } else if (numberExamples === 200) {
+    updateNotificationFrequency(20)
+  } else if (numberExamples === 500) {
+    updateNotificationFrequency(30)
+  } else if (numberExamples === 1000) {
+    updateNotificationFrequency(60)
+  }
+}
+
+// chrome.runtime.sendmessage
+// chrome.runtime.getmessage
