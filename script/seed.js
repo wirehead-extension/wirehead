@@ -1,4 +1,3 @@
-//uncomment code in db.js to seed the data!
 //get dates from the number below by calling new Date(milliseconds)
 const playSites = [
   'facebook.com',
@@ -72,7 +71,7 @@ const generateTimeOfflineLength = () =>
 const generateTimeOnSiteLength = () =>
   Math.sin(Math.sin(Math.random() * 1.1752011)) * 15 * 60 * 1000 + 500
 
-const yearStart = new Date(2017, 9, 1).valueOf()
+const yearStart = new Date(2017, 9, 1).valueOf() + 5 * 60 * 60 * 1000
 const fullDay = 60 * 60 * 24 * 1000
 const workingDay = 60 * 60 * 18 * 1000
 
@@ -115,8 +114,8 @@ for (let i = 0; i < 367; i++) {
       const endTime = currentTime + generateTimeOnSiteLength()
       const totalTime = endTime - currentTime
       history.push({
-        timeStart: new Date(currentTime),
-        timeEnd: new Date(endTime),
+        timeStart: currentTime,
+        timeEnd: endTime,
         timeTotal: totalTime,
         url: site,
         label: whatDoing
