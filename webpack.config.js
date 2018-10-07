@@ -24,6 +24,7 @@ module.exports = {
       },
       {
         test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+        exclude: '/client/semantic/',
         use: {
           loader: 'file-loader',
           options: {
