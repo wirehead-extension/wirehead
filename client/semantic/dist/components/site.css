@@ -13,7 +13,7 @@
              Page
 *******************************/
 
-@import url('https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic&subset=latin');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700,400italic,700italic&subset=latin');
 html,
 body {
   height: 100%;
@@ -26,11 +26,11 @@ body {
   padding: 0px;
   overflow-x: hidden;
   min-width: 320px;
-  background: #FFFFFF;
-  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  font-size: 14px;
+  background: #060606;
+  font-family: "Roboto", 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-size: 0.875rem;
   line-height: 1.4285em;
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
   font-smoothing: antialiased;
 }
 
@@ -44,7 +44,7 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: "Roboto";
   line-height: 1.28571429em;
   margin: calc(2rem -  0.14285714em ) 0em 1rem;
   font-weight: bold;
@@ -102,11 +102,11 @@ p:last-child {
 --------------------*/
 
 a {
-  color: #4183C4;
+  color: #4183c4;
   text-decoration: none;
 }
 a:hover {
-  color: #1e70bf;
+  color: #4183c4;
   text-decoration: none;
 }
 
@@ -125,32 +125,32 @@ a:hover {
 /* Site */
 ::-webkit-selection {
   background-color: #CCE2FF;
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
 }
 ::-moz-selection {
   background-color: #CCE2FF;
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
 }
 ::selection {
   background-color: #CCE2FF;
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
 }
 
 /* Form */
 textarea::-webkit-selection,
 input::-webkit-selection {
   background-color: rgba(100, 100, 100, 0.4);
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
 }
 textarea::-moz-selection,
 input::-moz-selection {
   background-color: rgba(100, 100, 100, 0.4);
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
 }
 textarea::selection,
 input::selection {
   background-color: rgba(100, 100, 100, 0.4);
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
 }
 
 /* Force Simple Scrollbars */
@@ -190,12 +190,35 @@ body .ui.inverted::-webkit-scrollbar-thumb:window-inactive {
 body .ui.inverted::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.35);
 }
-
-
-/*******************************
-        Global Overrides
-*******************************/
-
+.text.primary,
+.text.primary:hover {
+  color: #2A9FD6;
+}
+.text.positive,
+.text.positive:hover {
+  color: #77B300;
+}
+.text.negative,
+.text.negative:hover {
+  color: #CC0000;
+}
+.text.warning,
+.text.warning:hover {
+  color: #FF8800;
+}
+.text.info,
+.text.info:hover {
+  color: #9933CC;
+}
+legend {
+  color: #fff;
+}
+pre .code {
+  color: #888 !important;
+}
+.ui.rating .icon:not(.active) {
+  color: #888 !important;
+}
 
 
 /*******************************

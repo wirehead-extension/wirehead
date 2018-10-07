@@ -15,8 +15,12 @@ import {
   getNumberOfTrainingExamples,
   deleteOldTrainingData
 } from './bayesClassifier'
+<<<<<<< HEAD
 import {initOptions, updateOptions, getOptions} from './options'
 import {dateConverter, timeInSecond} from './utils'
+=======
+import {dateConverter, timeInSecond, timeCalculator} from './utils'
+>>>>>>> 45464a3e26a0ad86fc3d9b32e1c6d8c3f6d44367
 import db from '../db'
 
 //We remake the bayes model less often when we have  LOTS  of examples
@@ -29,6 +33,7 @@ var currentWindow
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
   //It runs only currentWindow ID has been changed
+
   if (windowInfo > 0 && windowInfo !== currentWindow) {
     currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
@@ -67,11 +72,6 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     })
   }
 })
-
-//Initial store the data right after re-load
-// chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-
-// })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   //get detail information of activated tab
@@ -249,9 +249,6 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 
 //NOTFICATION STUFF IS BELOW
 
-//func 2: if existant alarm, clear it and updte the time
-//(func 2 invoked when user updates training popup frequency)
-
 //This initializes alarm that causes notifications to be made
 chrome.runtime.onInstalled.addListener(function(details) {
   if (details.reason === 'install') {
@@ -259,23 +256,28 @@ chrome.runtime.onInstalled.addListener(function(details) {
   }
 })
 
-//This makes a notification when alarm fires
+//User will be notified by hour how long they stayed on the website
+chrome.alarms.create('timer', {periodInMinutes: 0.1})
+
+//Timer keep tracks current time & if laptop is turned off
+chrome.alarms.create('tracker', {periodInMinutes: 0.1})
+
 chrome.alarms.onAlarm.addListener(function(alarm) {
-  if (alarm.name === 'make notification') {
-    if (getOptions().allowTrainingPopups === true)
-      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+  if (alarm.name === 'timer') {
+    timeNotification()
+  } else if (alarm.name === 'tracker') {
+    timeTracker()
+  } else if (alarm.name === 'make notification') {
+    if (getOptions().allowTrainingPopups === true) {
+            chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0]) {
           makeNotification()
         }
       })
+    }
   }
 })
 
-//This updates the frequency of the alarm that makes notifications, for use on options page
-function updateNotificationFrequency(newPeriod) {
-  chrome.alarms.clear('make notification')
-  chrome.alarms.create('make notification', {periodInMinutes: newPeriod})
-}
 
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
@@ -318,7 +320,8 @@ function handleButton(notificationId, buttonIndex) {
     //Slowly decrease frequency of popup (in minutes) as user uses the extension more
     checkForAlarmUpdates(numberExamples)
 
-    //stop constantly updating the bayes model if we have a lots of training examples, //so as not to make chrome really slow
+    //stop constantly updating the bayes model if we have a lots of training examples,
+    //so as not to make chrome really slow
     if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
       await updateBayesModel()
       updateIcon(tabs[0])
@@ -330,6 +333,7 @@ function handleButton(notificationId, buttonIndex) {
   })
 }
 
+//Once we have a lot of Bayes examples, we can annoy the user for training data less often
 function checkForAlarmUpdates(numberExamples) {
   if (numberExamples === 100) {
     updateNotificationFrequency(10)
@@ -340,4 +344,69 @@ function checkForAlarmUpdates(numberExamples) {
   } else if (numberExamples === 1000) {
     updateNotificationFrequency(60)
   }
+
+//This updates the frequency of the alarm that makes notifications (used below)
+function updateNotificationFrequency(newPeriod) {
+  chrome.alarms.clear('make notification')
+  chrome.alarms.create('make notification', {periodInMinutes: newPeriod})
+}
+
+
+function timeNotification() {
+  //If there's an active page, get the page title and init a notification
+
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      var url = new URL(tabs[0].url).hostname
+      db.history.where({url}).toArray().then(result=>{
+        var totalSpend = 0
+        var idx = result.length - 1
+
+        result.forEach(data=>{
+          if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
+          && new Date(data.timeStart).getMonth() === new Date().getMonth()
+          && new Date(data.timeStart).getDate() === new Date().getDate()) {
+            totalSpend += data.timeTotal
+          }
+        })
+
+        var hourCalculator = Math.floor(totalSpend/3600000) * 3600000
+        console.log('title:',tabs[0].title, 'time:', totalSpend)
+        if (totalSpend > hourCalculator && totalSpend < hourCalculator + 6000 && totalSpend > 10000) {
+          makeTimeNotification(tabs[0].title, totalSpend)
+        }
+      })
+    }
+  })
+}
+
+function makeTimeNotification(title, time) {
+  var timeprint = timeCalculator(time)
+  chrome.notifications.create({
+    type: 'basic',
+    title: 'You spent time on this website',
+    iconUrl: 'heartwatch.png',
+    message: title.slice(0,30) + ' : \n' + timeprint
+  })
+}
+
+function timeTracker() {
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      db.history.toArray().then(result=>{
+        var idx = result.length-1
+        return result[idx]
+      })
+      .then(data=>{
+        if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000 && new Date(data.timeStart).getFullYear() === new Date().getFullYear()
+        && new Date(data.timeStart).getMonth() === new Date().getMonth()
+        && new Date(data.timeStart).getDate() === new Date().getDate()) {
+          db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
+        } else {
+          db.history
+          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
+        }
+      })
+    }
+  })
 }

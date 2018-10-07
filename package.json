@@ -9,7 +9,7 @@
   "scripts": {
     "build-client": "webpack",
     "build-client-watch": "webpack -w",
-    "build-theme": "cd semantic && gulp build && cd ..",
+    "build-theme": "cd client/semantic && gulp build && cd ../..",
     "deploy": "script/deploy",
     "lint": "eslint ./ --ignore-path .gitignore",
     "lint-fix": "npm run lint -- --fix",
@@ -57,6 +57,8 @@
     "redux": "^4.0.0",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "semantic-ui-calendar-react": "^0.9.1",
+    "semantic-ui": "^2.4.0",
     "semantic-ui-react": "^0.82.5",
     "style-loader": "^0.23.0"
   },

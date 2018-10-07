@@ -48,6 +48,17 @@ function sumCollectionBySite(array) {
   }))
 }
 
+export function topFive(db, startDate, endDate) {
+  const array = sumBySite(db, startDate, endDate)
+  return array
+    .sort(function(a, b) {
+      return (
+        b.work + b.play + b.uncategorized - a.work - a.play - a.uncategorized
+      )
+    })
+    .slice(0, 5)
+}
+
 export async function splitByPeriod(db, period, startDate, endDate) {
   const sitesArray = await getHistoryRange(db, startDate, endDate).toArray()
   endDate = makeDateRange(startDate, endDate)[1]
