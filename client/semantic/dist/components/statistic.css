@@ -99,11 +99,11 @@
 
 .ui.statistics .statistic > .value,
 .ui.statistic > .value {
-  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: "Roboto", 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-size: 4rem;
   font-weight: normal;
   line-height: 1em;
-  color: #1B1C1D;
+  color: #FFFFFF;
   text-transform: uppercase;
   text-align: center;
 }
@@ -114,10 +114,10 @@
 
 .ui.statistics .statistic > .label,
 .ui.statistic > .label {
-  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: "Roboto";
   font-size: 1em;
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.87);
+  color: #888;
   text-transform: uppercase;
   text-align: center;
 }
@@ -317,17 +317,17 @@
 .ui.red.statistics .statistic > .value,
 .ui.statistics .red.statistic > .value,
 .ui.red.statistic > .value {
-  color: #DB2828;
+  color: #CC0000;
 }
 .ui.orange.statistics .statistic > .value,
 .ui.statistics .orange.statistic > .value,
 .ui.orange.statistic > .value {
-  color: #F2711C;
+  color: #fd7e14;
 }
 .ui.yellow.statistics .statistic > .value,
 .ui.statistics .yellow.statistic > .value,
 .ui.yellow.statistic > .value {
-  color: #FBBD08;
+  color: #FF8800;
 }
 .ui.olive.statistics .statistic > .value,
 .ui.statistics .olive.statistic > .value,
@@ -337,17 +337,17 @@
 .ui.green.statistics .statistic > .value,
 .ui.statistics .green.statistic > .value,
 .ui.green.statistic > .value {
-  color: #21BA45;
+  color: #77B300;
 }
 .ui.teal.statistics .statistic > .value,
 .ui.statistics .teal.statistic > .value,
 .ui.teal.statistic > .value {
-  color: #00B5AD;
+  color: #20c997;
 }
 .ui.blue.statistics .statistic > .value,
 .ui.statistics .blue.statistic > .value,
 .ui.blue.statistic > .value {
-  color: #2185D0;
+  color: #2A9FD6;
 }
 .ui.violet.statistics .statistic > .value,
 .ui.statistics .violet.statistic > .value,
@@ -357,12 +357,12 @@
 .ui.purple.statistics .statistic > .value,
 .ui.statistics .purple.statistic > .value,
 .ui.purple.statistic > .value {
-  color: #A333C8;
+  color: #6f42c1;
 }
 .ui.pink.statistics .statistic > .value,
 .ui.statistics .pink.statistic > .value,
 .ui.pink.statistic > .value {
-  color: #E03997;
+  color: #e83e8c;
 }
 .ui.brown.statistics .statistic > .value,
 .ui.statistics .brown.statistic > .value,
@@ -552,12 +552,6 @@
 .ui.huge.statistic > .text.value {
   font-size: 2.5rem !important;
 }
-
-
-/*******************************
-         Theme Overrides
-*******************************/
-
 
 
 /*******************************
