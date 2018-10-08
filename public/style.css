@@ -20,11 +20,6 @@ form div {
   display: inline-block;
 }
 
-.content {
-  width: 300px;
-}
-
-
 body{
   width:1060px;
   margin:50px auto;
@@ -41,9 +36,9 @@ rect:hover {  fill:blue; }
 
 .axis path,
 .axis line {
-fill: none;
-stroke: #000;
-shape-rendering: crispEdges;
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
 
 .x.axis path {  display: none; }
@@ -62,6 +57,7 @@ shape-rendering: crispEdges;
   width:50px;
 }
 
-.layer{
-  transform: translate(-20, 0)
+.content {
+  width: 300px;
+  text-align: center;
 }
