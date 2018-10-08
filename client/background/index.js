@@ -15,8 +15,17 @@ import {
   getNumberOfTrainingExamples,
   deleteOldTrainingData
 } from './bayesClassifier'
+import {initOptions, updateOptions, getOptions} from './options'
 import {dateConverter, timeInSecond, timeCalculator, urlValidation} from './utils'
+import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
+
+//session variables so we know whether to prompt the user to learn more
+//or maybe per-window. Either way not too annoying
+let aboutNotificationClicked = false
+const clickAboutNotification = () => {
+  aboutNotificationClicked = true
+}
 
 //We remake the bayes model less often when we have  LOTS  of examples
 const LOTS_OF_TRAINING_EXAMPLES = 2000
@@ -24,7 +33,6 @@ const LOTS_OF_TRAINING_EXAMPLES = 2000
 const MAX_TRAINING_EXAMPLES = 10000
 
 var currentWindow
-
 //Store the data when a chrome window switched
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
@@ -75,6 +83,11 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     const model = await getBayesModel()
     if (model) {
       updateIcon(tab)
+    } else {
+      makeLearnMoreNotification(
+        clickAboutNotification,
+        aboutNotificationClicked
+      )
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
@@ -176,7 +189,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     //   })
   // }
 })
-
+//!!!!!!
 //listens for all events emitted by page content scripts
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action) {
@@ -228,12 +241,11 @@ async function updateIcon(tab) {
 //but only if we have LOTS_OF_TRAINING_DATA (2000 lines in db)
 //which would make updating the model computationaly expensive
 //Otherwise, we can just update the model every time we add a single training datum
-chrome.alarms.create('train bayes model', {periodInMinutes: 1000})
+chrome.alarms.create('update bayes model', {periodInMinutes: 1000})
 
 chrome.alarms.onAlarm.addListener(async function(alarm) {
-  if (alarm.name === 'train bayes model') {
+  if (alarm.name === 'update bayes model') {
     const numberExamples = await getNumberOfTrainingExamples()
-
     if (numberExamples >= LOTS_OF_TRAINING_EXAMPLES) {
       updateBayesModel()
     }
@@ -242,8 +254,12 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 
 //NOTFICATION STUFF IS BELOW
 
-//I needed to break notification-making into two functions because querying tabs is asynchronus
-chrome.alarms.create('initialize notification', {periodInMinutes: 5})
+//This initializes alarm that causes notifications to be made
+chrome.runtime.onInstalled.addListener(function(details) {
+  if (details.reason === 'install') {
+    chrome.alarms.create('make notification', {periodInMinutes: 0.2})
+  }
+})
 
 //User will be notified by hour how long they stayed on the website
 chrome.alarms.create('timer', {periodInMinutes: 0.1})
@@ -251,8 +267,14 @@ chrome.alarms.create('timer', {periodInMinutes: 0.1})
 chrome.alarms.onAlarm.addListener(function(alarm) {
   if (alarm.name === 'timer') {
     timeNotification()
-  } else if (alarm.name === 'initialize notification') {
-    initNotification()
+  } else if (alarm.name === 'make notification') {
+    if (getOptions().allowTrainingPopups === true) {
+      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      if (tabs[0]) {
+        makeNotification()
+        }
+      })
+    }
   }
 })
 
@@ -260,6 +282,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 setInterval(()=>{
   timeTracker()
 },1000)
+
 
 // I needed to break notification-making into two functions because querying tabs is asynchronus
 function initNotification() {
@@ -270,6 +293,7 @@ function initNotification() {
     }
   })
 }
+
 
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
@@ -283,6 +307,11 @@ function makeNotification() {
   chrome.notifications.onButtonClicked.addListener(handleButton)
 }
 
+//Clicking buttons on notification does a lot of things:
+//1. It adds training examples to the db, labeled "work" or "play"
+//2. If we don't have a lot of training examples...
+//it updates the machine learning model, makes a new prediction, and updates the icon
+//3. If we have too many training examples it tells the db to drop 100 lines
 function handleButton(notificationId, buttonIndex) {
   let tabName
   chrome.tabs.query({active: true, lastFocusedWindow: true}, async function(
@@ -302,8 +331,13 @@ function handleButton(notificationId, buttonIndex) {
       label: label,
       time: new Date().getTime()
     })
+
     const numberExamples = await getNumberOfTrainingExamples()
-    //stop constantly updating the bayes model if we have a lots of training examples, //so as not to make chrome really slow
+    //Slowly decrease frequency of popup (in minutes) as user uses the extension more
+    checkForAlarmUpdates(numberExamples)
+
+    //stop constantly updating the bayes model if we have a lots of training examples,
+    //so as not to make chrome really slow
     if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
       await updateBayesModel()
       updateIcon(tabs[0])
@@ -315,29 +349,58 @@ function handleButton(notificationId, buttonIndex) {
   })
 }
 
+//Once we have a lot of Bayes examples, we can annoy the user for training data less often
+function checkForAlarmUpdates(numberExamples) {
+  if (numberExamples === 100) {
+    updateNotificationFrequency(10)
+  } else if (numberExamples === 200) {
+    updateNotificationFrequency(20)
+  } else if (numberExamples === 500) {
+    updateNotificationFrequency(30)
+  } else if (numberExamples === 1000) {
+    updateNotificationFrequency(60)
+  }
+}
+//This updates the frequency of the alarm that makes notifications (used below)
+function updateNotificationFrequency(newPeriod) {
+  chrome.alarms.clear('make notification')
+  chrome.alarms.create('make notification', {periodInMinutes: newPeriod})
+}
+
+
 function timeNotification() {
   //If there's an active page, get the page title and init a notification
 
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
       var url = new URL(tabs[0].url).hostname
-      db.history.where({url}).toArray().then(result=>{
-        var totalSpend = 0
+      db.history
+        .where({url})
+        .toArray()
+        .then(result => {
+          var totalSpend = 0
 
-        result.forEach(data=>{
-          if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
-          && new Date(data.timeStart).getMonth() === new Date().getMonth()
-          && new Date(data.timeStart).getDate() === new Date().getDate()) {
-            totalSpend += data.timeTotal
+          result.forEach(data => {
+            if (
+              new Date(data.timeStart).getFullYear() ===
+                new Date().getFullYear() &&
+              new Date(data.timeStart).getMonth() === new Date().getMonth() &&
+              new Date(data.timeStart).getDate() === new Date().getDate()
+            ) {
+              totalSpend += data.timeTotal
+            }
+          })
+
+          var hourCalculator = Math.floor(totalSpend / 3600000) * 3600000
+          console.log('title:', tabs[0].title, 'time:', totalSpend)
+          if (
+            totalSpend > hourCalculator &&
+            totalSpend < hourCalculator + 6000 &&
+            totalSpend > 10000
+          ) {
+            makeTimeNotification(tabs[0].title, totalSpend)
           }
         })
-
-        var hourCalculator = Math.floor(totalSpend/3600000) * 3600000
-        console.log('title:',tabs[0].title, 'time: ', new Date(), 'time Spend:', totalSpend)
-        if (totalSpend > hourCalculator && totalSpend < hourCalculator + 6000 && totalSpend > 10000) {
-          makeTimeNotification(tabs[0].title, totalSpend)
-        }
-      })
     }
   })
 }
@@ -348,7 +411,7 @@ function makeTimeNotification(title, time) {
     type: 'basic',
     title: 'You spent time on this website',
     iconUrl: 'heartwatch.png',
-    message: title.slice(0,30) + ' : \n' + timeprint
+    message: title.slice(0, 30) + ' : \n' + timeprint
   })
 }
 
