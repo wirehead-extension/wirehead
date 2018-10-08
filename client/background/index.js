@@ -13,7 +13,8 @@ import {
   getClassifications,
   classifyDocument,
   getNumberOfTrainingExamples,
-  deleteOldTrainingData
+  deleteOldTrainingData,
+  classifyDocumentIfBayesModel
 } from './bayesClassifier'
 
 import {initOptions, updateOptions, getOptions} from './options'
@@ -107,16 +108,16 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
           timeTotal: new Date().valueOf() - data.timeStart
         })
       })
-
+    const label = await classifyDocumentIfBayesModel(tab.title)
     //Post start time data when open the tab
-    //Put the bayes label here
+
     db.history
       .put({
         url: url.hostname,
         timeStart: new Date().valueOf(),
         timeEnd: undefined,
         timeTotal: 0,
-        label: undefined
+        label: label
       })
       .then(i => {
         console.log('wrote ' + i)
@@ -149,16 +150,16 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
           })
         }
       })
-      .then(() => {
+      .then(async () => {
         if (currentUrl !== url.hostname) {
+          const label = await classifyDocumentIfBayesModel(tab.title)
           db.history
-            //////////Put Bayes label here
             .put({
               url: url.hostname,
               timeStart: new Date().valueOf(),
               timeEnd: undefined,
               timeTotal: 0,
-              label: undefined
+              label: label
             })
             .then(i => {
               console.log('wrote ' + i)
@@ -412,7 +413,7 @@ function timeTracker() {
           var idx = result.length - 1
           return result[idx]
         })
-        .then(data => {
+        .then(async data => {
           if (
             new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
               30000 &&
@@ -426,13 +427,13 @@ function timeTracker() {
               timeTotal: new Date().valueOf() - data.timeStart
             })
           } else {
-            //Put Bayes label here
+            const label = await classifyDocumentIfBayesModel(tabs[0].title)
             db.history.put({
               url: new URL(tabs[0].url).hostname,
               timeStart: new Date().valueOf(),
               timeEnd: undefined,
               timeTotal: 0,
-              label: undefined
+              label: label
             })
           }
         })
