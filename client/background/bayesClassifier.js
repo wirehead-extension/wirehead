@@ -40,7 +40,7 @@ export async function getBayesModel() {
   if (model) {
     return model.model
   } else {
-    return null
+    return false
   }
 }
 
@@ -81,4 +81,11 @@ export async function deleteOldTrainingData() {
   await db.transaction('rw', db.trainingData, function*() {
     yield db.trainingData.bulkDelete(idsToDelete)
   })
+}
+
+//If the bayes model exists, this returns document's classification
+//If it doesn't exist, it returns "uncategorized"
+export async function classifyDocumentIfBayesModel(document) {
+  const model = await getBayesModel()
+  return model ? classifyDocument(document) : 'uncategorized'
 }
