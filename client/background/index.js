@@ -13,7 +13,8 @@ import {
   getClassifications,
   classifyDocument,
   getNumberOfTrainingExamples,
-  deleteOldTrainingData
+  deleteOldTrainingData,
+  classifyDocumentIfBayesModel
 } from './bayesClassifier'
 import {initOptions, updateOptions, getOptions} from './options'
 import {dateConverter, timeInSecond, timeCalculator, urlValidation} from './utils'
@@ -40,22 +41,12 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 
   if (windowInfo > 0 && windowInfo !== currentWindow) {
     currentWindow = windowInfo
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
         var url = new URL(tabs[0].url)
         // Update time end when focus out of the tab
-        // db.history
-        //   .toArray()
-        //   .then(result => {
-        //     var idx = result.length - 1
-        //     return result[idx]
-        //   })
-        //   .then(data => {
-        //     db.history.update(data.id, {
-        //       timeEnd: new Date().valueOf(),
-        //       timeTotal: new Date().valueOf() - data.timeStart
-        //     })
-        //   })
+
+        const label = await classifyDocumentIfBayesModel(tabs[0].title)
 
         //Post start time data when open the tab
         db.history
@@ -65,7 +56,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
             timeStart: new Date().valueOf(),
             timeEnd: undefined,
             timeTotal: 0,
-            label: undefined
+            label: label
           })
           .then(i => {
             console.log('wrote ' + i)
@@ -92,21 +83,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
-
-    //Update time end when focus out of the tab
-    // db.history
-    //   .toArray()
-    //   .then(result => {
-    //     var idx = result.length - 1
-    //     return result[idx]
-    //   })
-    //   .then(data => {
-    //     db.history.update(data.id, {
-    //       timeEnd: new Date().valueOf(),
-    //       timeTotal: new Date().valueOf() - data.timeStart
-    //     })
-    //   })
-
+    const label = await classifyDocumentIfBayesModel(tab.title)
 
     //Post start time data when open the tab
     if (urlValidation(new URL(tab.url))) {
@@ -116,7 +93,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
           timeStart: new Date().valueOf(),
           timeEnd: undefined,
           timeTotal: 0,
-          label: undefined
+          label: label
         })
         .then(i => {
           console.log('wrote ' + i)
@@ -129,68 +106,32 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 })
 
 //An Event Listener to store data when URL has been changed
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
   if (tab.active && tab.status === 'complete') {
     var url = new URL(tab.url)
     var currentUrl
 
     //Update time end when focus out of the tab
-    // db.history
-    //   .toArray()
-    //   .then(result => {
-    //     var idx = result.length - 1
-    //     currentUrl = result[idx].url
-    //     return result[idx]
-    //   })
-    //   .then(data => {
-    //     if (currentUrl !== url.hostname) {
-    //       db.history.update(data.id, {
-    //         timeEnd: new Date().valueOf(),
-    //         timeTotal: new Date().valueOf() - data.timeStart
-    //       })
-    //     }
-    //   })
-    //   .then(() => {
-        if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
-          db.history
-            //////////Put Bayes label here
-            .put({
-              url: url.hostname,
-              timeStart: new Date().valueOf(),
-              timeEnd: undefined,
-              timeTotal: 0,
-              label: undefined
-            })
-            .then(i => {
-              console.log('wrote ' + i)
-            })
-            .catch(err => {
-              console.error(err)
-            })
-        }
-      // })
+    if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
+      const label = await classifyDocumentIfBayesModel(tab.title)
+      db.history
+        .put({
+          url: url.hostname,
+          timeStart: new Date().valueOf(),
+          timeEnd: undefined,
+          timeTotal: 0,
+          label: label
+        })
+        .then(i => {
+          console.log('wrote ' + i)
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    }
   }
 })
 
-//An Event Listener to store stop information when close the tab
-chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-  // if (urlValidation(new URL(tabs[0].url))) {
-    var newDate = new Date().valueOf()
-
-    // db.history
-    //   .toArray()
-    //   .then(result => {
-    //     var idx = result.length - 1
-    //     return result[idx]
-    //   })
-    //   .then(data => {
-    //     db.history.update(data.id, {
-    //       timeEnd: newDate,
-    //       timeTotal: newDate - data.timeStart
-    //     })
-    //   })
-  // }
-})
 //listens for all events emitted by page content scripts
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action) {
@@ -415,14 +356,15 @@ function timeTracker() {
         var idx = result.length-1
         return result[idx]
       })
-      .then(data=>{
+      .then(async data=>{
         if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000 && new Date(data.timeStart).getFullYear() === new Date().getFullYear()
         && new Date(data.timeStart).getMonth() === new Date().getMonth()
         && new Date(data.timeStart).getDate() === new Date().getDate()) {
           db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
         } else {
+          const label = await classifyDocumentIfBayesModel(tabs[0].title)
           db.history
-          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
+          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: label})
         }
       })
     }
