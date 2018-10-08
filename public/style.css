@@ -1,9 +1,17 @@
 * {
-  font-family: 'Roboto Mono' !important;
+  font-family: 'Roboto Mono'
 }
 
 a {
   text-decoration: none;
+}
+
+#work-button {
+  color: white;
+}
+
+#play-button {
+  color: rgb(71, 71, 71);
 }
 
 label {
@@ -72,7 +80,99 @@ rect:hover {
   width: 50px;
 }
 
-.content {
+
+
+
+
+
+.popup {
   width: 300px;
+  height: 340px;
+  margin: 0px;
   text-align: center;
+}
+
+.content {
+  height: 120px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384);
+  margin: 0 !important;
+}
+
+.meta {
+  text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384);
+}
+
+.ui.card {
+  width: 320px !important;
+}
+
+.ui.slide.masked.reveal.image {
+  height: 120px;
+  margin: 0 0 20px 0;
+}
+
+.extra.content {
+  height: 60px;
+  position: absolute;
+  z-index: 1;
+  top: 280px;
+}
+
+.dropdown.is-hoverable.is-up {
+  margin-bottom: 60px;
+  width: 280px;
+  align-items: center;
+}
+
+.dropdown-trigger {
+  padding-left: 35px;
+}
+
+.ui.linkedin.button {
+  width: 320px;
+  height: 60px;
+  font-size: 20px;
+}
+
+.visible.content {
+  padding-top: 35px;
+  height: 100px;
+}
+
+.hidden.content {
+  padding-top: 35px;
+  height: 100px;
+}
+
+#current {
+  font-family: 'Quantico', sans-serif;
+  font-size: 60px;
+  height: 40px;
+}
+
+#current-total {
+  font-family: 'Quantico', sans-serif;
+  font-size: 60px;
+  height: 40px;
+}
+
+.status {
+  font-family: 'Squada One', cursive;
+  font-size: 25px;
+}
+
+#total {
+  font-family: 'Boogaloo', cursive;
+}
+
+.dropdown-item {
+  width: 280px;
+  text-align: left;
 }

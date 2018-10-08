@@ -2,28 +2,34 @@ import db from '../db'
 import {
   timeCalculator,
   currentTimeCalculator,
-  dateConverter
+  dateConverter,
+  urlValidation,
 } from '../background/utils'
+import { DH_CHECK_P_NOT_PRIME } from 'constants';
 
 //Current Page Information
 var currentTime = 0
 var currentUrl
 
-db.history
-  .toArray()
-  .then(result => {
-    var idx = result.length - 1
-    return result[idx]
+db.history.toArray().then(result=>{
+  var idx = result.length-1
+  return result[idx]
+})
+.then(data=>{
+  currentTime = new Date().valueOf()-data.timeStart
+  currentUrl = data.url
+
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs =>{
+    document.querySelector('#current-title').innerText = tabs[0].title.slice(0,28)
+    document.querySelector('#current-time').innerText = dateConverter(new Date())
+    if (urlValidation(new URL(tabs[0].url))) {
+      document.querySelector('#current').innerText = currentTimeCalculator(new Date().valueOf()-data.timeStart)
+    } else {
+      document.querySelector('.ui.slide.masked.reveal.image.teal.inverted.segment').remove()
+    }
   })
-  .then(data => {
-    document.querySelector('#current-title').innerText =
-      'Current site: ' + data.url
-    document.querySelector('#current').innerText =
-      "You've been here for: " +
-      currentTimeCalculator(new Date().valueOf() - data.timeStart)
-    currentTime = new Date().valueOf() - data.timeStart
-    currentUrl = data.url
-  })
+})
+
 
 //Monitoring top 5 high total time of usage
 var collect = []
@@ -56,7 +62,7 @@ db.history
 
         currentUrl === key
           ? (document.querySelector('#current-total').innerText =
-              'Total time on this site: ' + currentTimeCalculator(totalSpend))
+          currentTimeCalculator(totalSpend))
           : ''
 
         collect.push({url: key, time: totalSpend})
@@ -68,13 +74,13 @@ db.history
         return a.time - b.time
       })
       .slice(-5)
-
+    let count = test.length;
     test.forEach(elem => {
       if (elem.time > 999) {
         var newDiv = document.createElement('ul')
         var objectDiv = document.querySelector('#list')
         objectDiv.insertBefore(newDiv, objectDiv.firstChild)
-        newDiv.appendChild(document.createTextNode('URL:' + elem.url + ' /'))
+        newDiv.appendChild(document.createTextNode('Top ' + count + ': ' + elem.url + ' / '))
         currentUrl === elem.url
           ? newDiv.appendChild(
               document.createTextNode(timeCalculator(elem.time))
@@ -82,9 +88,8 @@ db.history
           : newDiv.appendChild(
               document.createTextNode(timeCalculator(elem.time))
             )
-
-        document.querySelector('#total').innerText =
-          'Total Time: ' + timeCalculator(todayTotal)
-      }
-    })
+      count--
+      document.querySelector('#total').innerText = "Today's Total: " + timeCalculator(todayTotal)
+    }
   })
+})
