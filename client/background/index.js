@@ -15,13 +15,18 @@ import {
   getNumberOfTrainingExamples,
   deleteOldTrainingData
 } from './bayesClassifier'
-<<<<<<< HEAD
+
 import {initOptions, updateOptions, getOptions} from './options'
-import {dateConverter, timeInSecond} from './utils'
-=======
 import {dateConverter, timeInSecond, timeCalculator} from './utils'
->>>>>>> 45464a3e26a0ad86fc3d9b32e1c6d8c3f6d44367
+import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
+
+//session variables so we know whether to prompt the user to learn more
+//or maybe per-window. Either way not too annoying
+let aboutNotificationClicked = false
+const clickAboutNotification = () => {
+  aboutNotificationClicked = true
+}
 
 //We remake the bayes model less often when we have  LOTS  of examples
 const LOTS_OF_TRAINING_EXAMPLES = 2000
@@ -79,6 +84,11 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     const model = await getBayesModel()
     if (model) {
       updateIcon(tab)
+    } else {
+      makeLearnMoreNotification(
+        clickAboutNotification,
+        aboutNotificationClicked
+      )
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
@@ -349,24 +359,34 @@ function timeNotification() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0]) {
       var url = new URL(tabs[0].url).hostname
-      db.history.where({url}).toArray().then(result=>{
-        var totalSpend = 0
-        var idx = result.length - 1
+      db.history
+        .where({url})
+        .toArray()
+        .then(result => {
+          var totalSpend = 0
+          var idx = result.length - 1
 
-        result.forEach(data=>{
-          if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
-          && new Date(data.timeStart).getMonth() === new Date().getMonth()
-          && new Date(data.timeStart).getDate() === new Date().getDate()) {
-            totalSpend += data.timeTotal
+          result.forEach(data => {
+            if (
+              new Date(data.timeStart).getFullYear() ===
+                new Date().getFullYear() &&
+              new Date(data.timeStart).getMonth() === new Date().getMonth() &&
+              new Date(data.timeStart).getDate() === new Date().getDate()
+            ) {
+              totalSpend += data.timeTotal
+            }
+          })
+
+          var hourCalculator = Math.floor(totalSpend / 3600000) * 3600000
+          console.log('title:', tabs[0].title, 'time:', totalSpend)
+          if (
+            totalSpend > hourCalculator &&
+            totalSpend < hourCalculator + 6000 &&
+            totalSpend > 10000
+          ) {
+            makeTimeNotification(tabs[0].title, totalSpend)
           }
         })
-
-        var hourCalculator = Math.floor(totalSpend/3600000) * 3600000
-        console.log('title:',tabs[0].title, 'time:', totalSpend)
-        if (totalSpend > hourCalculator && totalSpend < hourCalculator + 6000 && totalSpend > 10000) {
-          makeTimeNotification(tabs[0].title, totalSpend)
-        }
-      })
     }
   })
 }
@@ -377,27 +397,42 @@ function makeTimeNotification(title, time) {
     type: 'basic',
     title: 'You spent time on this website',
     iconUrl: 'heartwatch.png',
-    message: title.slice(0,30) + ' : \n' + timeprint
+    message: title.slice(0, 30) + ' : \n' + timeprint
   })
 }
 
 function timeTracker() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0]) {
-      db.history.toArray().then(result=>{
-        var idx = result.length-1
-        return result[idx]
-      })
-      .then(data=>{
-        if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000 && new Date(data.timeStart).getFullYear() === new Date().getFullYear()
-        && new Date(data.timeStart).getMonth() === new Date().getMonth()
-        && new Date(data.timeStart).getDate() === new Date().getDate()) {
-          db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-        } else {
-          db.history
-          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
-        }
-      })
+      db.history
+        .toArray()
+        .then(result => {
+          var idx = result.length - 1
+          return result[idx]
+        })
+        .then(data => {
+          if (
+            new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
+              30000 &&
+            new Date(data.timeStart).getFullYear() ===
+              new Date().getFullYear() &&
+            new Date(data.timeStart).getMonth() === new Date().getMonth() &&
+            new Date(data.timeStart).getDate() === new Date().getDate()
+          ) {
+            db.history.update(data.id, {
+              timeEnd: new Date().valueOf(),
+              timeTotal: new Date().valueOf() - data.timeStart
+            })
+          } else {
+            db.history.put({
+              url: new URL(tabs[0].url).hostname,
+              timeStart: new Date().valueOf(),
+              timeEnd: undefined,
+              timeTotal: 0,
+              label: undefined
+            })
+          }
+        })
     }
   })
 }

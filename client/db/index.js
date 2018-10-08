@@ -16,7 +16,7 @@ db.version(5).stores({
 db.history.get(1, s => {
   if (!s) {
     db.history.bulkAdd(history)
-    db.trainingData.bulkAdd(trainingData)
+    //db.trainingData.bulkAdd(trainingData)
   }
 })
 
