@@ -3,13 +3,24 @@
 //The meat of the logic
 export function dateConverter(newDate) {
   var dateString = ''
+  var am = ''
 
   dateString += newDate.getMonth() + 1 + '/'
   dateString += newDate.getDate() + '/'
   dateString += newDate.getFullYear() + ' '
-  dateString += newDate.getHours() + ':'
+  if (newDate.getHours < 13) {
+    dateString += newDate.getHours() + ':'
+    am = ' AM'
+  } else {
+    dateString += (newDate.getHours() - 12) + ':'
+    am = ' PM'
+  }
   dateString += newDate.getMinutes() + ':'
-  dateString += newDate.getSeconds()
+  if (newDate.getSeconds() < 10) {
+    dateString += '0' + newDate.getSeconds() + am
+  } else {
+    dateString += newDate.getSeconds() + am
+  }
 
   return dateString
 }
@@ -23,7 +34,7 @@ export function timeCalculator(times) {
     timeUsage = Math.floor(time / 60) + ' min'
   } else if (time >= 3600 && time < 86400) {
     timeUsage =
-      Math.floor(time / 3600) + ' hr ' + Math.floor((time % 3600) / 60) + 'min'
+      Math.floor(time / 3600) + ' hr ' + Math.floor((time % 3600) / 60) + ' min'
   }
   return timeUsage
 }
@@ -49,6 +60,14 @@ export function currentTimeCalculator(times) {
     }
   }
   return smallUsage || hugeUsage
+}
+
+export function urlValidation(url) {
+  if ((url.protocol === 'http:' || url.protocol === 'https:') && !url.href.startsWith('http://localhost:')) {
+    return true
+  } else {
+    return false
+  }
 }
 
 //Stuff here is to block websites

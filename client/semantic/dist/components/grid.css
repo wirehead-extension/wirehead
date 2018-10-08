@@ -1044,8 +1044,8 @@
 
 .ui.divided.grid:not([class*="vertically divided"]) > .column:not(.row),
 .ui.divided.grid:not([class*="vertically divided"]) > .row > .column {
-  -webkit-box-shadow: -1px 0px 0px 0px #282828;
-          box-shadow: -1px 0px 0px 0px #282828;
+  -webkit-box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
+          box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
 }
 
 /* Swap from padding to margin on columns to have dividers align */
@@ -1075,8 +1075,8 @@
 
 /* Divided Row */
 .ui.grid > .divided.row > .column {
-  -webkit-box-shadow: -1px 0px 0px 0px #282828;
-          box-shadow: -1px 0px 0px 0px #282828;
+  -webkit-box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
+          box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
 }
 .ui.grid > .divided.row > .column:first-child {
   -webkit-box-shadow: none;
@@ -1095,8 +1095,8 @@
   width: calc(100% -  2rem );
   height: 1px;
   margin: 0% 1rem;
-  -webkit-box-shadow: 0px -1px 0px 0px #282828;
-          box-shadow: 0px -1px 0px 0px #282828;
+  -webkit-box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
+          box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
 }
 
 /* Padded Horizontally Divided */
@@ -1352,7 +1352,7 @@
 .ui.grid > .red.row,
 .ui.grid > .red.column,
 .ui.grid > .row > .red.column {
-  background-color: #CC0000 !important;
+  background-color: #DB2828 !important;
   color: #FFFFFF;
 }
 
@@ -1360,7 +1360,7 @@
 .ui.grid > .orange.row,
 .ui.grid > .orange.column,
 .ui.grid > .row > .orange.column {
-  background-color: #fd7e14 !important;
+  background-color: #F2711C !important;
   color: #FFFFFF;
 }
 
@@ -1368,7 +1368,7 @@
 .ui.grid > .yellow.row,
 .ui.grid > .yellow.column,
 .ui.grid > .row > .yellow.column {
-  background-color: #FF8800 !important;
+  background-color: #FBBD08 !important;
   color: #FFFFFF;
 }
 
@@ -1384,7 +1384,7 @@
 .ui.grid > .green.row,
 .ui.grid > .green.column,
 .ui.grid > .row > .green.column {
-  background-color: #77B300 !important;
+  background-color: #21BA45 !important;
   color: #FFFFFF;
 }
 
@@ -1392,7 +1392,7 @@
 .ui.grid > .teal.row,
 .ui.grid > .teal.column,
 .ui.grid > .row > .teal.column {
-  background-color: #20c997 !important;
+  background-color: #00B5AD !important;
   color: #FFFFFF;
 }
 
@@ -1400,7 +1400,7 @@
 .ui.grid > .blue.row,
 .ui.grid > .blue.column,
 .ui.grid > .row > .blue.column {
-  background-color: #2A9FD6 !important;
+  background-color: #2185D0 !important;
   color: #FFFFFF;
 }
 
@@ -1416,7 +1416,7 @@
 .ui.grid > .purple.row,
 .ui.grid > .purple.column,
 .ui.grid > .row > .purple.column {
-  background-color: #6f42c1 !important;
+  background-color: #A333C8 !important;
   color: #FFFFFF;
 }
 
@@ -1424,7 +1424,7 @@
 .ui.grid > .pink.row,
 .ui.grid > .pink.column,
 .ui.grid > .row > .pink.column {
-  background-color: #e83e8c !important;
+  background-color: #E03997 !important;
   color: #FFFFFF;
 }
 
@@ -1448,7 +1448,7 @@
 .ui.grid > .black.row,
 .ui.grid > .black.column,
 .ui.grid > .row > .black.column {
-  background-color: #000 !important;
+  background-color: #1B1C1D !important;
   color: #FFFFFF;
 }
 
@@ -1498,8 +1498,8 @@
 /* Divided Reversed */
   .ui[class*="mobile reversed"].divided.grid:not([class*="vertically divided"]) > .column:first-child,
   .ui[class*="mobile reversed"].divided.grid:not([class*="vertically divided"]) > .row > .column:first-child {
-    -webkit-box-shadow: -1px 0px 0px 0px #282828;
-            box-shadow: -1px 0px 0px 0px #282828;
+    -webkit-box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
+            box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
   }
   .ui[class*="mobile reversed"].divided.grid:not([class*="vertically divided"]) > .column:last-child,
   .ui[class*="mobile reversed"].divided.grid:not([class*="vertically divided"]) > .row > .column:last-child {
@@ -1509,8 +1509,8 @@
   
 /* Vertically Divided Reversed */
   .ui.grid[class*="vertically divided"][class*="mobile vertically reversed"] > .row:first-child:before {
-    -webkit-box-shadow: 0px -1px 0px 0px #282828;
-            box-shadow: 0px -1px 0px 0px #282828;
+    -webkit-box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
+            box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
   }
   .ui.grid[class*="vertically divided"][class*="mobile vertically reversed"] > .row:last-child:before {
     -webkit-box-shadow: none;
@@ -1548,8 +1548,8 @@
 /* Divided Reversed */
   .ui[class*="tablet reversed"].divided.grid:not([class*="vertically divided"]) > .column:first-child,
   .ui[class*="tablet reversed"].divided.grid:not([class*="vertically divided"]) > .row > .column:first-child {
-    -webkit-box-shadow: -1px 0px 0px 0px #282828;
-            box-shadow: -1px 0px 0px 0px #282828;
+    -webkit-box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
+            box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
   }
   .ui[class*="tablet reversed"].divided.grid:not([class*="vertically divided"]) > .column:last-child,
   .ui[class*="tablet reversed"].divided.grid:not([class*="vertically divided"]) > .row > .column:last-child {
@@ -1559,8 +1559,8 @@
   
 /* Vertically Divided Reversed */
   .ui.grid[class*="vertically divided"][class*="tablet vertically reversed"] > .row:first-child:before {
-    -webkit-box-shadow: 0px -1px 0px 0px #282828;
-            box-shadow: 0px -1px 0px 0px #282828;
+    -webkit-box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
+            box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
   }
   .ui.grid[class*="vertically divided"][class*="tablet vertically reversed"] > .row:last-child:before {
     -webkit-box-shadow: none;
@@ -1598,8 +1598,8 @@
 /* Divided Reversed */
   .ui[class*="computer reversed"].divided.grid:not([class*="vertically divided"]) > .column:first-child,
   .ui[class*="computer reversed"].divided.grid:not([class*="vertically divided"]) > .row > .column:first-child {
-    -webkit-box-shadow: -1px 0px 0px 0px #282828;
-            box-shadow: -1px 0px 0px 0px #282828;
+    -webkit-box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
+            box-shadow: -1px 0px 0px 0px rgba(34, 36, 38, 0.15);
   }
   .ui[class*="computer reversed"].divided.grid:not([class*="vertically divided"]) > .column:last-child,
   .ui[class*="computer reversed"].divided.grid:not([class*="vertically divided"]) > .row > .column:last-child {
@@ -1609,8 +1609,8 @@
   
 /* Vertically Divided Reversed */
   .ui.grid[class*="vertically divided"][class*="computer vertically reversed"] > .row:first-child:before {
-    -webkit-box-shadow: 0px -1px 0px 0px #282828;
-            box-shadow: 0px -1px 0px 0px #282828;
+    -webkit-box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
+            box-shadow: 0px -1px 0px 0px rgba(34, 36, 38, 0.15);
   }
   .ui.grid[class*="vertically divided"][class*="computer vertically reversed"] > .row:last-child:before {
     -webkit-box-shadow: none;
@@ -1880,7 +1880,7 @@
   .ui.stackable.divided:not(.vertically).grid > .column:not(.row),
   .ui.stackable.celled.grid > .row > .column,
   .ui.stackable.divided:not(.vertically).grid > .row > .column {
-    border-top: 1px solid #282828;
+    border-top: 1px solid rgba(34, 36, 38, 0.15);
     -webkit-box-shadow: none !important;
             box-shadow: none !important;
     padding-top: 2rem !important;
@@ -2025,6 +2025,12 @@
     display: none !important;
   }
 }
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
 
 
 /*******************************
