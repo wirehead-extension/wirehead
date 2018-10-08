@@ -17,14 +17,18 @@ class Daily extends React.Component {
   }
 
   componentDidMount() {
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
     this.props
       .fetchData(new Date().setHours(0, 0, 0, 0).valueOf(), 1, 'sumBySite')
       .then(this.createDashboard('#dashboard', this.props.data))
   }
 
   componentDidUpdate() {
-    this.removeDashboard('svg')
-    this.removeDashboard('table')
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
+    // this.removeDashboard('svg')
+    // this.removeDashboard('table')
     this.createDashboard('#dashboard', this.props.data)
   }
 
@@ -105,23 +109,23 @@ class Daily extends React.Component {
         )
       }
     })
-    console.log('this is tf', tF)
+    // console.log('this is tf', tF)
 
     // calculate total frequency by state for all segment.
     var sF = topFiveTotal.map(function(d) {
       return [d.url, d.play + d.work]
     })
-    console.log('this is sf for histomogram', sF)
+    // console.log('this is sf for histomogram', sF)
     var hG = histoGram(sF), // create the histogram.
       pC = pieChart(tF), // create the pie-chart.
       leg = legend(tF) // create the legend.
 
     // function to handle histogram.
     function histoGram(fD) {
-      console.log('this is fd', fD)
+      // console.log('this is fd', fD)
       var hG = {},
-        hGDim = {t: 60, r: 0, b: 30, l: 0}
-      hGDim.w = (500 - hGDim.l - hGDim.r) / 1.5
+      hGDim = {t: 60, r: 0, b: 30, l: 0}
+      hGDim.w = (500 - hGDim.l - hGDim.r)
       hGDim.h = 300 - hGDim.t - hGDim.b
 
       //create svg for histogram.
@@ -136,8 +140,8 @@ class Daily extends React.Component {
 
       // create function for x-axis mapping.
       var x = d3
-        .scaleBand([0, hGDim.w / 1.8], 0.1)
-        .range([0, hGDim.w / 1.5])
+        .scaleBand([0, hGDim.w], 0.1)
+        .range([0, hGDim.w])
         .domain(
           fD.map(function(d) {
             return d[0]
@@ -192,7 +196,7 @@ class Daily extends React.Component {
           return humanTime(d[1])
         })
         .attr('x', function(d) {
-          return x(d[0]) + x.bandwidth() / 2
+          return x(d[0]) + x.bandwidth() / 2.9
         })
         .attr('y', function(d) {
           return y(d[1]) - 5
@@ -201,7 +205,7 @@ class Daily extends React.Component {
 
       // create function to update the bars. This will be used by pie-chart.
       hG.update = function(nD, color) {
-        console.log('this is the new data for histomogram', nD)
+        // console.log('this is the new data for histomogram', nD)
         // update the domain of the y-axis map to reflect change in frequencies.
         y.domain([
           0,
@@ -315,7 +319,7 @@ class Daily extends React.Component {
 
       // Utility function to be called on mouseover a pie slice.
       function mouseover(d) {
-        console.log('this is the input for mouseover, d: ', d)
+        // console.log('this is the input for mouseover, d: ', d)
         if (d.data.type === 'work') {
           hG.update(
             topFiveWork.map(function(t) {
@@ -345,7 +349,7 @@ class Daily extends React.Component {
         // call the update function of histogram with all data.
         hG.update(
           topFiveTotal.map(function(t) {
-            return [t.url, d.play, d.work]
+            return [t.url, t.play, t.work]
           }),
           barColor
         )
@@ -364,7 +368,7 @@ class Daily extends React.Component {
 
     // function to handle legend.
     function legend(lD) {
-      console.log('this is lD', lD)
+      // console.log('this is lD', lD)
       var leg = {}
 
       // create table for legend.
