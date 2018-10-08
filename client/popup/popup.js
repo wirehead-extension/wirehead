@@ -3,7 +3,9 @@ import {
   timeCalculator,
   currentTimeCalculator,
   dateConverter,
+  urlValidation,
 } from '../background/utils'
+import { DH_CHECK_P_NOT_PRIME } from 'constants';
 
 //Current Page Information
 var currentTime = 0
@@ -14,10 +16,18 @@ db.history.toArray().then(result=>{
   return result[idx]
 })
 .then(data=>{
-  document.querySelector('#current-title').innerText = "Current: " + data.url
-  document.querySelector('#current').innerText = currentTimeCalculator(new Date().valueOf()-data.timeStart)
   currentTime = new Date().valueOf()-data.timeStart
   currentUrl = data.url
+
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs =>{
+    document.querySelector('#current-title').innerText = tabs[0].title.slice(0,28)
+    document.querySelector('#current-time').innerText = dateConverter(new Date())
+    if (urlValidation(new URL(tabs[0].url))) {
+      document.querySelector('#current').innerText = currentTimeCalculator(new Date().valueOf()-data.timeStart)
+    } else {
+      document.querySelector('.ui.slide.masked.reveal.image.teal.inverted.segment').remove()
+    }
+  })
 })
 
 
@@ -63,7 +73,8 @@ db.history.orderBy('url').eachUniqueKey(key=>{
       :
       newDiv.appendChild(document.createTextNode(timeCalculator(elem.time)))
 
-      document.querySelector('#total').innerText = "Total Time: " + timeCalculator(todayTotal)
+      document.querySelector('#total').innerText = "Today's Total: " + timeCalculator(todayTotal)
     }
   })
 })
+

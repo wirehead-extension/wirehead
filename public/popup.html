@@ -6,35 +6,74 @@
   <meta name='viewport' content='width=device-width initial-scale=1.0'>
   <title>Wirehead Popup</title>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.css">
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.js"></script>
   <script defer src="/popup.bundle.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Boogaloo|Jua|Passion+One|Quantico|Squada+One|Srisakdi" rel="stylesheet">
 </head>
 
-<body class="content">
-  <div id="popup"></div>
-  <a href='dashboard.html' target="_blank">
-    <button class="ui linkedin button">
-      <i class="chart pie icon"></i>
-      Dashboard
-    </button>
-  </a>
+<body class="popup">
 
-  <div class="box">
-    <strong><p id="current-title"></p></strong>
+  <div class="ui card">
+    <div class="content">
+      <div data-tooltip="Current Web Page" data-position="left center" data-inverted="">
+        <img src="chrome.png" height="30" width="30"/>
+      </div>
+      <h3 class="header"><p id="current-title"></p></h3>
+      <div class="meta">
+        <span class="date">
+          <p id="current-time"></p></span>
+      </div>
+    </div>
+    <div class="ui slide masked reveal image teal inverted segment">
+      <div class="visible content">
+        <div id="current"></div>
+        <p class="status">C U R R E N T</p>
+      </div>
+      <div class="hidden content">
+        <div id="current-total"></div>
+        <p class="status">T O T A L</p>
+      </div>
+    </div>
     <div>
-      <div id="current-total"></div>
-      <p>Total</p>
-      <div id="current"></div>
-      <p>Current</p>
+      <!-- <h2 id="total">Total Time</h2>
+      <div id="list"></div> -->
+
+      <div class="dropdown is-hoverable is-up">
+        <div class="dropdown-trigger">
+          <!-- <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4"> -->
+            <!-- <span>Hover me</span> -->
+            <h2 id="total">Total Time</h2>
+            <!-- <span class="icon is-small">
+              <i class="fas fa-angle-down" aria-hidden="true"></i>
+            </span> -->
+          <!-- </button> -->
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+          <div class="dropdown-content">
+            <div class="dropdown-item">
+                <div id="list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </div>
+
+    <div class="extra content">
+      <a href='dashboard.html' target="_blank">
+        <button class="ui linkedin button">
+          <i class="chart pie icon"></i>
+          Dashboard
+        </button>
+      </a>
+
     </div>
   </div>
-  <div class="box">
-    <h2 id="total">Total Time</h2>
-    <div id="list"></div>
-  </div>
-<script type='text/javascript' src='index.js'></script>
 </body>
 
 </html>

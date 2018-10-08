@@ -15,7 +15,7 @@ import {
   getNumberOfTrainingExamples,
   deleteOldTrainingData
 } from './bayesClassifier'
-import {dateConverter, timeInSecond, timeCalculator} from './utils'
+import {dateConverter, timeInSecond, timeCalculator, urlValidation} from './utils'
 import db from '../db'
 
 //We remake the bayes model less often when we have  LOTS  of examples
@@ -33,21 +33,21 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   if (windowInfo > 0 && windowInfo !== currentWindow) {
     currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      if (tabs[0]) {
+      if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
         var url = new URL(tabs[0].url)
         // Update time end when focus out of the tab
-        db.history
-          .toArray()
-          .then(result => {
-            var idx = result.length - 1
-            return result[idx]
-          })
-          .then(data => {
-            db.history.update(data.id, {
-              timeEnd: new Date().valueOf(),
-              timeTotal: new Date().valueOf() - data.timeStart
-            })
-          })
+        // db.history
+        //   .toArray()
+        //   .then(result => {
+        //     var idx = result.length - 1
+        //     return result[idx]
+        //   })
+        //   .then(data => {
+        //     db.history.update(data.id, {
+        //       timeEnd: new Date().valueOf(),
+        //       timeTotal: new Date().valueOf() - data.timeStart
+        //     })
+        //   })
 
         //Post start time data when open the tab
         db.history
@@ -80,34 +80,37 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     var url = new URL(tab.url)
 
     //Update time end when focus out of the tab
-    db.history
-      .toArray()
-      .then(result => {
-        var idx = result.length - 1
-        return result[idx]
-      })
-      .then(data => {
-        db.history.update(data.id, {
-          timeEnd: new Date().valueOf(),
-          timeTotal: new Date().valueOf() - data.timeStart
-        })
-      })
+    // db.history
+    //   .toArray()
+    //   .then(result => {
+    //     var idx = result.length - 1
+    //     return result[idx]
+    //   })
+    //   .then(data => {
+    //     db.history.update(data.id, {
+    //       timeEnd: new Date().valueOf(),
+    //       timeTotal: new Date().valueOf() - data.timeStart
+    //     })
+    //   })
+
 
     //Post start time data when open the tab
-    db.history
-      .put({
-        url: url.hostname,
-        timeStart: new Date().valueOf(),
-        timeEnd: undefined,
-        timeTotal: 0,
-        label: undefined
-      })
-      .then(i => {
-        console.log('wrote ' + i)
-      })
-      .catch(err => {
-        console.error(err)
-      })
+    if (urlValidation(new URL(tab.url))) {
+      db.history
+        .put({
+          url: url.hostname,
+          timeStart: new Date().valueOf(),
+          timeEnd: undefined,
+          timeTotal: 0,
+          label: undefined
+        })
+        .then(i => {
+          console.log('wrote ' + i)
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    }
   })
 })
 
@@ -118,23 +121,23 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     var currentUrl
 
     //Update time end when focus out of the tab
-    db.history
-      .toArray()
-      .then(result => {
-        var idx = result.length - 1
-        currentUrl = result[idx].url
-        return result[idx]
-      })
-      .then(data => {
-        if (currentUrl !== url.hostname) {
-          db.history.update(data.id, {
-            timeEnd: new Date().valueOf(),
-            timeTotal: new Date().valueOf() - data.timeStart
-          })
-        }
-      })
-      .then(() => {
-        if (currentUrl !== url.hostname) {
+    // db.history
+    //   .toArray()
+    //   .then(result => {
+    //     var idx = result.length - 1
+    //     currentUrl = result[idx].url
+    //     return result[idx]
+    //   })
+    //   .then(data => {
+    //     if (currentUrl !== url.hostname) {
+    //       db.history.update(data.id, {
+    //         timeEnd: new Date().valueOf(),
+    //         timeTotal: new Date().valueOf() - data.timeStart
+    //       })
+    //     }
+    //   })
+    //   .then(() => {
+        if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
           db.history
             .put({
               url: url.hostname,
@@ -150,26 +153,28 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
               console.error(err)
             })
         }
-      })
+      // })
   }
 })
 
 //An Event Listener to store stop information when close the tab
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-  var newDate = new Date().valueOf()
+  // if (urlValidation(new URL(tabs[0].url))) {
+    var newDate = new Date().valueOf()
 
-  db.history
-    .toArray()
-    .then(result => {
-      var idx = result.length - 1
-      return result[idx]
-    })
-    .then(data => {
-      db.history.update(data.id, {
-        timeEnd: newDate,
-        timeTotal: newDate - data.timeStart
-      })
-    })
+    // db.history
+    //   .toArray()
+    //   .then(result => {
+    //     var idx = result.length - 1
+    //     return result[idx]
+    //   })
+    //   .then(data => {
+    //     db.history.update(data.id, {
+    //       timeEnd: newDate,
+    //       timeTotal: newDate - data.timeStart
+    //     })
+    //   })
+  // }
 })
 
 //listens for all events emitted by page content scripts
@@ -238,29 +243,29 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 //NOTFICATION STUFF IS BELOW
 
 //I needed to break notification-making into two functions because querying tabs is asynchronus
-chrome.alarms.create('initialize notification', {periodInMinutes: 0.2})
+chrome.alarms.create('initialize notification', {periodInMinutes: 5})
 
 //User will be notified by hour how long they stayed on the website
 chrome.alarms.create('timer', {periodInMinutes: 0.1})
 
-//Timer keep tracks current time & if laptop is turned off
-chrome.alarms.create('tracker', {periodInMinutes: 0.1})
-
 chrome.alarms.onAlarm.addListener(function(alarm) {
   if (alarm.name === 'timer') {
     timeNotification()
-  } else if (alarm.name === 'tracker') {
-    timeTracker()
   } else if (alarm.name === 'initialize notification') {
     initNotification()
   }
 })
 
+//Timer keep tracks current time per second & if laptop is turned off
+setInterval(()=>{
+  timeTracker()
+},1000)
+
 // I needed to break notification-making into two functions because querying tabs is asynchronus
 function initNotification() {
   //If there's an active page, get the page title and init a notification
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs[0]) {
+    if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
       makeNotification()
     }
   })
@@ -314,11 +319,10 @@ function timeNotification() {
   //If there's an active page, get the page title and init a notification
 
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs[0]) {
+    if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
       var url = new URL(tabs[0].url).hostname
       db.history.where({url}).toArray().then(result=>{
         var totalSpend = 0
-        var idx = result.length - 1
 
         result.forEach(data=>{
           if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
@@ -329,7 +333,7 @@ function timeNotification() {
         })
 
         var hourCalculator = Math.floor(totalSpend/3600000) * 3600000
-        console.log('title:',tabs[0].title, 'time:', totalSpend)
+        console.log('title:',tabs[0].title, 'time: ', new Date(), 'time Spend:', totalSpend)
         if (totalSpend > hourCalculator && totalSpend < hourCalculator + 6000 && totalSpend > 10000) {
           makeTimeNotification(tabs[0].title, totalSpend)
         }
@@ -350,7 +354,7 @@ function makeTimeNotification(title, time) {
 
 function timeTracker() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs[0]) {
+    if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
       db.history.toArray().then(result=>{
         var idx = result.length-1
         return result[idx]

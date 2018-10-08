@@ -62,7 +62,78 @@ rect:hover {  fill:blue; }
 
 
 
-.content {
+.popup {
   width: 300px;
+  height: 290px;
+  margin: 0px;
   text-align: center;
+}
+
+.content {
+  height: 120px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384);
+  margin: 0;
+}
+
+.meta {
+  text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384);
+}
+
+.ui.card {
+  width: 320px !important;
+}
+
+.ui.slide.masked.reveal.image {
+  height: 120px;
+  margin: 0 0 20px 0;
+}
+
+.extra.content {
+  height: 60px;
+  position: absolute;
+  z-index: 1;
+  top: 240px;
+}
+
+.dropdown.is-hoverable.is-up {
+  padding-bottom: 60px;
+}
+
+.ui.linkedin.button {
+  width: 320px;
+  height: 60px;
+}
+
+.visible.content {
+  padding-top: 35px;
+  height: 100px;
+}
+
+.hidden.content {
+  padding-top: 35px;
+  height: 100px;
+}
+
+#current {
+  font-family: 'Quantico', sans-serif;
+  font-size: 60px;
+  height: 40px;
+}
+
+#current-total {
+  font-family: 'Quantico', sans-serif;
+  font-size: 60px;
+  height: 40px;
+}
+
+.status {
+  font-family: 'Squada One', cursive;
+  font-size: 25px;
 }
