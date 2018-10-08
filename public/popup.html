@@ -10,31 +10,42 @@
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.js"></script>
   <script defer src="/popup.bundle.js"></script>
+  <script src="classifyInPopup.js"></script>
+
 </head>
 
 <body class="content">
   <div id="popup"></div>
-  <a href='dashboard.html' target="_blank">
-    <button class="ui linkedin button">
-      <i class="chart pie icon"></i>
-      Dashboard
-    </button>
-  </a>
+
 
   <div class="box">
-    <strong><p id="current-title"></p></strong>
+    <strong>
+      <p id="current-title"></p>
+    </strong>
+    <a id="work-button">
+      <button style='display:inline'>Work?</button>
+    </a>
+    <a id="play-button">
+      <button style='display:inline'>Play?</button>
+    </a>
     <div>
+      <!-- <p>Total:</p> -->
       <div id="current-total"></div>
-      <p>Total</p>
+      <!-- <p>Current page:</p> -->
       <div id="current"></div>
-      <p>Current</p>
     </div>
   </div>
   <div class="box">
     <h2 id="total">Total Time</h2>
     <div id="list"></div>
+    <a href='dashboard.html' target="_blank">
+      <button class="ui linkedin button">
+        <i class="chart pie icon"></i>
+        Dashboard
+      </button>
+    </a>
   </div>
-<script type='text/javascript' src='index.js'></script>
+  <script type='text/javascript' src='index.js'></script>
 </body>
 
 </html>

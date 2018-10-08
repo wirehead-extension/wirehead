@@ -15,7 +15,11 @@ import {
   getNumberOfTrainingExamples,
   deleteOldTrainingData
 } from './bayesClassifier'
+
+import {initOptions, updateOptions, getOptions} from './options'
+
 import {dateConverter, timeInSecond, timeCalculator} from './utils'
+
 import db from '../db'
 
 //We remake the bayes model less often when we have  LOTS  of examples
@@ -238,7 +242,7 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 //NOTFICATION STUFF IS BELOW
 
 //I needed to break notification-making into two functions because querying tabs is asynchronus
-chrome.alarms.create('initialize notification', {periodInMinutes: 0.2})
+chrome.alarms.create('make notification', {periodInMinutes: 0.2})
 
 //User will be notified by hour how long they stayed on the website
 chrome.alarms.create('timer', {periodInMinutes: 0.1})
@@ -251,20 +255,16 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
     timeNotification()
   } else if (alarm.name === 'tracker') {
     timeTracker()
-  } else if (alarm.name === 'initialize notification') {
-    initNotification()
+  } else if (alarm.name === 'make notification') {
+    if (getOptions().allowTrainingPopups === true) {
+      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+        if (tabs[0]) {
+          makeNotification()
+        }
+      })
+    }
   }
 })
-
-// I needed to break notification-making into two functions because querying tabs is asynchronus
-function initNotification() {
-  //If there's an active page, get the page title and init a notification
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs[0]) {
-      makeNotification()
-    }
-  })
-}
 
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
@@ -310,30 +310,58 @@ function handleButton(notificationId, buttonIndex) {
   })
 }
 
+//Once we have a lot of Bayes examples, we can annoy the user for training data less often
+function checkForAlarmUpdates(numberExamples) {
+  if (numberExamples === 100) {
+    updateNotificationFrequency(10)
+  } else if (numberExamples === 200) {
+    updateNotificationFrequency(20)
+  } else if (numberExamples === 500) {
+    updateNotificationFrequency(30)
+  } else if (numberExamples === 1000) {
+    updateNotificationFrequency(60)
+  }
+}
+//This updates the frequency of the alarm that makes notifications (used below)
+function updateNotificationFrequency(newPeriod) {
+  chrome.alarms.clear('make notification')
+  chrome.alarms.create('make notification', {periodInMinutes: newPeriod})
+}
+
 function timeNotification() {
   //If there's an active page, get the page title and init a notification
 
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0]) {
       var url = new URL(tabs[0].url).hostname
-      db.history.where({url}).toArray().then(result=>{
-        var totalSpend = 0
-        var idx = result.length - 1
+      db.history
+        .where({url})
+        .toArray()
+        .then(result => {
+          var totalSpend = 0
+          var idx = result.length - 1
 
-        result.forEach(data=>{
-          if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
-          && new Date(data.timeStart).getMonth() === new Date().getMonth()
-          && new Date(data.timeStart).getDate() === new Date().getDate()) {
-            totalSpend += data.timeTotal
+          result.forEach(data => {
+            if (
+              new Date(data.timeStart).getFullYear() ===
+                new Date().getFullYear() &&
+              new Date(data.timeStart).getMonth() === new Date().getMonth() &&
+              new Date(data.timeStart).getDate() === new Date().getDate()
+            ) {
+              totalSpend += data.timeTotal
+            }
+          })
+
+          var hourCalculator = Math.floor(totalSpend / 3600000) * 3600000
+          console.log('title:', tabs[0].title, 'time:', totalSpend)
+          if (
+            totalSpend > hourCalculator &&
+            totalSpend < hourCalculator + 6000 &&
+            totalSpend > 10000
+          ) {
+            makeTimeNotification(tabs[0].title, totalSpend)
           }
         })
-
-        var hourCalculator = Math.floor(totalSpend/3600000) * 3600000
-        console.log('title:',tabs[0].title, 'time:', totalSpend)
-        if (totalSpend > hourCalculator && totalSpend < hourCalculator + 6000 && totalSpend > 10000) {
-          makeTimeNotification(tabs[0].title, totalSpend)
-        }
-      })
     }
   })
 }
@@ -344,27 +372,42 @@ function makeTimeNotification(title, time) {
     type: 'basic',
     title: 'You spent time on this website',
     iconUrl: 'heartwatch.png',
-    message: title.slice(0,30) + ' : \n' + timeprint
+    message: title.slice(0, 30) + ' : \n' + timeprint
   })
 }
 
 function timeTracker() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0]) {
-      db.history.toArray().then(result=>{
-        var idx = result.length-1
-        return result[idx]
-      })
-      .then(data=>{
-        if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000 && new Date(data.timeStart).getFullYear() === new Date().getFullYear()
-        && new Date(data.timeStart).getMonth() === new Date().getMonth()
-        && new Date(data.timeStart).getDate() === new Date().getDate()) {
-          db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-        } else {
-          db.history
-          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
-        }
-      })
+      db.history
+        .toArray()
+        .then(result => {
+          var idx = result.length - 1
+          return result[idx]
+        })
+        .then(data => {
+          if (
+            new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
+              30000 &&
+            new Date(data.timeStart).getFullYear() ===
+              new Date().getFullYear() &&
+            new Date(data.timeStart).getMonth() === new Date().getMonth() &&
+            new Date(data.timeStart).getDate() === new Date().getDate()
+          ) {
+            db.history.update(data.id, {
+              timeEnd: new Date().valueOf(),
+              timeTotal: new Date().valueOf() - data.timeStart
+            })
+          } else {
+            db.history.put({
+              url: new URL(tabs[0].url).hostname,
+              timeStart: new Date().valueOf(),
+              timeEnd: undefined,
+              timeTotal: 0,
+              label: undefined
+            })
+          }
+        })
     }
   })
 }
