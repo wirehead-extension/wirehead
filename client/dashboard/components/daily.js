@@ -45,8 +45,8 @@ class Daily extends React.Component {
     ) */
   }
   componentDidUpdate() {
-    // d3.selectAll('svg').remove()
-    // d3.selectAll('table').remove()
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
     // this.removeDashboard('svg')
     // this.removeDashboard('table')
     this.createDashboard('#dashboard', this.props.data)
@@ -142,8 +142,8 @@ class Daily extends React.Component {
     function histoGram(fD) {
       // console.log('this is fd', fD)
       var hG = {},
-        hGDim = {t: 60, r: 0, b: 30, l: 0}
-      hGDim.w = (500 - hGDim.l - hGDim.r) / 1.5
+      hGDim = {t: 60, r: 0, b: 30, l: 0}
+      hGDim.w = (500 - hGDim.l - hGDim.r)
       hGDim.h = 300 - hGDim.t - hGDim.b
 
       //create svg for histogram.
@@ -158,8 +158,8 @@ class Daily extends React.Component {
 
       // create function for x-axis mapping.
       var x = d3
-        .scaleBand([0, hGDim.w / 1.8], 0.1)
-        .range([0, hGDim.w / 1.5])
+        .scaleBand([0, hGDim.w], 0.1)
+        .range([0, hGDim.w])
         .domain(
           fD.map(function(d) {
             return d[0]
@@ -214,7 +214,7 @@ class Daily extends React.Component {
           return humanTime(d[1])
         })
         .attr('x', function(d) {
-          return x(d[0]) + x.bandwidth() / 2
+          return x(d[0]) + x.bandwidth() / 2.9
         })
         .attr('y', function(d) {
           return y(d[1]) - 5
@@ -367,7 +367,7 @@ class Daily extends React.Component {
         // call the update function of histogram with all data.
         hG.update(
           topFiveTotal.map(function(t) {
-            return [t.url, d.play, d.work]
+            return [t.url, t.play, t.work]
           }),
           barColor
         )
