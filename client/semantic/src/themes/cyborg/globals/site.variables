@@ -49,11 +49,11 @@
 
 @pageBackground: #060606;
 @textColor: @gray-light;
-@fontName: "Roboto";
+@fontName: "Roboto Mono";
 @fontSize: 0.875rem;
 @linkColor: #4183c4;
 @linkHoverColor: @linkColor;
-@headerFont: @fontName;
+@headerFont: "Roboto Mono";
 @padding-base-vertical: 8px;
 @padding-large-vertical: 14px;
 @inputColor: @textColor;
