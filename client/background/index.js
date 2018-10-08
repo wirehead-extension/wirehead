@@ -270,7 +270,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
     timeTracker()
   } else if (alarm.name === 'make notification') {
     if (getOptions().allowTrainingPopups === true) {
-            chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0]) {
           makeNotification()
         }
@@ -278,7 +278,6 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
     }
   }
 })
-
 
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
@@ -345,13 +344,13 @@ function checkForAlarmUpdates(numberExamples) {
   } else if (numberExamples === 1000) {
     updateNotificationFrequency(60)
   }
+}
 
 //This updates the frequency of the alarm that makes notifications (used below)
 function updateNotificationFrequency(newPeriod) {
   chrome.alarms.clear('make notification')
   chrome.alarms.create('make notification', {periodInMinutes: newPeriod})
 }
-
 
 function timeNotification() {
   //If there's an active page, get the page title and init a notification
