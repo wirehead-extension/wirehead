@@ -73,8 +73,8 @@ class Weekly extends React.Component {
             .style("position", "absolute")
             .style("z-index", "20")
             .style("visibility", "hidden")
-            .style("top", "350px")
-            .style("left", "150px")
+            .style("top", "330px")
+            .style("left", "1150px")
 
         const x = d3.scaleTime()
             .range([0, width])
