@@ -42,15 +42,12 @@ class AppConfig extends React.Component {
     let allowShaming = this.state.allowShaming
     return (
       <Container>
-        <Header as="h1">Options</Header>
+        <Header as="h2">Options</Header>
         <Divider hidden />
         <Form onSubmit={this.handleSubmit}>
           <Form.Group grouped>
-            <Header as="h5">
-              Can Wirehead shame you with occasional notifications if you're
-              wasting time?
-            </Header>
-
+            Can Wirehead shame you with occasional notifications if you're
+            wasting time?
             <Form.Field
               label="Yes"
               control={Radio}
