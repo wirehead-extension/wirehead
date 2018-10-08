@@ -16,10 +16,12 @@ class Daily extends React.Component {
   }
 
   handleChange(e) {
-    console.log(e.target.value)
+    // console.log(e.target.value)
   }
 
   componentDidMount() {
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
     this.props
       .fetchData(
         new Date().setHours(0, 0, 0, 0).valueOf() - 15 * 24 * 60 * 60000,
@@ -43,8 +45,10 @@ class Daily extends React.Component {
     ) */
   }
   componentDidUpdate() {
-    this.removeDashboard('svg')
-    this.removeDashboard('table')
+    // d3.selectAll('svg').remove()
+    // d3.selectAll('table').remove()
+    // this.removeDashboard('svg')
+    // this.removeDashboard('table')
     this.createDashboard('#dashboard', this.props.data)
   }
 
@@ -99,11 +103,11 @@ class Daily extends React.Component {
     totalWork = findTotalWork(this.props.data)
     totalPlay = findTotalPlay(this.props.data)
 
-    console.log('this is topFiveTotal', topFiveTotal)
-    console.log('this is topFiveWork', topFiveWork)
-    console.log('this is topFivePlay', topFivePlay)
-    console.log('this is totalWork', totalWork)
-    console.log('this is totalPlay', totalPlay)
+    // console.log('this is topFiveTotal', topFiveTotal)
+    // console.log('this is topFiveWork', topFiveWork)
+    // console.log('this is topFivePlay', topFivePlay)
+    // console.log('this is totalWork', totalWork)
+    // console.log('this is totalPlay', totalPlay)
 
     var barColor = 'steelblue'
     function segColor(c) {
@@ -123,20 +127,20 @@ class Daily extends React.Component {
         )
       }
     })
-    console.log('this is tf', tF)
+    // console.log('this is tf', tF)
 
     // calculate total frequency by state for all segment.
     var sF = topFiveTotal.map(function(d) {
       return [d.url, d.play, d.work]
     })
-    console.log('this is sf for histomogram', sF)
+    // console.log('this is sf for histomogram', sF)
     var hG = histoGram(sF), // create the histogram.
       pC = pieChart(tF), // create the pie-chart.
       leg = legend(tF) // create the legend.
 
     // function to handle histogram.
     function histoGram(fD) {
-      console.log('this is fd', fD)
+      // console.log('this is fd', fD)
       var hG = {},
         hGDim = {t: 60, r: 0, b: 30, l: 0}
       hGDim.w = (500 - hGDim.l - hGDim.r) / 1.5
@@ -219,7 +223,7 @@ class Daily extends React.Component {
 
       // create function to update the bars. This will be used by pie-chart.
       hG.update = function(nD, color) {
-        console.log('this is the new data for histomogram', nD)
+        // console.log('this is the new data for histomogram', nD)
         // update the domain of the y-axis map to reflect change in frequencies.
         y.domain([
           0,
@@ -333,7 +337,7 @@ class Daily extends React.Component {
 
       // Utility function to be called on mouseover a pie slice.
       function mouseover(d) {
-        console.log('this is the input for mouseover, d: ', d)
+        // console.log('this is the input for mouseover, d: ', d)
         if (d.data.type === 'work') {
           hG.update(
             topFiveWork.map(function(t) {
@@ -382,7 +386,7 @@ class Daily extends React.Component {
 
     // function to handle legend.
     function legend(lD) {
-      console.log('this is lD', lD)
+      // console.log('this is lD', lD)
       var leg = {}
 
       // create table for legend.

@@ -61,3 +61,7 @@ shape-rendering: crispEdges;
   align:right;
   width:50px;
 }
+
+.layer{
+  transform: translate(-20, 0)
+}

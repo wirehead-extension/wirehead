@@ -38,10 +38,12 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bayes-classifier": "0.0.5",
+    "britecharts": "^2.9.7",
     "bulma": "^0.7.1",
     "bulma-calendar": "^5.0.1",
     "d3": "^5.7.0",
     "d3-format": "^1.3.2",
+    "d3-selection": "^1.3.2",
     "dexie": "^2.0.4",
     "history": "^4.6.3",
     "moment": "^2.22.2",
