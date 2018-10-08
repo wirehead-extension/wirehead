@@ -9,7 +9,11 @@ db.version(5).stores({
   summaryHistory: 'url',
   trainingData: '++id, document, label',
   bayesModel: '++id, model',
+<<<<<<< HEAD
   options: ', allowShaming, allowTrainingPopups'
+=======
+  options: ', allowTrainingPopups, allowShaming'
+>>>>>>> options
 })
 
 //TODO: before entering production, remove the seed functionality!

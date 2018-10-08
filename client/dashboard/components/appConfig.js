@@ -1,19 +1,22 @@
 import React from 'react'
-import {connect} from 'react-redux'
+// import {connect} from 'react-redux'
 import {
-  Form,
   Header,
   Container,
-  Button,
+  Form,
   Divider,
+  Button,
   Radio
 } from 'semantic-ui-react'
-import {updateOptions, getOptions} from '../../background/options'
+import {getOptions, updateOptions} from '../../background/options.js'
 
 class AppConfig extends React.Component {
   constructor() {
     super()
-    this.state = {}
+    this.state = {
+      allowTrainingPopups: null,
+      allowShaming: null
+    }
   }
 
   async componentDidMount() {
@@ -39,12 +42,15 @@ class AppConfig extends React.Component {
     let allowShaming = this.state.allowShaming
     return (
       <Container>
-        <Header as="h4">Options</Header>
+        <Header as="h1">Options</Header>
         <Divider hidden />
         <Form onSubmit={this.handleSubmit}>
           <Form.Group grouped>
-            Can Wirehead shame you with occasional notifications if you're
-            wasting time?
+            <Header as="h5">
+              Can Wirehead shame you with occasional notifications if you're
+              wasting time?
+            </Header>
+
             <Form.Field
               label="Yes"
               control={Radio}

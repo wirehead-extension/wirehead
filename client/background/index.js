@@ -28,7 +28,6 @@ const LOTS_OF_TRAINING_EXAMPLES = 2000
 const MAX_TRAINING_EXAMPLES = 10000
 
 var currentWindow
-
 //Store the data when a chrome window switched
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
@@ -175,7 +174,6 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
       })
     })
 })
-
 //listens for all events emitted by page content scripts
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action) {
@@ -227,12 +225,11 @@ async function updateIcon(tab) {
 //but only if we have LOTS_OF_TRAINING_DATA (2000 lines in db)
 //which would make updating the model computationaly expensive
 //Otherwise, we can just update the model every time we add a single training datum
-chrome.alarms.create('train bayes model', {periodInMinutes: 1000})
+chrome.alarms.create('update bayes model', {periodInMinutes: 1000})
 
 chrome.alarms.onAlarm.addListener(async function(alarm) {
-  if (alarm.name === 'train bayes model') {
+  if (alarm.name === 'update bayes model') {
     const numberExamples = await getNumberOfTrainingExamples()
-
     if (numberExamples >= LOTS_OF_TRAINING_EXAMPLES) {
       updateBayesModel()
     }
@@ -241,8 +238,12 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 
 //NOTFICATION STUFF IS BELOW
 
-//I needed to break notification-making into two functions because querying tabs is asynchronus
-chrome.alarms.create('make notification', {periodInMinutes: 0.2})
+//This initializes alarm that causes notifications to be made
+chrome.runtime.onInstalled.addListener(function(details) {
+  if (details.reason === 'install') {
+    chrome.alarms.create('make notification', {periodInMinutes: 0.2})
+  }
+})
 
 //User will be notified by hour how long they stayed on the website
 chrome.alarms.create('timer', {periodInMinutes: 0.1})
@@ -278,6 +279,11 @@ function makeNotification() {
   chrome.notifications.onButtonClicked.addListener(handleButton)
 }
 
+//Clicking buttons on notification does a lot of things:
+//1. It adds training examples to the db, labeled "work" or "play"
+//2. If we don't have a lot of training examples...
+//it updates the machine learning model, makes a new prediction, and updates the icon
+//3. If we have too many training examples it tells the db to drop 100 lines
 function handleButton(notificationId, buttonIndex) {
   let tabName
   chrome.tabs.query({active: true, lastFocusedWindow: true}, async function(
@@ -297,8 +303,13 @@ function handleButton(notificationId, buttonIndex) {
       label: label,
       time: new Date().getTime()
     })
+
     const numberExamples = await getNumberOfTrainingExamples()
-    //stop constantly updating the bayes model if we have a lots of training examples, //so as not to make chrome really slow
+    //Slowly decrease frequency of popup (in minutes) as user uses the extension more
+    checkForAlarmUpdates(numberExamples)
+
+    //stop constantly updating the bayes model if we have a lots of training examples,
+    //so as not to make chrome really slow
     if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
       await updateBayesModel()
       updateIcon(tabs[0])
@@ -322,6 +333,7 @@ function checkForAlarmUpdates(numberExamples) {
     updateNotificationFrequency(60)
   }
 }
+
 //This updates the frequency of the alarm that makes notifications (used below)
 function updateNotificationFrequency(newPeriod) {
   chrome.alarms.clear('make notification')
