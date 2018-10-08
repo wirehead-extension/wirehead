@@ -17,10 +17,22 @@ import {
 } from './bayesClassifier'
 
 import {initOptions, updateOptions, getOptions} from './options'
+<<<<<<< HEAD
 
 import {dateConverter, timeInSecond, timeCalculator} from './utils'
 
+=======
+import {dateConverter, timeInSecond, timeCalculator} from './utils'
+import {makeLearnMoreNotification} from './newUserTest'
+>>>>>>> db9fc085942289bf9f7f6fef8752a6cbaddf83af
 import db from '../db'
+
+//session variables so we know whether to prompt the user to learn more
+//or maybe per-window. Either way not too annoying
+let aboutNotificationClicked = false
+const clickAboutNotification = () => {
+  aboutNotificationClicked = true
+}
 
 //We remake the bayes model less often when we have  LOTS  of examples
 const LOTS_OF_TRAINING_EXAMPLES = 2000
@@ -79,7 +91,15 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     const model = await getBayesModel()
     if (model) {
       updateIcon(tab)
+<<<<<<< HEAD
       //
+=======
+    } else {
+      makeLearnMoreNotification(
+        clickAboutNotification,
+        aboutNotificationClicked
+      )
+>>>>>>> db9fc085942289bf9f7f6fef8752a6cbaddf83af
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
@@ -417,7 +437,10 @@ function timeTracker() {
               timeTotal: new Date().valueOf() - data.timeStart
             })
           } else {
+<<<<<<< HEAD
             //Put Bayes label here
+=======
+>>>>>>> db9fc085942289bf9f7f6fef8752a6cbaddf83af
             db.history.put({
               url: new URL(tabs[0].url).hostname,
               timeStart: new Date().valueOf(),
