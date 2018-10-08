@@ -232,15 +232,6 @@ chrome.alarms.create('update bayes model', {periodInMinutes: 1000})
 chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name === 'update bayes model') {
     const numberExamples = await getNumberOfTrainingExamples()
-    //CODE TO TEST OPTIONS
-    // console.log('options 1', await getOptions())
-    // await updateOptions({
-    //   trainingPopupFrequency: 0.3,
-    //   allowTrainingPopups: true,
-    //   allowShaming: false
-    // })
-    // console.log('options 2', await getOptions())
-
     if (numberExamples >= LOTS_OF_TRAINING_EXAMPLES) {
       updateBayesModel()
     }
