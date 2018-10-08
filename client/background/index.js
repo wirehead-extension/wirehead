@@ -54,6 +54,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 
         //Post start time data when open the tab
         db.history
+          ///Put bayes label here
           .put({
             url: url.hostname,
             timeStart: new Date().valueOf(),
@@ -78,6 +79,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     const model = await getBayesModel()
     if (model) {
       updateIcon(tab)
+      //
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
@@ -97,6 +99,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
       })
 
     //Post start time data when open the tab
+    //Put the bayes label here
     db.history
       .put({
         url: url.hostname,
@@ -139,6 +142,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       .then(() => {
         if (currentUrl !== url.hostname) {
           db.history
+            //////////Put Bayes label here
             .put({
               url: url.hostname,
               timeStart: new Date().valueOf(),
@@ -251,13 +255,15 @@ chrome.alarms.create('timer', {periodInMinutes: 0.1})
 //Timer keep tracks current time & if laptop is turned off
 chrome.alarms.create('tracker', {periodInMinutes: 0.1})
 
-chrome.alarms.onAlarm.addListener(function(alarm) {
+chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name === 'timer') {
     timeNotification()
   } else if (alarm.name === 'tracker') {
     timeTracker()
   } else if (alarm.name === 'make notification') {
-    if (getOptions().allowTrainingPopups === true) {
+    console.log('voila', await getOptions().allowTrainingPopups)
+    if ((await getOptions().allowTrainingPopups) === true) {
+      console.log('it works')
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0]) {
           makeNotification()
@@ -411,6 +417,7 @@ function timeTracker() {
               timeTotal: new Date().valueOf() - data.timeStart
             })
           } else {
+            //Put Bayes label here
             db.history.put({
               url: new URL(tabs[0].url).hostname,
               timeStart: new Date().valueOf(),
