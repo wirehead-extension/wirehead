@@ -118,7 +118,7 @@
   font-weight: normal;
   font-size: 1em;
   font-style: normal;
-  color: #888;
+  color: rgba(0, 0, 0, 0.4);
 }
 
 /*--------------
@@ -129,7 +129,7 @@
   margin: 0em;
   font-size: 1em;
   font-weight: bold;
-  color: #ebebeb;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 /* Summary Image */
@@ -173,7 +173,7 @@
   font-style: normal;
   margin: 0em 0em 0em 0.5em;
   padding: 0em;
-  color: #888;
+  color: rgba(0, 0, 0, 0.4);
 }
 
 /*--------------
@@ -184,7 +184,7 @@
   margin: 0.5em 0em 0em;
   background: none;
   padding: 0em;
-  color: #888;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 /* Images */
@@ -217,7 +217,7 @@
   -webkit-box-shadow: none;
           box-shadow: none;
   padding: 0em;
-  color: #888;
+  color: rgba(0, 0, 0, 0.6);
 }
 .ui.feed > .event > .content .meta > * {
   position: relative;
@@ -257,14 +257,14 @@
 .ui.feed > .event > .content .meta > .icon {
   cursor: pointer;
   opacity: 1;
-  color: #adafae;
+  color: rgba(0, 0, 0, 0.5);
   -webkit-transition: color 0.1s ease;
   transition: color 0.1s ease;
 }
 .ui.feed > .event > .content .meta a:hover,
 .ui.feed > .event > .content .meta a:hover .icon,
 .ui.feed > .event > .content .meta > .icon:hover {
-  color: #555;
+  color: rgba(0, 0, 0, 0.95);
 }
 
 
@@ -281,6 +281,12 @@
 .ui.large.feed {
   font-size: 1.14285714rem;
 }
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
 
 
 /*******************************

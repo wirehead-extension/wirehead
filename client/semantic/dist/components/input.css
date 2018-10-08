@@ -25,7 +25,7 @@
   display: -webkit-inline-box;
   display: -ms-inline-flexbox;
   display: inline-flex;
-  color: #888;
+  color: rgba(0, 0, 0, 0.87);
 }
 .ui.input > input {
   margin: 0em;
@@ -37,11 +37,11 @@
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   text-align: left;
   line-height: 1.21428571em;
-  font-family: "Roboto", 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   padding: 0.67857143em 1em;
   background: #FFFFFF;
-  border: transparent;
-  color: #888;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  color: rgba(0, 0, 0, 0.87);
   border-radius: 0.28571429rem;
   -webkit-transition: border-color 0.1s ease, -webkit-box-shadow 0.1s ease;
   transition: border-color 0.1s ease, -webkit-box-shadow 0.1s ease;
@@ -58,13 +58,13 @@
 
 /* browsers require these rules separate */
 .ui.input > input::-webkit-input-placeholder {
-  color: #888;
+  color: rgba(191, 191, 191, 0.87);
 }
 .ui.input > input::-moz-placeholder {
-  color: #888;
+  color: rgba(191, 191, 191, 0.87);
 }
 .ui.input > input:-ms-input-placeholder {
-  color: #888;
+  color: rgba(191, 191, 191, 0.87);
 }
 
 
@@ -79,7 +79,7 @@
 
 .ui.disabled.input,
 .ui.input:not(.disabled) input[disabled] {
-  opacity: 0.7;
+  opacity: 0.45;
 }
 .ui.disabled.input > input,
 .ui.input:not(.disabled) input[disabled] {
@@ -94,7 +94,7 @@
 .ui.input.down input {
   border-color: rgba(0, 0, 0, 0.3);
   background: #FAFAFA;
-  color: #888;
+  color: rgba(0, 0, 0, 0.87);
   -webkit-box-shadow: none;
           box-shadow: none;
 }
@@ -142,21 +142,21 @@
 .ui.input > input:focus {
   border-color: #85B7D9;
   background: #FFFFFF;
-  color: black;
+  color: rgba(0, 0, 0, 0.8);
   -webkit-box-shadow: none;
           box-shadow: none;
 }
 .ui.input.focus > input::-webkit-input-placeholder,
 .ui.input > input:focus::-webkit-input-placeholder {
-  color: #888;
+  color: rgba(115, 115, 115, 0.87);
 }
 .ui.input.focus > input::-moz-placeholder,
 .ui.input > input:focus::-moz-placeholder {
-  color: #888;
+  color: rgba(115, 115, 115, 0.87);
 }
 .ui.input.focus > input:-ms-input-placeholder,
 .ui.input > input:focus:-ms-input-placeholder {
-  color: #888;
+  color: rgba(115, 115, 115, 0.87);
 }
 
 /*--------------------
@@ -164,33 +164,33 @@
 ---------------------*/
 
 .ui.input.error > input {
-  background-color: #CC0000;
-  border-color: #bd001f;
-  color: #fff;
+  background-color: #FFF6F6;
+  border-color: #E0B4B4;
+  color: #9F3A38;
   -webkit-box-shadow: none;
           box-shadow: none;
 }
 
 /* Error Placeholder */
 .ui.input.error > input::-webkit-input-placeholder {
-  color: #ffffff;
+  color: #e7bdbc;
 }
 .ui.input.error > input::-moz-placeholder {
-  color: #ffffff;
+  color: #e7bdbc;
 }
 .ui.input.error > input:-ms-input-placeholder {
-  color: #ffffff !important;
+  color: #e7bdbc !important;
 }
 
 /* Focused Error Placeholder */
 .ui.input.error > input:focus::-webkit-input-placeholder {
-  color: #ffffff;
+  color: #da9796;
 }
 .ui.input.error > input:focus::-moz-placeholder {
-  color: #ffffff;
+  color: #da9796;
 }
 .ui.input.error > input:focus:-ms-input-placeholder {
-  color: #ffffff !important;
+  color: #da9796 !important;
 }
 
 
@@ -287,7 +287,7 @@
 /* Left Icon Input */
 .ui[class*="left icon"].input > i.icon {
   right: auto;
-  left: 0;
+  left: 1px;
   border-radius: 0.28571429rem 0em 0em 0.28571429rem;
 }
 .ui[class*="left icon"].input > i.circular.icon {
@@ -352,8 +352,8 @@
 
 /* Corner Label */
 .ui.labeled.input .corner.label {
-  top: 0;
-  right: 0;
+  top: 1px;
+  right: 1px;
   font-size: 0.64285714em;
   border-radius: 0em 0.28571429rem 0em 0em;
 }
@@ -382,12 +382,12 @@
 
 /* Corner Label Position  */
 .ui.input > .ui.corner.label {
-  top: 0;
-  right: 0;
+  top: 1px;
+  right: 1px;
 }
 .ui.input > .ui.left.corner.label {
   right: auto;
-  left: 0;
+  left: 1px;
 }
 
 /*--------------------
@@ -505,12 +505,12 @@
 .ui.massive.input {
   font-size: 1.71428571em;
 }
-.ui.transparent.input input {
-  color: #adafae;
-}
-.ui.transparent.input .icon {
-  color: #adafae;
-}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
 
 
 /*******************************
