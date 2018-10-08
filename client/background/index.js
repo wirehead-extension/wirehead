@@ -17,14 +17,8 @@ import {
 } from './bayesClassifier'
 
 import {initOptions, updateOptions, getOptions} from './options'
-<<<<<<< HEAD
-
-import {dateConverter, timeInSecond, timeCalculator} from './utils'
-
-=======
 import {dateConverter, timeInSecond, timeCalculator} from './utils'
 import {makeLearnMoreNotification} from './newUserTest'
->>>>>>> db9fc085942289bf9f7f6fef8752a6cbaddf83af
 import db from '../db'
 
 //session variables so we know whether to prompt the user to learn more
@@ -91,15 +85,11 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     const model = await getBayesModel()
     if (model) {
       updateIcon(tab)
-<<<<<<< HEAD
-      //
-=======
     } else {
       makeLearnMoreNotification(
         clickAboutNotification,
         aboutNotificationClicked
       )
->>>>>>> db9fc085942289bf9f7f6fef8752a6cbaddf83af
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
@@ -281,9 +271,8 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
   } else if (alarm.name === 'tracker') {
     timeTracker()
   } else if (alarm.name === 'make notification') {
-    console.log('voila', await getOptions().allowTrainingPopups)
-    if ((await getOptions().allowTrainingPopups) === true) {
-      console.log('it works')
+    const options = await getOptions()
+    if (options.allowTrainingPopups) {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0]) {
           makeNotification()
@@ -437,10 +426,7 @@ function timeTracker() {
               timeTotal: new Date().valueOf() - data.timeStart
             })
           } else {
-<<<<<<< HEAD
             //Put Bayes label here
-=======
->>>>>>> db9fc085942289bf9f7f6fef8752a6cbaddf83af
             db.history.put({
               url: new URL(tabs[0].url).hostname,
               timeStart: new Date().valueOf(),
