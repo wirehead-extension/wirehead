@@ -2,8 +2,8 @@
 /*
 The structure of the background scripts is as follows:
 *index.js (this file), we have all our event listeners - I think they have to be here
-*eventPage.js is utility functions for use by index.js (might be worth renaming)
-*db.js builds the db schema
+*utils.js is utility functions for use by index.js
+*db builds the db schema
 *bayesClassifier.js is for use by Kevin
 *don't hesitate to add new files as needed!
 */
@@ -11,11 +11,17 @@ import {
   getBayesModel,
   updateBayesModel,
   getClassifications,
-  classifyDocument
+  classifyDocument,
+  getNumberOfTrainingExamples,
+  deleteOldTrainingData
 } from './bayesClassifier'
-import {dateConverter, timeInSecond} from './utils'
-import {makeLearnMoreNotification} from './newUserTest'
+import {dateConverter, timeInSecond, timeCalculator} from './utils'
 import db from '../db'
+
+//We remake the bayes model less often when we have  LOTS  of examples
+const LOTS_OF_TRAINING_EXAMPLES = 2000
+//We cull old traingin examples from db after reaching MAX
+const MAX_TRAINING_EXAMPLES = 10000
 
 var currentWindow
 
@@ -23,12 +29,12 @@ var currentWindow
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
   //It runs only currentWindow ID has been changed
+
   if (windowInfo > 0 && windowInfo !== currentWindow) {
     currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0]) {
         var url = new URL(tabs[0].url)
-        initNotification()
         // Update time end when focus out of the tab
         db.history
           .toArray()
@@ -62,11 +68,6 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     })
   }
 })
-
-//Initial store the data right after re-load
-// chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-
-// })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   //get detail information of activated tab
@@ -220,14 +221,42 @@ async function updateIcon(tab) {
   }
 }
 
+//This alarm should update the bayes model with new training data about one every day
+//but only if we have LOTS_OF_TRAINING_DATA (2000 lines in db)
+//which would make updating the model computationaly expensive
+//Otherwise, we can just update the model every time we add a single training datum
+chrome.alarms.create('train bayes model', {periodInMinutes: 1000})
+
+chrome.alarms.onAlarm.addListener(async function(alarm) {
+  if (alarm.name === 'train bayes model') {
+    const numberExamples = await getNumberOfTrainingExamples()
+
+    if (numberExamples >= LOTS_OF_TRAINING_EXAMPLES) {
+      updateBayesModel()
+    }
+  }
+})
+
 //NOTFICATION STUFF IS BELOW
 
-/* //User will be annoyed with notifications way too often for demo purposes
-chrome.alarms.create('alarm', { periodInMinutes: 0.2 })
+//I needed to break notification-making into two functions because querying tabs is asynchronus
+chrome.alarms.create('initialize notification', {periodInMinutes: 0.2})
 
-chrome.alarms.onAlarm.addListener(function (alarm) {
-  initNotification()
-}) */
+//User will be notified by hour how long they stayed on the website
+chrome.alarms.create('timer', {periodInMinutes: 0.1})
+
+//Timer keep tracks current time & if laptop is turned off
+chrome.alarms.create('tracker', {periodInMinutes: 0.1})
+
+chrome.alarms.onAlarm.addListener(function(alarm) {
+  if (alarm.name === 'timer') {
+    timeNotification()
+  } else if (alarm.name === 'tracker') {
+    timeTracker()
+  } else if (alarm.name === 'initialize notification') {
+    initNotification()
+  }
+})
 
 // I needed to break notification-making into two functions because querying tabs is asynchronus
 function initNotification() {
@@ -238,6 +267,7 @@ function initNotification() {
     }
   })
 }
+
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
   chrome.notifications.create({
@@ -251,13 +281,11 @@ function makeNotification() {
 }
 
 function handleButton(notificationId, buttonIndex) {
-  //Is this page title associated with work or with play?
   let tabName
   chrome.tabs.query({active: true, lastFocusedWindow: true}, async function(
     tabs
   ) {
     tabName = tabs[0].title
-    console.log('tabName', tabName)
 
     let label
     if (buttonIndex === 0) {
@@ -268,9 +296,77 @@ function handleButton(notificationId, buttonIndex) {
 
     db.trainingData.add({
       document: tabName,
-      label: label
+      label: label,
+      time: new Date().getTime()
     })
-    await updateBayesModel()
-    updateIcon(tabs[0])
+    const numberExamples = await getNumberOfTrainingExamples()
+    //stop constantly updating the bayes model if we have a lots of training examples, //so as not to make chrome really slow
+    if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
+      await updateBayesModel()
+      updateIcon(tabs[0])
+    }
+    //Delete older training data if we have accumulated a ton
+    else if (numberExamples > MAX_TRAINING_EXAMPLES) {
+      deleteOldTrainingData()
+    }
+  })
+}
+
+function timeNotification() {
+  //If there's an active page, get the page title and init a notification
+
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      var url = new URL(tabs[0].url).hostname
+      db.history.where({url}).toArray().then(result=>{
+        var totalSpend = 0
+        var idx = result.length - 1
+
+        result.forEach(data=>{
+          if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
+          && new Date(data.timeStart).getMonth() === new Date().getMonth()
+          && new Date(data.timeStart).getDate() === new Date().getDate()) {
+            totalSpend += data.timeTotal
+          }
+        })
+
+        var hourCalculator = Math.floor(totalSpend/3600000) * 3600000
+        console.log('title:',tabs[0].title, 'time:', totalSpend)
+        if (totalSpend > hourCalculator && totalSpend < hourCalculator + 6000 && totalSpend > 10000) {
+          makeTimeNotification(tabs[0].title, totalSpend)
+        }
+      })
+    }
+  })
+}
+
+function makeTimeNotification(title, time) {
+  var timeprint = timeCalculator(time)
+  chrome.notifications.create({
+    type: 'basic',
+    title: 'You spent time on this website',
+    iconUrl: 'heartwatch.png',
+    message: title.slice(0,30) + ' : \n' + timeprint
+  })
+}
+
+function timeTracker() {
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    if (tabs[0]) {
+      db.history.toArray().then(result=>{
+        var idx = result.length-1
+        return result[idx]
+      })
+      .then(data=>{
+        if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000 && new Date(data.timeStart).getFullYear() === new Date().getFullYear()
+        && new Date(data.timeStart).getMonth() === new Date().getMonth()
+        && new Date(data.timeStart).getDate() === new Date().getDate()) {
+          db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
+        } else {
+          db.history
+          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: undefined})
+        }
+      })
+    }
   })
 }

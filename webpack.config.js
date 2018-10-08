@@ -21,6 +21,23 @@ module.exports = {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         loader: 'babel-loader'
+      },
+      {
+        test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+        exclude: '/client/semantic/',
+        use: {
+          loader: 'file-loader',
+          options: {
+            limit: 100000,
+            name: '[name].[ext]',
+            outputPath: 'client/semantic/dist/fonts/'
+          }
+        }
+      },
+      {
+        test: /\.css$/,
+        exclude: /node_modules/,
+        loader: ['style-loader', 'css-loader']
       }
     ]
   }
