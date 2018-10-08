@@ -104,28 +104,28 @@ const generateSite = doing =>
 const history = []
 
 for (let i = 0; i < 367; i++) {
-  // const dayStart = yearStart + fullDay * i
-  // let currentTime = dayStart + generateTimeOfflineLength()
-  // const workPlaySwitchProbability = Math.sin(Math.random()) * 0.2
-  // let whatDoing = Math.random() > 0.5 ? 'work' : 'play'
-  // while (currentTime < dayStart + workingDay) {
-  //   if (doesSessionEnd()) {
-  //     currentTime += generateTimeOfflineLength()
-  //   } else {
-  //     const site = generateSite(whatDoing)
-  //     const endTime = currentTime + generateTimeOnSiteLength()
-  //     const totalTime = endTime - currentTime
-  //     history.push({
-  //       timeStart: currentTime,
-  //       timeEnd: endTime,
-  //       timeTotal: totalTime,
-  //       url: site,
-  //       label: whatDoing
-  //     })
-  //     currentTime = endTime
-  //     whatDoing = workPlaySwitch(whatDoing, workPlaySwitchProbability)
-  //   }
-  // }
+  const dayStart = yearStart + fullDay * i
+  let currentTime = dayStart + generateTimeOfflineLength()
+  const workPlaySwitchProbability = Math.sin(Math.random()) * 0.2
+  let whatDoing = Math.random() > 0.5 ? 'work' : 'play'
+  while (currentTime < dayStart + workingDay) {
+    if (doesSessionEnd()) {
+      currentTime += generateTimeOfflineLength()
+    } else {
+      const site = generateSite(whatDoing)
+      const endTime = currentTime + generateTimeOnSiteLength()
+      const totalTime = endTime - currentTime
+      history.push({
+        timeStart: currentTime,
+        timeEnd: endTime,
+        timeTotal: totalTime,
+        url: site,
+        label: whatDoing
+      })
+      currentTime = endTime
+      whatDoing = workPlaySwitch(whatDoing, workPlaySwitchProbability)
+    }
+  }
 }
 
 export default history

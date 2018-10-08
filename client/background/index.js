@@ -46,8 +46,6 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
         var url = new URL(tabs[0].url)
         // Update time end when focus out of the tab
 
-        const label = await classifyDocumentIfBayesModel(tabs[0].title)
-
         //Post start time data when open the tab
         db.history
           ///Put bayes label here
@@ -56,7 +54,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
             timeStart: new Date().valueOf(),
             timeEnd: undefined,
             timeTotal: 0,
-            label: label
+            label: await classifyDocumentIfBayesModel(tabs[0].title)
           })
           .then(i => {
             console.log('wrote ' + i)
@@ -83,7 +81,9 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
-    const label = await classifyDocumentIfBayesModel(tab.title)
+
+    var a = await db.history.where({label: 'play'}).toArray()
+    console.log('///test///',a)
 
     //Post start time data when open the tab
     if (urlValidation(new URL(tab.url))) {
@@ -93,7 +93,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
           timeStart: new Date().valueOf(),
           timeEnd: undefined,
           timeTotal: 0,
-          label: label
+          label: await classifyDocumentIfBayesModel(tab.title)
         })
         .then(i => {
           console.log('wrote ' + i)
@@ -113,14 +113,13 @@ chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
 
     //Update time end when focus out of the tab
     if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
-      const label = await classifyDocumentIfBayesModel(tab.title)
       db.history
         .put({
           url: url.hostname,
           timeStart: new Date().valueOf(),
           timeEnd: undefined,
           timeTotal: 0,
-          label: label
+          label: await classifyDocumentIfBayesModel(tab.title)
         })
         .then(i => {
           console.log('wrote ' + i)
@@ -317,7 +316,7 @@ function timeNotification() {
           result.forEach(data => {
             if (
               new Date(data.timeStart).getFullYear() ===
-                new Date().getFullYear() &&
+              new Date().getFullYear() &&
               new Date(data.timeStart).getMonth() === new Date().getMonth() &&
               new Date(data.timeStart).getDate() === new Date().getDate()
             ) {
@@ -362,9 +361,8 @@ function timeTracker() {
         && new Date(data.timeStart).getDate() === new Date().getDate()) {
           db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
         } else {
-          const label = await classifyDocumentIfBayesModel(tabs[0].title)
           db.history
-          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: label})
+          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: await classifyDocumentIfBayesModel(tabs[0].title)})
         }
       })
     }
