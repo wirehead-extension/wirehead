@@ -30,7 +30,7 @@ module.exports = {
           options: {
             limit: 100000,
             name: '[name].[ext]',
-            outputPath: 'client/semantic/dist/fonts/'
+            outputPath: '/public/'
           }
         }
       },
