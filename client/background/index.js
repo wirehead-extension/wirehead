@@ -271,8 +271,12 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
   } else if (alarm.name === 'tracker') {
     timeTracker()
   } else if (alarm.name === 'make notification') {
+<<<<<<< HEAD
     const options = await getOptions()
     if (options.allowTrainingPopups) {
+=======
+    if (getOptions().allowTrainingPopups === true) {
+>>>>>>> 09cf141a0e613e4d160544a668e0c982607c7095
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0]) {
           makeNotification()
