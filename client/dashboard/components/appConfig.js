@@ -69,7 +69,7 @@ class AppConfig extends React.Component {
             />
           </Form.Group>
           <Form.Group grouped>
-            <Header as="h5">Can the Wirehead AI prompt you to train it?</Header>
+            Can the Wirehead AI prompt you to train it?
             <Form.Field
               label="Yes"
               control={Radio}

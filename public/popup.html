@@ -13,11 +13,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.js"></script>
   <script defer src="/popup.bundle.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Boogaloo|Jua|Passion+One|Quantico|Squada+One|Srisakdi" rel="stylesheet">
+
+  <!-- <script src="classifyInPopup.js"></script> -->
 </head>
 
 <body class="popup">
 
+
   <div class="ui card">
+    <div class="ui buttons">
+      <button class="ui positive button"><a id="work-button">Work?</a></button>
+      <div class="or"></div>
+      <button class="ui button"><a id="play-button">Play?</a></button>
+    </div>
     <div class="content">
       <div data-tooltip="Current Web Page" data-position="left center" data-inverted="">
         <img src="chrome.png" height="30" width="30"/>
@@ -73,7 +81,6 @@
       </a>
 
     </div>
-  </div>
 </body>
 
 </html>

@@ -35,46 +35,61 @@ db.history.toArray().then(result=>{
 var collect = []
 var todayTotal = 0
 
-db.history.orderBy('url').eachUniqueKey(key=>{
-  console.log('keys', key)
-  db.history.where({url: key}).toArray().then(result=>{
-    var totalSpend = 0
-    console.log('result:',result,'key:',key)
-    result.forEach(data=>{
-      if (new Date(data.timeStart).getFullYear() === new Date().getFullYear()
-      && new Date(data.timeStart).getMonth() === new Date().getMonth()
-      && new Date(data.timeStart).getDate() === new Date().getDate()) {
-        totalSpend += data.timeTotal
-        todayTotal += data.timeTotal
-      }
-    })
+db.history
+  .orderBy('url')
+  .eachUniqueKey(key => {
+    console.log('keys', key)
+    db.history
+      .where({url: key})
+      .toArray()
+      .then(result => {
+        var totalSpend = 0
+        console.log('result:', result, 'key:', key)
+        result.forEach(data => {
+          if (
+            new Date(data.timeStart).getFullYear() ===
+              new Date().getFullYear() &&
+            new Date(data.timeStart).getMonth() === new Date().getMonth() &&
+            new Date(data.timeStart).getDate() === new Date().getDate()
+          ) {
+            totalSpend += data.timeTotal
+            todayTotal += data.timeTotal
+          }
+        })
 
-    var time = currentTime - result[result.length-1].timeTotal
-    currentUrl === key ? totalSpend += time  : totalSpend
+        var time = currentTime - result[result.length - 1].timeTotal
+        currentUrl === key ? (totalSpend += time) : totalSpend
 
-    currentUrl === key ? document.querySelector('#current-total').innerText = currentTimeCalculator(totalSpend) : ''
+        currentUrl === key
+          ? (document.querySelector('#current-total').innerText =
+          currentTimeCalculator(totalSpend))
+          : ''
 
-    collect.push({url: key, time: totalSpend})
+        collect.push({url: key, time: totalSpend})
+      })
   })
-}).then(()=>{
-
-  var test = collect.sort((a,b)=>{
-    return a.time - b.time
-  }).slice(-5)
-
-  test.forEach(elem=>{
-    if (elem.time > 999) {
-      var newDiv = document.createElement('ul')
-      var objectDiv = document.querySelector('#list')
-      objectDiv.insertBefore(newDiv, objectDiv.firstChild)
-      newDiv.appendChild(document.createTextNode('URL:' + elem.url + ' /'))
-      currentUrl === elem.url ?
-      newDiv.appendChild(document.createTextNode(timeCalculator(elem.time)))
-      :
-      newDiv.appendChild(document.createTextNode(timeCalculator(elem.time)))
-
+  .then(() => {
+    var test = collect
+      .sort((a, b) => {
+        return a.time - b.time
+      })
+      .slice(-5)
+    let count = test.length;
+    test.forEach(elem => {
+      if (elem.time > 999) {
+        var newDiv = document.createElement('ul')
+        var objectDiv = document.querySelector('#list')
+        objectDiv.insertBefore(newDiv, objectDiv.firstChild)
+        newDiv.appendChild(document.createTextNode('Top ' + count + ': ' + elem.url + ' / '))
+        currentUrl === elem.url
+          ? newDiv.appendChild(
+              document.createTextNode(timeCalculator(elem.time))
+            )
+          : newDiv.appendChild(
+              document.createTextNode(timeCalculator(elem.time))
+            )
+      count--
       document.querySelector('#total').innerText = "Today's Total: " + timeCalculator(todayTotal)
     }
   })
 })
-

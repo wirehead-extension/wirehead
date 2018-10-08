@@ -59,6 +59,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 
         //Post start time data when open the tab
         db.history
+          ///Put bayes label here
           .put({
             url: url.hostname,
             timeStart: new Date().valueOf(),
@@ -152,6 +153,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     //   .then(() => {
         if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
           db.history
+            //////////Put Bayes label here
             .put({
               url: url.hostname,
               timeStart: new Date().valueOf(),
@@ -189,7 +191,6 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     //   })
   // }
 })
-//!!!!!!
 //listens for all events emitted by page content scripts
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action) {
@@ -264,14 +265,18 @@ chrome.runtime.onInstalled.addListener(function(details) {
 //User will be notified by hour how long they stayed on the website
 chrome.alarms.create('timer', {periodInMinutes: 0.1})
 
-chrome.alarms.onAlarm.addListener(function(alarm) {
+//Timer keep tracks current time & if laptop is turned off
+chrome.alarms.create('tracker', {periodInMinutes: 0.1})
+
+chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name === 'timer') {
     timeNotification()
   } else if (alarm.name === 'make notification') {
-    if (getOptions().allowTrainingPopups === true) {
+    const options = await getOptions()
+    if (options.allowTrainingPopups) {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      if (tabs[0]) {
-        makeNotification()
+        if (tabs[0]) {
+          makeNotification()
         }
       })
     }
@@ -282,18 +287,6 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 setInterval(()=>{
   timeTracker()
 },1000)
-
-
-// I needed to break notification-making into two functions because querying tabs is asynchronus
-function initNotification() {
-  //If there's an active page, get the page title and init a notification
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
-      makeNotification()
-    }
-  })
-}
-
 
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
@@ -361,12 +354,12 @@ function checkForAlarmUpdates(numberExamples) {
     updateNotificationFrequency(60)
   }
 }
+
 //This updates the frequency of the alarm that makes notifications (used below)
 function updateNotificationFrequency(newPeriod) {
   chrome.alarms.clear('make notification')
   chrome.alarms.create('make notification', {periodInMinutes: newPeriod})
 }
-
 
 function timeNotification() {
   //If there's an active page, get the page title and init a notification
