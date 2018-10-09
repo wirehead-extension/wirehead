@@ -58,8 +58,6 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
-        //kill training notification on tab switch
-
         var url = new URL(tabs[0].url)
         // Update time end when focus out of the tab
 
