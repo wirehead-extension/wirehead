@@ -33,6 +33,16 @@ const clickAboutNotification = () => {
   aboutNotificationClicked = true
 }
 
+// Is chrome in focus? We will check this var before sending notifications
+let chromeIsInFocus = true
+chrome.windows.onFocusChanged.addListener(function(window) {
+  if (window === chrome.windows.WINDOW_ID_NONE) {
+    chromeIsInFocus = false
+  } else {
+    chromeIsInFocus = true
+  }
+})
+
 //We remake the bayes model less often when we have  LOTS  of examples
 const LOTS_OF_TRAINING_EXAMPLES = 2000
 //We cull old traingin examples from db after reaching MAX
@@ -81,6 +91,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
+  killNotification()
   //get detail information of activated tab
   chrome.tabs.get(activeInfo.tabId, async function(tab) {
     const model = await getBayesModel()
@@ -117,6 +128,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
 //An Event Listener to store data when URL has been changed
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+  killNotification()
   if (tab.active && tab.status === 'complete') {
     var url = new URL(tab.url)
     var currentUrl
@@ -242,15 +254,29 @@ setInterval(() => {
 }, 1000)
 
 function makeNotification() {
+  if (chromeIsInFocus) {
+    chrome.notifications.onClicked.removeListener(redirectToDashboard)
+    chrome.notifications.onButtonClicked.removeListener(handleButton)
+    chrome.notifications.create('training notification', {
+      type: 'basic',
+      title: 'Train the Wirehead AI',
+      iconUrl: 'gray.png',
+      message: 'Classify this page as work or play -->',
+      buttons: [{title: 'This is work'}, {title: 'This is play'}]
+    })
+    chrome.notifications.onButtonClicked.addListener(handleButton)
+    chrome.notifications.onClicked.addListener(redirectToDashboard)
+  }
+}
+
+function redirectToDashboard(notificationId) {
+  console.log('hello world!')
+  chrome.tabs.create({url: 'dashboard.html'})
+}
+
+function killNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
-  chrome.notifications.create({
-    type: 'basic',
-    title: 'Train the Wirehead AI',
-    iconUrl: 'gray.png',
-    message: 'Classify this page as work or play -->',
-    buttons: [{title: 'This is work'}, {title: 'This is play'}]
-  })
-  chrome.notifications.onButtonClicked.addListener(handleButton)
+  chrome.notifications.clear('training notification')
 }
 
 //Clicking buttons on notification does a lot of things:
@@ -352,7 +378,7 @@ function makeTimeNotification(title, time) {
     type: 'basic',
     title: 'Your non-productive time spend',
     iconUrl: 'heartwatch.png',
-    message: title.slice(0, 30) + ' : \n' + 'Total ' + timeprint + ' today'
+    message: title.slice(0, 22) + ' : \n' + 'Total ' + timeprint + ' today'
   })
 }
 
