@@ -1,10 +1,15 @@
 import React from 'react'
 import {DateInput} from 'semantic-ui-calendar-react'
 import {Form} from 'semantic-ui-react'
+import moment from 'moment'
 
 export default class DatePicker extends React.Component {
   state = {
     date: ''
+  }
+
+  componentDidMount() {
+    this.setState({date: moment().format('DD-MM-YYYY')})
   }
 
   handleChange = (e, {value}) => {
@@ -16,12 +21,10 @@ export default class DatePicker extends React.Component {
     return (
       <Form>
         <DateInput
+          inline
           name="date"
-          placeholder="Date"
           value={this.state.date}
-          iconPosition="left"
           onChange={this.handleChange}
-          dateFormat="MM/DD/YYYY"
         />
       </Form>
     )
