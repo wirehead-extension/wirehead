@@ -18,10 +18,9 @@ import {
 } from './bayesClassifier'
 import {initOptions, updateOptions, getOptions} from './options'
 import {
-  dateConverter,
-  timeInSecond,
   timeCalculator,
-  urlValidation
+  urlValidation,
+  titleCutter
 } from './utils'
 import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
@@ -241,7 +240,7 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
     if (options.allowTrainingPopups) {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0]) {
-          makeNotification()
+          makeNotification(tabs[0].favIconUrl)
         }
       })
     }
@@ -253,14 +252,19 @@ setInterval(() => {
   timeTracker()
 }, 1000)
 
-function makeNotification() {
+function makeNotification(icon) {
+  var iconUrl = 'gray.png'
+  if (icon) {
+    iconUrl = icon
+  }
+
   if (chromeIsInFocus) {
     chrome.notifications.onClicked.removeListener(redirectToDashboard)
     chrome.notifications.onButtonClicked.removeListener(handleButton)
     chrome.notifications.create('training notification', {
       type: 'basic',
       title: 'Train the Wirehead AI',
-      iconUrl: 'gray.png',
+      iconUrl,
       message: 'Classify this page as work or play -->',
       buttons: [{title: 'This is work'}, {title: 'This is play'}]
     })
@@ -348,24 +352,27 @@ function timeNotification() {
       var url = new URL(tabs[0].url).hostname
       db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date().valueOf()).toArray()
         .then(async result => {
-          var totalSpend = 0
-          console.log(result)
-          var a = await db.history.count()
-          console.log('total', a)
-          result.forEach(data => {
-            if (data.label === 'play') {
-              totalSpend += data.timeTotal
-            }
-          })
+          let idx = result.length-1
+          if(result[idx].label === 'play') {
+            var totalSpend = 0
+            console.log(result)
+            var a = await db.history.count()
+            console.log('total', a)
+            result.forEach(data => {
+              if (data.label === 'play') {
+                totalSpend += data.timeTotal
+              }
+            })
 
-          var hourCalculator = Math.floor(totalSpend / 60000) * 60000
-          console.log('title:', tabs[0].title, 'time:', totalSpend, new Date())
-          if (
-            totalSpend > hourCalculator &&
-            totalSpend < hourCalculator + 12000 &&
-            totalSpend > 10000
-          ) {
-            makeTimeNotification(tabs[0].title, totalSpend)
+            var hourCalculator = Math.floor(totalSpend / 60000) * 60000
+            console.log('title:', tabs[0].title, 'time:', totalSpend, new Date())
+            if (
+              totalSpend > hourCalculator &&
+              totalSpend < hourCalculator + 12000 &&
+              totalSpend > 10000
+            ) {
+              makeTimeNotification(tabs[0].title, totalSpend)
+            }
           }
         })
     }
@@ -374,11 +381,12 @@ function timeNotification() {
 
 function makeTimeNotification(title, time) {
   var timeprint = timeCalculator(time)
+
   chrome.notifications.create({
     type: 'basic',
     title: 'Your non-productive time spend',
     iconUrl: 'heartwatch.png',
-    message: title.slice(0, 22) + ' : \n' + 'Total ' + timeprint + ' today'
+    message: titleCutter(title) + ' : \n' + 'Total ' + timeprint + ' today'
   })
 }
 

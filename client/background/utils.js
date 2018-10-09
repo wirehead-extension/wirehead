@@ -70,6 +70,14 @@ export function urlValidation(url) {
   }
 }
 
+export function titleCutter(title) {
+  if (title.length > 19) {
+    return title.slice(0,19) + '...'
+  } else {
+    return title
+  }
+}
+
 //Stuff here is to block websites
 // :^)
 //Just need to reference the list of sites we're going to block
