@@ -7,7 +7,7 @@ const playSites = [
   'vox.com',
   'etsy.com',
   'amazon.com',
-  'shoes.com',
+  'zappos.com',
   'capitalone.com',
   'chase.com',
   'fivethirtyeight.com',
@@ -16,7 +16,6 @@ const playSites = [
   'people.com',
   'usatoday.com',
   'porsche.com',
-  'foxnews.com',
   'cnn.com',
   'yelp.com',
   'theatlantic.com',
@@ -25,17 +24,17 @@ const playSites = [
 ]
 
 const workSites = [
-  'code.visualstudio.com/',
-  'developer.chrome.com/',
-  'developer.mozilla.org/',
-  'github.com/',
-  'dexie.org/',
+  'code.visualstudio.com',
+  'developer.chrome.com',
+  'developer.mozilla.org',
+  'github.com',
+  'dexie.org',
   'developer.twitter.com',
-  'ubuntuforums.org/',
+  'ubuntuforums.org',
   'stackoverflow.com',
-  'waffle.io/',
-  'elm-lang.org/',
-  'fullstackacademy.com/'
+  'waffle.io',
+  'elm-lang.org',
+  'fullstackacademy.com'
 ]
 
 //we only use workWhichSites and playWhichSites below
