@@ -32,6 +32,14 @@ let aboutNotificationClicked = false
 const clickAboutNotification = () => {
   aboutNotificationClicked = true
 }
+function handleNotificationClick(notificationId) {
+  if (notificationId === 'dashboard.html#about') {
+    clickAboutNotification()
+    chrome.tabs.create({url: notificationId})
+  }
+}
+
+chrome.notifications.onClicked.addListener(handleNotificationClick)
 
 // Is chrome in focus? We will check this var before sending notifications
 let chromeIsInFocus = true
@@ -90,10 +98,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     if (model) {
       updateIcon(tab)
     } else {
-      makeLearnMoreNotification(
-        clickAboutNotification,
-        aboutNotificationClicked
-      )
+      makeLearnMoreNotification(aboutNotificationClicked)
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
