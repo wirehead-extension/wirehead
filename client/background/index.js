@@ -33,6 +33,16 @@ const clickAboutNotification = () => {
   aboutNotificationClicked = true
 }
 
+// Is chrome in focus? We will check this var before sending notifications
+let chromeIsInFocus = true
+chrome.windows.onFocusChanged.addListener(function(window) {
+  if (window === chrome.windows.WINDOW_ID_NONE) {
+    chromeIsInFocus = false
+  } else {
+    chromeIsInFocus = true
+  }
+})
+
 //We remake the bayes model less often when we have  LOTS  of examples
 const LOTS_OF_TRAINING_EXAMPLES = 2000
 //We cull old traingin examples from db after reaching MAX
@@ -48,6 +58,8 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
+        //kill training notification on tab switch
+
         var url = new URL(tabs[0].url)
         // Update time end when focus out of the tab
 
@@ -73,6 +85,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 })
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
+  killNotification()
   //get detail information of activated tab
   chrome.tabs.get(activeInfo.tabId, async function(tab) {
     const model = await getBayesModel()
@@ -112,6 +125,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
 //An Event Listener to store data when URL has been changed
 chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
+  killNotification()
   if (tab.active && tab.status === 'complete') {
     var url = new URL(tab.url)
     var currentUrl
@@ -234,15 +248,22 @@ setInterval(() => {
 }, 1000)
 
 function makeNotification() {
+  if (chromeIsInFocus) {
+    chrome.notifications.onButtonClicked.removeListener(handleButton)
+    chrome.notifications.create('training notification', {
+      type: 'basic',
+      title: 'Train the Wirehead AI',
+      iconUrl: 'gray.png',
+      message: 'Classify this page as work or play -->',
+      buttons: [{title: 'This is work'}, {title: 'This is play'}]
+    })
+    chrome.notifications.onButtonClicked.addListener(handleButton)
+  }
+}
+
+function killNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
-  chrome.notifications.create({
-    type: 'basic',
-    title: 'Train the Wirehead AI',
-    iconUrl: 'gray.png',
-    message: 'Classify this page as work or play -->',
-    buttons: [{title: 'This is work'}, {title: 'This is play'}]
-  })
-  chrome.notifications.onButtonClicked.addListener(handleButton)
+  chrome.notifications.clear('training notification')
 }
 
 //Clicking buttons on notification does a lot of things:
