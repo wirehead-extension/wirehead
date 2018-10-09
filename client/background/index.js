@@ -32,6 +32,14 @@ let aboutNotificationClicked = false
 const clickAboutNotification = () => {
   aboutNotificationClicked = true
 }
+function handleNotificationClick(notificationId) {
+  if (notificationId === 'dashboard.html#about') {
+    clickAboutNotification()
+    chrome.tabs.create({url: notificationId})
+  }
+}
+
+chrome.notifications.onClicked.addListener(handleNotificationClick)
 
 //We remake the bayes model less often when we have  LOTS  of examples
 const LOTS_OF_TRAINING_EXAMPLES = 2000
@@ -79,10 +87,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     if (model) {
       updateIcon(tab)
     } else {
-      makeLearnMoreNotification(
-        clickAboutNotification,
-        aboutNotificationClicked
-      )
+      makeLearnMoreNotification(aboutNotificationClicked)
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
