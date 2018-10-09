@@ -11,8 +11,8 @@ class Routes extends Component {
       <Switch>
         <Route path="/about" component={About} />
         <Route path="/viz/:type" component={Visualizations} />
-        <Route path="/siteconfig" component={SiteConfig} />
-        <Route path="/appconfig" component={AppConfig} />
+        {/* <Route path="/siteconfig" component={SiteConfig} /> */}
+        <Route path="/options" component={AppConfig} />
       </Switch>
     )
   }

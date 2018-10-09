@@ -4,17 +4,17 @@ import {Link} from 'react-router-dom'
 class Navbar extends React.Component {
   render() {
     return (
-      <ul>
-        <li>
+      <div>
+        <div>
+          <Link to="/options">Options</Link>
+        </div>
+        <div>
           <Link to="/viz/daily">Visualizations</Link>
-        </li>
-        <li>
+        </div>
+        {/* <li>
           <Link to="/siteconfig">Site Config</Link>
-        </li>
-        <li>
-          <Link to="/appconfig">App Config</Link>
-        </li>
-      </ul>
+        </li> */}
+      </div>
     )
   }
 }
