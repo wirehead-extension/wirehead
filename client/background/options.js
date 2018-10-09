@@ -1,20 +1,19 @@
 import db from '../db'
 
-//There will only ever be one options object :)
+//There will only ever be one options object
 
 const defaultOptions = {
-  allowTrainingPopups: true,
+  trainingPopupFrequency: 'normal',
   allowShaming: true
 }
 //takes an options object
 export async function updateOptions(newOptions) {
-  console.log('update options is being called')
   let result
-  console.log('newOptions', newOptions)
   await db.transaction('rw', db.options, function*() {
     result = yield db.options.put(newOptions, 0)
   })
-  console.log(result, 'result')
+  //Let background know that options have been updated
+  chrome.runtime.sendMessage({action: 'options updated'})
 }
 
 export async function getOptions() {
