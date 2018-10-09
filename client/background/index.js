@@ -17,7 +17,12 @@ import {
   classifyDocumentIfBayesModel
 } from './bayesClassifier'
 import {initOptions, updateOptions, getOptions} from './options'
-import {dateConverter, timeInSecond, timeCalculator, urlValidation} from './utils'
+import {
+  dateConverter,
+  timeInSecond,
+  timeCalculator,
+  urlValidation
+} from './utils'
 import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
 
@@ -83,7 +88,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     var url = new URL(tab.url)
 
     var a = await db.history.where({label: 'play'}).toArray()
-    console.log('///test///',a)
+    console.log('///test///', a)
 
     //Post start time data when open the tab
     if (urlValidation(new URL(tab.url))) {
@@ -224,9 +229,9 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 })
 
 //Timer keep tracks current time per second & if laptop is turned off
-setInterval(()=>{
+setInterval(() => {
   timeTracker()
-},1000)
+}, 1000)
 
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
@@ -234,7 +239,7 @@ function makeNotification() {
     type: 'basic',
     title: 'Train the Wirehead AI',
     iconUrl: 'gray.png',
-    message: 'Classify this page as work or play --->',
+    message: 'Classify this page as work or play -->',
     buttons: [{title: 'This is work'}, {title: 'This is play'}]
   })
   chrome.notifications.onButtonClicked.addListener(handleButton)
@@ -246,13 +251,8 @@ function makeNotification() {
 //it updates the machine learning model, makes a new prediction, and updates the icon
 //3. If we have too many training examples it tells the db to drop 100 lines
 function handleButton(notificationId, buttonIndex) {
-  let tabName
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, async function(
-    tabs
-  ) {
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) {
     const currentTab = tabs[0]
-    // tabName = tabs[0].title
-
     let label
     if (buttonIndex === 0) {
       label = 'work'
@@ -286,7 +286,6 @@ async function processNewTrainingExample(currentTab, label) {
     deleteOldTrainingData()
   }
 }
-/////
 
 //Once we have a lot of Bayes examples, we can annoy the user for training data less often
 function checkForAlarmUpdates(numberExamples) {
@@ -322,7 +321,7 @@ function timeNotification() {
           result.forEach(data => {
             if (
               new Date(data.timeStart).getFullYear() ===
-              new Date().getFullYear() &&
+                new Date().getFullYear() &&
               new Date(data.timeStart).getMonth() === new Date().getMonth() &&
               new Date(data.timeStart).getDate() === new Date().getDate()
             ) {
@@ -331,7 +330,7 @@ function timeNotification() {
           })
 
           var hourCalculator = Math.floor(totalSpend / 3600000) * 3600000
-          console.log('title:', tabs[0].title, 'time:', totalSpend)
+          // console.log('title:', tabs[0].title, 'time:', totalSpend)
           if (
             totalSpend > hourCalculator &&
             totalSpend < hourCalculator + 6000 &&
@@ -357,20 +356,35 @@ function makeTimeNotification(title, time) {
 function timeTracker() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
-      db.history.toArray().then(result=>{
-        var idx = result.length-1
-        return result[idx]
-      })
-      .then(async data=>{
-        if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000 && new Date(data.timeStart).getFullYear() === new Date().getFullYear()
-        && new Date(data.timeStart).getMonth() === new Date().getMonth()
-        && new Date(data.timeStart).getDate() === new Date().getDate()) {
-          db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-        } else {
-          db.history
-          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: await classifyDocumentIfBayesModel(tabs[0].title)})
-        }
-      })
+      db.history
+        .toArray()
+        .then(result => {
+          var idx = result.length - 1
+          return result[idx]
+        })
+        .then(async data => {
+          if (
+            new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
+              30000 &&
+            new Date(data.timeStart).getFullYear() ===
+              new Date().getFullYear() &&
+            new Date(data.timeStart).getMonth() === new Date().getMonth() &&
+            new Date(data.timeStart).getDate() === new Date().getDate()
+          ) {
+            db.history.update(data.id, {
+              timeEnd: new Date().valueOf(),
+              timeTotal: new Date().valueOf() - data.timeStart
+            })
+          } else {
+            db.history.put({
+              url: new URL(tabs[0].url).hostname,
+              timeStart: new Date().valueOf(),
+              timeEnd: undefined,
+              timeTotal: 0,
+              label: await classifyDocumentIfBayesModel(tabs[0].title)
+            })
+          }
+        })
     }
   })
 }

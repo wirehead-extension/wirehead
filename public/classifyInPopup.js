@@ -1,11 +1,9 @@
 function handleWorkButton() {
-  console.log('hello work')
   dispatchLabel('work')
   removeButtons()
 }
 
 function handlePlayButton() {
-  console.log('hello play')
   dispatchLabel('play')
   removeButtons()
 }
@@ -15,6 +13,8 @@ function removeButtons() {
   workButton.parentNode.removeChild(workButton)
   const playButton = document.getElementById('play-button')
   playButton.parentNode.removeChild(playButton)
+  const or = document.getElementById('or')
+  or.parentNode.removeChild(or)
 }
 
 function dispatchLabel(label) {
