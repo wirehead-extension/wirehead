@@ -8,10 +8,12 @@ a {
 
 #work-button {
   color: white;
+  font-size: 16px;
 }
 
 #play-button {
-  color: rgb(71, 71, 71);
+  color: white;
+  font-size: 16px;
 }
 
 label {
@@ -80,6 +82,10 @@ rect:hover {
   width: 50px;
 }
 
+
+
+
+
 .popup {
   width: 300px;
   height: 340px;
@@ -122,12 +128,12 @@ rect:hover {
 
 .dropdown.is-hoverable.is-up {
   margin-bottom: 60px;
-  width: 280px;
   align-items: center;
+  padding: 0 5%;
 }
 
 .dropdown-trigger {
-  padding-left: 35px;
+  padding-left: 10px;
 }
 
 .ui.linkedin.button {
@@ -164,10 +170,26 @@ rect:hover {
 }
 
 #total {
-  font-family: 'Boogaloo', cursive;
+  font-family: 'Roboto Mono';
+  font-size: 24px;
 }
 
 .dropdown-item {
   width: 280px;
   text-align: left;
+}
+
+#list {
+  font-size: 6px;
+}
+
+#hide-background {
+  height: 36px;
+  width: 100%;
+  position: fixed;
+}
+
+.ui.buttons {
+  height: 36px;
+  width: 320px;
 }

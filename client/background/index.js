@@ -18,10 +18,9 @@ import {
 } from './bayesClassifier'
 import {initOptions, updateOptions, getOptions} from './options'
 import {
-  dateConverter,
-  timeInSecond,
   timeCalculator,
-  urlValidation
+  urlValidation,
+  titleCutter
 } from './utils'
 import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
@@ -32,6 +31,14 @@ let aboutNotificationClicked = false
 const clickAboutNotification = () => {
   aboutNotificationClicked = true
 }
+function handleNotificationClick(notificationId) {
+  if (notificationId === 'dashboard.html#about') {
+    clickAboutNotification()
+    chrome.tabs.create({url: notificationId})
+  }
+}
+
+chrome.notifications.onClicked.addListener(handleNotificationClick)
 
 // Is chrome in focus? We will check this var before sending notifications
 let chromeIsInFocus = true
@@ -59,23 +66,35 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
     chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
         var url = new URL(tabs[0].url)
-        // Update time end when focus out of the tab
+        var currentUrl
 
         //Post start time data when open the tab
         db.history
-          ///Put bayes label here
-          .put({
-            url: url.hostname,
-            timeStart: new Date().valueOf(),
-            timeEnd: undefined,
-            timeTotal: 0,
-            label: await classifyDocumentIfBayesModel(tabs[0].title)
+          .where('timeStart')
+          .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
+          .toArray()
+          .then(result => {
+            var idx = result.length - 1
+            currentUrl = result[idx].url
           })
-          .then(i => {
-            console.log('wrote ' + i)
-          })
-          .catch(err => {
-            console.error(err)
+          .then(async () => {
+            if (currentUrl !== url.hostname) {
+              db.history
+                ///Put bayes label here
+                .put({
+                  url: url.hostname,
+                  timeStart: new Date().valueOf(),
+                  timeEnd: undefined,
+                  timeTotal: 0,
+                  label: await classifyDocumentIfBayesModel(tabs[0].title)
+                })
+                .then(i => {
+                  console.log('window wrote ' + i)
+                })
+                .catch(err => {
+                  console.error(err)
+                })
+            }
           })
       }
     })
@@ -90,16 +109,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     if (model) {
       updateIcon(tab)
     } else {
-      makeLearnMoreNotification(
-        clickAboutNotification,
-        aboutNotificationClicked
-      )
+      makeLearnMoreNotification(aboutNotificationClicked)
     }
     //this code creates a transaction and uses it to write to the db
     var url = new URL(tab.url)
-
-    var a = await db.history.where({label: 'play'}).toArray()
-    console.log('///test///', a)
 
     //Post start time data when open the tab
     if (urlValidation(new URL(tab.url))) {
@@ -112,7 +125,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
           label: await classifyDocumentIfBayesModel(tab.title)
         })
         .then(i => {
-          console.log('wrote ' + i)
+          console.log('active wrote ' + i)
         })
         .catch(err => {
           console.error(err)
@@ -122,46 +135,40 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 })
 
 //An Event Listener to store data when URL has been changed
-chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   killNotification()
   if (tab.active && tab.status === 'complete') {
     var url = new URL(tab.url)
     var currentUrl
 
     //Update time end when focus out of the tab
-    if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
-      db.history
-        .put({
-          url: url.hostname,
-          timeStart: new Date().valueOf(),
-          timeEnd: undefined,
-          timeTotal: 0,
-          label: await classifyDocumentIfBayesModel(tab.title)
-        })
-        .then(i => {
-          console.log('wrote ' + i)
-        })
-        .catch(err => {
-          console.error(err)
-        })
-    }
+    db.history
+      .where('timeStart')
+      .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
+      .toArray()
+      .then(result => {
+        var idx = result.length - 1
+        currentUrl = result[idx].url
+      })
+      .then(async () => {
+        if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
+          db.history
+            .put({
+              url: url.hostname,
+              timeStart: new Date().valueOf(),
+              timeEnd: undefined,
+              timeTotal: 0,
+              label: await classifyDocumentIfBayesModel(tab.title)
+            })
+            .then(i => {
+              console.log('update wrote ' + i)
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
+      })
   }
-})
-
-//listens for all events emitted by page content scripts
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action) {
-    if (request.action === 'follow-link') {
-      sendResponse({dbKey: 1, ultimateOriginKey: 1})
-      /* chrome.runtime.sendMessage(sender.id, {
-        action: 'sendDbLocation',
-        location: request.origin,
-        data: {dbKey: 1, ultimateOriginKey: 1}
-      }) */
-    }
-  }
-
-  //console.log('req', request, 'sender', sender)
 })
 
 //This function updates the icon and badge according to ML prediction
@@ -218,10 +225,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 })
 
 //User will be notified by hour how long they stayed on the website
-chrome.alarms.create('timer', {periodInMinutes: 0.1})
-
-//Timer keep tracks current time & if laptop is turned off
-chrome.alarms.create('tracker', {periodInMinutes: 0.1})
+chrome.alarms.create('timer', {periodInMinutes: 0.2})
 
 chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name === 'timer') {
@@ -231,7 +235,7 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
     if (options.trainingPopupFrequency !== 'never') {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0]) {
-          makeNotification()
+          makeNotification(tabs[0].favIconUrl)
         }
       })
     }
@@ -243,14 +247,19 @@ setInterval(() => {
   timeTracker()
 }, 1000)
 
-function makeNotification() {
+function makeNotification(icon) {
+  var iconUrl = 'gray.png'
+  if (icon) {
+    iconUrl = icon
+  }
+
   if (chromeIsInFocus) {
     chrome.notifications.onClicked.removeListener(redirectToDashboard)
     chrome.notifications.onButtonClicked.removeListener(handleButton)
     chrome.notifications.create('training notification', {
       type: 'basic',
       title: 'Train the Wirehead AI',
-      iconUrl: 'gray.png',
+      iconUrl,
       message: 'Classify this page as work or play -->',
       buttons: [{title: 'This is work'}, {title: 'This is play'}]
     })
@@ -340,30 +349,31 @@ function timeNotification() {
     if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
       var url = new URL(tabs[0].url).hostname
       db.history
-        .where({url})
+        .where('timeStart')
+        .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
         .toArray()
-        .then(result => {
-          var totalSpend = 0
+        .then(async result => {
+          let idx = result.length-1
+          if(result[idx].label === 'play') {
+            var totalSpend = 0
+            console.log(result)
+            var a = await db.history.count()
+            console.log('total', a)
+            result.forEach(data => {
+              if (data.label === 'play') {
+                totalSpend += data.timeTotal
+              }
+            })
 
-          result.forEach(data => {
+            var hourCalculator = Math.floor(totalSpend / 60000) * 60000
+            console.log('title:', tabs[0].title, 'time:', totalSpend, new Date())
             if (
-              new Date(data.timeStart).getFullYear() ===
-                new Date().getFullYear() &&
-              new Date(data.timeStart).getMonth() === new Date().getMonth() &&
-              new Date(data.timeStart).getDate() === new Date().getDate()
+              totalSpend > hourCalculator &&
+              totalSpend < hourCalculator + 12000 &&
+              totalSpend > 10000
             ) {
-              totalSpend += data.timeTotal
+              makeTimeNotification(tabs[0].title, totalSpend)
             }
-          })
-
-          var hourCalculator = Math.floor(totalSpend / 3600000) * 3600000
-          // console.log('title:', tabs[0].title, 'time:', totalSpend)
-          if (
-            totalSpend > hourCalculator &&
-            totalSpend < hourCalculator + 6000 &&
-            totalSpend > 10000
-          ) {
-            makeTimeNotification(tabs[0].title, totalSpend)
           }
         })
     }
@@ -372,11 +382,12 @@ function timeNotification() {
 
 function makeTimeNotification(title, time) {
   var timeprint = timeCalculator(time)
+
   chrome.notifications.create({
     type: 'basic',
-    title: 'You spent time on this website',
+    title: 'Your non-productive time spend',
     iconUrl: 'heartwatch.png',
-    message: title.slice(0, 30) + ' : \n' + timeprint
+    message: titleCutter(title) + ' : \n' + 'Total ' + timeprint + ' today'
   })
 }
 
@@ -384,6 +395,8 @@ function timeTracker() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
       db.history
+        .where('timeStart')
+        .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
         .toArray()
         .then(result => {
           var idx = result.length - 1
@@ -392,11 +405,7 @@ function timeTracker() {
         .then(async data => {
           if (
             new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
-              30000 &&
-            new Date(data.timeStart).getFullYear() ===
-              new Date().getFullYear() &&
-            new Date(data.timeStart).getMonth() === new Date().getMonth() &&
-            new Date(data.timeStart).getDate() === new Date().getDate()
+            30000
           ) {
             db.history.update(data.id, {
               timeEnd: new Date().valueOf(),

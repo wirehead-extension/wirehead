@@ -4,6 +4,7 @@ import {fetchData} from '../../store'
 import {withRouter} from 'react-router-dom'
 import {humanTime} from '../utils'
 import {DatePicker} from './'
+import {Container} from 'semantic-ui-react'
 import * as d3 from 'd3'
 
 class Daily extends React.Component {
@@ -21,7 +22,7 @@ class Daily extends React.Component {
     d3.selectAll('table').remove()
     this.props
       .fetchData(new Date().setHours(0, 0, 0, 0).valueOf(), 1, 'sumBySite')
-      .then(this.createDashboard('#dashboard', this.props.data))
+      .then(this.createDashboard('#graphs', this.props.data))
   }
 
   componentDidUpdate() {
@@ -29,7 +30,7 @@ class Daily extends React.Component {
     d3.selectAll('table').remove()
     // this.removeDashboard('svg')
     // this.removeDashboard('table')
-    this.createDashboard('#dashboard', this.props.data)
+    this.createDashboard('#graphs', this.props.data)
   }
 
   componentWillUnmount() {
@@ -124,8 +125,8 @@ class Daily extends React.Component {
     function histoGram(fD) {
       // console.log('this is fd', fD)
       var hG = {},
-      hGDim = {t: 60, r: 0, b: 30, l: 0}
-      hGDim.w = (500 - hGDim.l - hGDim.r)
+        hGDim = {t: 60, r: 0, b: 30, l: 0}
+      hGDim.w = 500 - hGDim.l - hGDim.r
       hGDim.h = 300 - hGDim.t - hGDim.b
 
       //create svg for histogram.
@@ -457,10 +458,10 @@ class Daily extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <Container>
         <DatePicker handleDateChange={this.handleDateChange} />
-        <div id="dashboard" />
-      </React.Fragment>
+        <div id="graphs" />
+      </Container>
     )
   }
 }

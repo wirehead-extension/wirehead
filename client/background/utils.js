@@ -8,7 +8,7 @@ export function dateConverter(newDate) {
   dateString += newDate.getMonth() + 1 + '/'
   dateString += newDate.getDate() + '/'
   dateString += newDate.getFullYear() + ' '
-  if (newDate.getHours < 13) {
+  if (newDate.getHours() < 13) {
     dateString += newDate.getHours() + ':'
     am = ' AM'
   } else {
@@ -67,6 +67,14 @@ export function urlValidation(url) {
     return true
   } else {
     return false
+  }
+}
+
+export function titleCutter(title) {
+  if (title.length > 19) {
+    return title.slice(0,19) + '...'
+  } else {
+    return title
   }
 }
 
