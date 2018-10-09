@@ -52,7 +52,6 @@ class Weekly extends React.Component {
   // data.forEach(function(d){d.date = format.parse(d.date); };
   handleDatesRangeChange = dateRange => {
     const dates = parseDateRange(dateRange)
-    console.log(...dates)
     this.props.fetchData(...dates, 'sumByDayBySite')
   }
 
