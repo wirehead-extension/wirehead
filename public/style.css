@@ -132,7 +132,7 @@ rect:hover {
 }
 
 .dropdown-trigger {
-  padding-left: 35px;
+  padding-left: 10px;
 }
 
 .ui.linkedin.button {
@@ -169,10 +169,15 @@ rect:hover {
 }
 
 #total {
-  font-family: 'Boogaloo', cursive;
+  font-family: 'Roboto Mono';
+  font-size: 24px;
 }
 
 .dropdown-item {
   width: 280px;
   text-align: left;
+}
+
+#list {
+  font-size: 6px;
 }
