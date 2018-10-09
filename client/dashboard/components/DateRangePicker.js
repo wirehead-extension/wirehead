@@ -18,6 +18,10 @@ export default class DateRangePicker extends React.Component {
     })
   }
 
+  handleClick = () => {
+    if (this.state.datesRange.split(' - ')[1]) this.setState({datesRange: ''})
+  }
+
   handleChange = (e, {value}) => {
     this.setState({datesRange: value})
     if (value.split(' - ')[1]) this.props.handleDatesRangeChange(value)
@@ -31,6 +35,7 @@ export default class DateRangePicker extends React.Component {
           name="date"
           value={this.state.datesRange}
           onChange={this.handleChange}
+          onClick={this.handleClick}
           dateFormat="MM/DD/YYYY"
           maxDate={moment().format('MM/DD/YYYY')}
         />
