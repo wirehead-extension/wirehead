@@ -9,7 +9,7 @@ export default class DatePicker extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({date: moment().format('DD-MM-YYYY')})
+    this.setState({date: moment().format('MM/DD/YYYY')})
   }
 
   handleChange = (e, {value}) => {
@@ -21,10 +21,12 @@ export default class DatePicker extends React.Component {
     return (
       <Form>
         <DateInput
-          inline
+          closable
           name="date"
           value={this.state.date}
           onChange={this.handleChange}
+          dateFormat="MM/DD/YYYY"
+          maxDate={moment().format('MM/DD/YYYY')}
         />
       </Form>
     )
