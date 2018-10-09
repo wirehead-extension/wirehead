@@ -8,10 +8,12 @@ a {
 
 #work-button {
   color: white;
+  font-size: 16px;
 }
 
 #play-button {
-  color: rgb(71, 71, 71);
+  color: white;
+  font-size: 16px;
 }
 
 label {
@@ -126,8 +128,8 @@ rect:hover {
 
 .dropdown.is-hoverable.is-up {
   margin-bottom: 60px;
-  width: 280px;
   align-items: center;
+  padding: 0 5%;
 }
 
 .dropdown-trigger {
@@ -189,5 +191,5 @@ rect:hover {
 
 .ui.buttons {
   height: 36px;
-  border-color: none;
+  width: 320px;
 }
