@@ -62,29 +62,33 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
         var currentUrl
 
         //Post start time data when open the tab
-        db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date().valueOf()).toArray()
-        .then(result => {
-          var idx = result.length-1
-          currentUrl = result[idx].url
-        }).then(async ()=>{
-          if (currentUrl !== url.hostname) {
-            db.history
-              ///Put bayes label here
-              .put({
-                url: url.hostname,
-                timeStart: new Date().valueOf(),
-                timeEnd: undefined,
-                timeTotal: 0,
-                label: await classifyDocumentIfBayesModel(tabs[0].title)
-              })
-              .then(i => {
-                console.log('window wrote ' + i)
-              })
-              .catch(err => {
-                console.error(err)
-              })
-          }
-        })
+        db.history
+          .where('timeStart')
+          .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
+          .toArray()
+          .then(result => {
+            var idx = result.length - 1
+            currentUrl = result[idx].url
+          })
+          .then(async () => {
+            if (currentUrl !== url.hostname) {
+              db.history
+                ///Put bayes label here
+                .put({
+                  url: url.hostname,
+                  timeStart: new Date().valueOf(),
+                  timeEnd: undefined,
+                  timeTotal: 0,
+                  label: await classifyDocumentIfBayesModel(tabs[0].title)
+                })
+                .then(i => {
+                  console.log('window wrote ' + i)
+                })
+                .catch(err => {
+                  console.error(err)
+                })
+            }
+          })
       }
     })
   }
@@ -109,19 +113,19 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     //Post start time data when open the tab
     if (urlValidation(new URL(tab.url))) {
       db.history
-      .put({
-        url: url.hostname,
-        timeStart: new Date().valueOf(),
-        timeEnd: undefined,
-        timeTotal: 0,
-        label: await classifyDocumentIfBayesModel(tab.title)
-      })
-      .then(i => {
-        console.log('active wrote ' + i)
-      })
-      .catch(err => {
-        console.error(err)
-      })
+        .put({
+          url: url.hostname,
+          timeStart: new Date().valueOf(),
+          timeEnd: undefined,
+          timeTotal: 0,
+          label: await classifyDocumentIfBayesModel(tab.title)
+        })
+        .then(i => {
+          console.log('active wrote ' + i)
+        })
+        .catch(err => {
+          console.error(err)
+        })
     }
   })
 })
@@ -134,45 +138,33 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     var currentUrl
 
     //Update time end when focus out of the tab
-    db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date().valueOf()).toArray()
-    .then(result => {
-      var idx = result.length-1
-      currentUrl = result[idx].url
-    }).then(async ()=>{
-      if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
-        db.history
-          .put({
-            url: url.hostname,
-            timeStart: new Date().valueOf(),
-            timeEnd: undefined,
-            timeTotal: 0,
-            label: await classifyDocumentIfBayesModel(tab.title)
-          })
-          .then(i => {
-            console.log('update wrote ' + i)
-          })
-          .catch(err => {
-            console.error(err)
-          })
-      }
-    })
+    db.history
+      .where('timeStart')
+      .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
+      .toArray()
+      .then(result => {
+        var idx = result.length - 1
+        currentUrl = result[idx].url
+      })
+      .then(async () => {
+        if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
+          db.history
+            .put({
+              url: url.hostname,
+              timeStart: new Date().valueOf(),
+              timeEnd: undefined,
+              timeTotal: 0,
+              label: await classifyDocumentIfBayesModel(tab.title)
+            })
+            .then(i => {
+              console.log('update wrote ' + i)
+            })
+            .catch(err => {
+              console.error(err)
+            })
+        }
+      })
   }
-})
-
-//listens for all events emitted by page content scripts
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action) {
-    if (request.action === 'follow-link') {
-      sendResponse({dbKey: 1, ultimateOriginKey: 1})
-      /* chrome.runtime.sendMessage(sender.id, {
-        action: 'sendDbLocation',
-        location: request.origin,
-        data: {dbKey: 1, ultimateOriginKey: 1}
-      }) */
-    }
-  }
-
-  //console.log('req', request, 'sender', sender)
 })
 
 //This function updates the icon and badge according to ML prediction
@@ -346,7 +338,10 @@ function timeNotification() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
       var url = new URL(tabs[0].url).hostname
-      db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date().valueOf()).toArray()
+      db.history
+        .where('timeStart')
+        .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
+        .toArray()
         .then(async result => {
           var totalSpend = 0
           console.log(result)
@@ -385,18 +380,33 @@ function makeTimeNotification(title, time) {
 function timeTracker() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
-      db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date().valueOf()).toArray().then(result=>{
-        var idx = result.length-1
-        return result[idx]
-      })
-      .then(async data=>{
-        if (new Date().valueOf() - (data.timeEnd || new Date().valueOf()) < 30000) {
-          db.history.update(data.id, {timeEnd: new Date().valueOf(), timeTotal: (new Date().valueOf() - data.timeStart)})
-        } else {
-          db.history
-          .put({url: new URL(tabs[0].url).hostname, timeStart: new Date().valueOf(), timeEnd: undefined, timeTotal: 0, label: await classifyDocumentIfBayesModel(tabs[0].title)})
-        }
-      })
+      db.history
+        .where('timeStart')
+        .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
+        .toArray()
+        .then(result => {
+          var idx = result.length - 1
+          return result[idx]
+        })
+        .then(async data => {
+          if (
+            new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
+            30000
+          ) {
+            db.history.update(data.id, {
+              timeEnd: new Date().valueOf(),
+              timeTotal: new Date().valueOf() - data.timeStart
+            })
+          } else {
+            db.history.put({
+              url: new URL(tabs[0].url).hostname,
+              timeStart: new Date().valueOf(),
+              timeEnd: undefined,
+              timeTotal: 0,
+              label: await classifyDocumentIfBayesModel(tabs[0].title)
+            })
+          }
+        })
     }
   })
 }
