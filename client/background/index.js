@@ -167,24 +167,22 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 //This function updates the icon and badge according to ML prediction
 async function updateIcon(tab) {
   //page classification is either "work" or "play"
-  const pageClassification = await classifyDocument(tab.title)
+  const pageClassification = await classifyDocumentIfBayesModel(tab.title)
   //We format the raw output of machine learning model (const probabilities, decimals)
   const probabilities = await getClassifications(tab.title)
   //as a percentage (certainty)
   let certainty
-  if (probabilities) {
+  if (probabilities.length > 0) {
     certainty =
       (probabilities[0].value /
         (probabilities[0].value + probabilities[1].value)) *
       100
   }
 
-  if (pageClassification) {
-    chrome.browserAction.setIcon(
-      pageClassification === 'work'
-        ? {path: './green.png'}
-        : {path: './red.png'}
-    )
+  if (pageClassification === 'work') {
+    chrome.browserAction.setIcon({path: './green.png'})
+  } else if (pageClassification === 'play') {
+    chrome.browserAction.setIcon({path: './red.png'})
   } else {
     chrome.browserAction.setIcon({path: './gray.png'})
   }
@@ -262,7 +260,6 @@ function makeNotification() {
 }
 
 function redirectToDashboard(notificationId) {
-  console.log('hello world!')
   chrome.tabs.create({url: 'dashboard.html'})
 }
 

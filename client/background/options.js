@@ -1,6 +1,6 @@
 import db from '../db'
 
-//There will only ever be one options object :)
+//There will only ever be one options object
 
 const defaultOptions = {
   allowTrainingPopups: true,
