@@ -1,5 +1,5 @@
 * {
-  font-family: 'Roboto Mono'
+  font-family: 'Roboto Mono';
 }
 
 a {
@@ -79,7 +79,6 @@ rect:hover {
   align: right;
   width: 50px;
 }
-
 
 
 
@@ -180,4 +179,15 @@ rect:hover {
 
 #list {
   font-size: 6px;
+}
+
+#hide-background {
+  height: 36px;
+  width: 100%;
+  position: fixed;
+}
+
+.ui.buttons {
+  height: 36px;
+  border-color: none;
 }

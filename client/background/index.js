@@ -17,7 +17,12 @@ import {
   classifyDocumentIfBayesModel
 } from './bayesClassifier'
 import {initOptions, updateOptions, getOptions} from './options'
-import {dateConverter, timeInSecond, timeCalculator, urlValidation} from './utils'
+import {
+  dateConverter,
+  timeInSecond,
+  timeCalculator,
+  urlValidation
+} from './utils'
 import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
 
@@ -232,9 +237,9 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 })
 
 //Timer keep tracks current time per second & if laptop is turned off
-setInterval(()=>{
+setInterval(() => {
   timeTracker()
-},1000)
+}, 1000)
 
 function makeNotification() {
   chrome.notifications.onButtonClicked.removeListener(handleButton)
@@ -242,7 +247,7 @@ function makeNotification() {
     type: 'basic',
     title: 'Train the Wirehead AI',
     iconUrl: 'gray.png',
-    message: 'Classify this page as work or play --->',
+    message: 'Classify this page as work or play -->',
     buttons: [{title: 'This is work'}, {title: 'This is play'}]
   })
   chrome.notifications.onButtonClicked.addListener(handleButton)
@@ -254,12 +259,8 @@ function makeNotification() {
 //it updates the machine learning model, makes a new prediction, and updates the icon
 //3. If we have too many training examples it tells the db to drop 100 lines
 function handleButton(notificationId, buttonIndex) {
-  let tabName
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, async function(
-    tabs
-  ) {
-    tabName = tabs[0].title
-
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) {
+    const currentTab = tabs[0]
     let label
     if (buttonIndex === 0) {
       label = 'work'
@@ -267,27 +268,31 @@ function handleButton(notificationId, buttonIndex) {
       label = 'play'
     }
 
-    db.trainingData.add({
-      document: tabName,
-      label: label,
-      time: new Date().getTime()
-    })
-
-    const numberExamples = await getNumberOfTrainingExamples()
-    //Slowly decrease frequency of popup (in minutes) as user uses the extension more
-    checkForAlarmUpdates(numberExamples)
-
-    //stop constantly updating the bayes model if we have a lots of training examples,
-    //so as not to make chrome really slow
-    if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
-      await updateBayesModel()
-      updateIcon(tabs[0])
-    }
-    //Delete older training data if we have accumulated a ton
-    else if (numberExamples > MAX_TRAINING_EXAMPLES) {
-      deleteOldTrainingData()
-    }
+    processNewTrainingExample(currentTab, label)
   })
+}
+
+//Mostly just adds a new training example to dbx
+async function processNewTrainingExample(currentTab, label) {
+  db.trainingData.add({
+    document: currentTab.title,
+    label: label,
+    time: new Date().getTime()
+  })
+
+  const numberExamples = await getNumberOfTrainingExamples()
+  //Slowly decrease frequency of popup (in minutes) as user uses the extension more
+  checkForAlarmUpdates(numberExamples)
+  //stop constantly updating the bayes model if we have a lots of training examples,
+  //so as not to make chrome really slow
+  if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
+    await updateBayesModel()
+    updateIcon(currentTab)
+  }
+  //Delete older training data if we have accumulated a ton
+  else if (numberExamples > MAX_TRAINING_EXAMPLES) {
+    deleteOldTrainingData()
+  }
 }
 
 //Once we have a lot of Bayes examples, we can annoy the user for training data less often
@@ -369,3 +374,13 @@ function timeTracker() {
     }
   })
 }
+
+chrome.runtime.onMessage.addListener(function(message) {
+  if (message.action === 'classify website' && message.label) {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      if (tabs[0]) {
+        processNewTrainingExample(tabs[0], message.label)
+      }
+    })
+  }
+})
