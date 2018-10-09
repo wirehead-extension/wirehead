@@ -14,7 +14,7 @@ class AppConfig extends React.Component {
   constructor() {
     super()
     this.state = {
-      allowTrainingPopups: null,
+      trainingPopupFrequency: null,
       allowShaming: null
     }
   }
@@ -33,12 +33,12 @@ class AppConfig extends React.Component {
   }
 
   handleChangePopups = (e, {value}) =>
-    this.setState({allowTrainingPopups: value})
+    this.setState({trainingPopupFrequency: value})
   handleChangeShaming = (e, {value}) => this.setState({allowShaming: value})
 
   render() {
     console.log(this.state)
-    let allowTrainingPopups = this.state.allowTrainingPopups
+    let trainingPopupFrequency = this.state.trainingPopupFrequency
     let allowShaming = this.state.allowShaming
     return (
       <Container>
@@ -71,16 +71,24 @@ class AppConfig extends React.Component {
               label="Yes"
               control={Radio}
               type="radio"
-              value={true}
-              checked={allowTrainingPopups === true}
+              value="normal"
+              checked={trainingPopupFrequency === 'normal'}
+              onChange={this.handleChangePopups}
+            />
+            <Form.Field
+              label="Occasionally"
+              control={Radio}
+              type="radio"
+              value="low"
+              checked={trainingPopupFrequency === 'low'}
               onChange={this.handleChangePopups}
             />
             <Form.Field
               label="No (not recommended for new users!)"
               control={Radio}
               type="radio"
-              value={false}
-              checked={allowTrainingPopups === false}
+              value="never"
+              checked={trainingPopupFrequency === 'never'}
               onChange={this.handleChangePopups}
             />
           </Form.Group>
