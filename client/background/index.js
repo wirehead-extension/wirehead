@@ -249,6 +249,7 @@ setInterval(() => {
 
 function makeNotification() {
   if (chromeIsInFocus) {
+    chrome.notifications.onClicked.removeListener(redirectToDashboard)
     chrome.notifications.onButtonClicked.removeListener(handleButton)
     chrome.notifications.create('training notification', {
       type: 'basic',
@@ -258,7 +259,13 @@ function makeNotification() {
       buttons: [{title: 'This is work'}, {title: 'This is play'}]
     })
     chrome.notifications.onButtonClicked.addListener(handleButton)
+    chrome.notifications.onClicked.addListener(redirectToDashboard)
   }
+}
+
+function redirectToDashboard(notificationId) {
+  console.log('hello world!')
+  chrome.tabs.create({url: 'dashboard.html'})
 }
 
 function killNotification() {
