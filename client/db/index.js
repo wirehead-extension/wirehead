@@ -6,15 +6,14 @@ import {getHistoryRange, splitByPeriod, sumBySite, topFive} from './dbUtils'
 const db = new Dexie('wirehead')
 db.version(5).stores({
   history: '++id, url, timeStart, timeEnd, timeTotal, label',
-  summaryHistory: 'url',
   trainingData: '++id, document, label',
   bayesModel: '++id, model',
   options: ', allowTrainingPopups, allowShaming'
 })
 
 //TODO: before entering production, remove the seed functionality!
-db.history.get(1, s => {
-  if (!s) {
+db.history.count().then(s=>{
+  if (s < 1) {
     db.history.bulkAdd(history)
     //db.trainingData.bulkAdd(trainingData)
   }

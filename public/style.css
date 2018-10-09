@@ -1,5 +1,5 @@
 * {
-  font-family: 'Roboto Mono' !important;
+  font-family: 'Roboto Mono';
 }
 
 a {
@@ -80,6 +80,10 @@ rect:hover {
   width: 50px;
 }
 
+
+
+
+
 .popup {
   width: 300px;
   height: 340px;
@@ -127,7 +131,7 @@ rect:hover {
 }
 
 .dropdown-trigger {
-  padding-left: 35px;
+  padding-left: 10px;
 }
 
 .ui.linkedin.button {
@@ -164,10 +168,26 @@ rect:hover {
 }
 
 #total {
-  font-family: 'Boogaloo', cursive;
+  font-family: 'Roboto Mono';
+  font-size: 24px;
 }
 
 .dropdown-item {
   width: 280px;
   text-align: left;
+}
+
+#list {
+  font-size: 6px;
+}
+
+#hide-background {
+  height: 36px;
+  width: 100%;
+  position: fixed;
+}
+
+.ui.buttons {
+  height: 36px;
+  border-color: none;
 }
