@@ -8,7 +8,7 @@ export function dateConverter(newDate) {
   dateString += newDate.getMonth() + 1 + '/'
   dateString += newDate.getDate() + '/'
   dateString += newDate.getFullYear() + ' '
-  if (newDate.getHours < 13) {
+  if (newDate.getHours() < 13) {
     dateString += newDate.getHours() + ':'
     am = ' AM'
   } else {
