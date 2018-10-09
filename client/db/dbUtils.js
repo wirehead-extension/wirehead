@@ -14,6 +14,7 @@ function makeDateRange(startDate, endDate) {
   if (endDate < 365) {
     endDate = startDate + endDate * msInDay
   }
+  console.log('start', startDate, 'end', endDate)
   return [startDate, endDate]
 }
 
