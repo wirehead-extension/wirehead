@@ -60,6 +60,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   if (chromeIsInFocus) {
     currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      updateIcon(tabs[0])
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
         var url = new URL(tabs[0].url)
         var currentUrl
@@ -103,10 +104,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
   killNotification()
   //get detail information of activated tab
   chrome.tabs.get(activeInfo.tabId, async function(tab) {
+    updateIcon(tab)
     const model = await getBayesModel()
-    if (model) {
-      updateIcon(tab)
-    } else {
+
+    if (!model) {
       makeLearnMoreNotification(aboutNotificationClicked)
     }
     //this code creates a transaction and uses it to write to the db
@@ -135,6 +136,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 //An Event Listener to store data when URL has been changed
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   killNotification()
+  updateIcon(tab)
   if (tab.active && tab.status === 'complete') {
     var url = new URL(tab.url)
     var currentUrl
@@ -173,7 +175,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 //This function updates the icon and badge according to ML prediction
 async function updateIcon(tab) {
-  if (!tab.url.startsWith('http') || tab.url.includes('newtab')) {
+  console.log('updating icon')
+  const model = await getBayesModel()
+  if (!model || !tab.url.startsWith('http') || tab.url.includes('newtab')) {
     chrome.browserAction.setBadgeText({text: ''})
   } else {
     //page classification is either "work" or "play"
@@ -196,6 +200,7 @@ async function updateIcon(tab) {
     } else {
       chrome.browserAction.setBadgeBackgroundColor({color: 'gray'})
     }
+    console.log('certainty', certainty)
     if (certainty) {
       chrome.browserAction.setBadgeText({
         text: String(certainty).slice(0, 2) + '%'
@@ -329,7 +334,7 @@ async function processNewTrainingExample(currentTab, label) {
   const numberExamples = await getNumberOfTrainingExamples()
   if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
     await updateBayesModel()
-    updateIcon(currentTab)
+    await updateIcon(currentTab)
   }
   //Delete older training data if we have accumulated a ton
   else if (numberExamples > MAX_TRAINING_EXAMPLES) {
