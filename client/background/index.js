@@ -175,7 +175,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 //This function updates the icon and badge according to ML prediction
 async function updateIcon(tab) {
-  console.log('updating icon')
   const model = await getBayesModel()
   if (!model || !tab.url.startsWith('http') || tab.url.includes('newtab')) {
     chrome.browserAction.setBadgeText({text: ''})
@@ -200,7 +199,6 @@ async function updateIcon(tab) {
     } else {
       chrome.browserAction.setBadgeBackgroundColor({color: 'gray'})
     }
-    console.log('certainty', certainty)
     if (certainty) {
       chrome.browserAction.setBadgeText({
         text: String(certainty).slice(0, 2) + '%'
@@ -370,7 +368,6 @@ function timeNotification() {
   chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
     const options = await getOptions()
     const allowShaming = options.allowShaming
-    console.log('allowShaming', allowShaming)
     if (allowShaming && tabs[0] && urlValidation(new URL(tabs[0].url))) {
       db.history
         .where('timeStart')
@@ -381,7 +378,6 @@ function timeNotification() {
             let idx = result.length - 1
             if (result[idx].label === 'play') {
               var totalSpend = 0
-              console.log(result)
               var a = await db.history.count()
               console.log('total', a)
               result.forEach(data => {
