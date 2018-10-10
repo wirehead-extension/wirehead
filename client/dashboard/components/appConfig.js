@@ -9,6 +9,7 @@ import {
   Radio
 } from 'semantic-ui-react'
 import {getOptions, updateOptions} from '../../background/options.js'
+import * as d3 from 'd3'
 
 class AppConfig extends React.Component {
   constructor() {
@@ -20,6 +21,8 @@ class AppConfig extends React.Component {
   }
 
   async componentDidMount() {
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
     const currentOptions = await getOptions()
     this.setState(currentOptions)
   }
