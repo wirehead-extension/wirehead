@@ -61,7 +61,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
   //It runs only currentWindow ID has been changed
 
-  if (windowInfo > 0 && windowInfo !== currentWindow) {
+  if (chromeIsInFocus) {
     currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
@@ -74,8 +74,10 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
           .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
           .toArray()
           .then(result => {
-            var idx = result.length - 1
-            currentUrl = result[idx].url
+            if (result[0]) {
+              var idx = result.length - 1
+              currentUrl = result[idx].url
+            }
           })
           .then(async () => {
             if (currentUrl !== url.hostname) {
@@ -84,7 +86,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
                 .put({
                   url: url.hostname,
                   timeStart: new Date().valueOf(),
-                  timeEnd: undefined,
+                  timeEnd: new Date().valueOf(),
                   timeTotal: 0,
                   label: await classifyDocumentIfBayesModel(tabs[0].title)
                 })
@@ -120,7 +122,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
         .put({
           url: url.hostname,
           timeStart: new Date().valueOf(),
-          timeEnd: undefined,
+          timeEnd: new Date().valueOf(),
           timeTotal: 0,
           label: await classifyDocumentIfBayesModel(tab.title)
         })
@@ -147,8 +149,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
       .toArray()
       .then(result => {
-        var idx = result.length - 1
-        currentUrl = result[idx].url
+        if (result[0]) {
+          var idx = result.length - 1
+          currentUrl = result[idx].url
+        }
       })
       .then(async () => {
         if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
@@ -156,7 +160,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
             .put({
               url: url.hostname,
               timeStart: new Date().valueOf(),
-              timeEnd: undefined,
+              timeEnd: new Date().valueOf(),
               timeTotal: 0,
               label: await classifyDocumentIfBayesModel(tab.title)
             })
@@ -230,13 +234,13 @@ chrome.runtime.onInstalled.addListener(function(details) {
 chrome.alarms.create('timer', {periodInMinutes: 0.2})
 
 chrome.alarms.onAlarm.addListener(async function(alarm) {
-  if (alarm.name === 'timer') {
+  if (alarm.name === 'timer' && chromeIsInFocus) {
     timeNotification()
   } else if (alarm.name === 'make notification') {
     const options = await getOptions()
     if (options.allowTrainingPopups) {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-        if (tabs[0]) {
+        if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
           makeNotification(tabs[0].favIconUrl)
         }
       })
@@ -246,7 +250,9 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 
 //Timer keep tracks current time per second & if laptop is turned off
 setInterval(() => {
-  timeTracker()
+  if (chromeIsInFocus) {
+    timeTracker()
+  }
 }, 1000)
 
 function makeNotification(icon) {
@@ -346,32 +352,34 @@ function timeNotification() {
 
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
     if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
-      var url = new URL(tabs[0].url).hostname
+      // var url = new URL(tabs[0].url).hostname
       db.history
         .where('timeStart')
         .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
         .toArray()
         .then(async result => {
-          let idx = result.length-1
-          if(result[idx].label === 'play') {
-            var totalSpend = 0
-            console.log(result)
-            var a = await db.history.count()
-            console.log('total', a)
-            result.forEach(data => {
-              if (data.label === 'play') {
-                totalSpend += data.timeTotal
-              }
-            })
+          if (result) {
+            let idx = result.length-1
+            if(result[idx].label === 'play') {
+              var totalSpend = 0
+              console.log(result)
+              var a = await db.history.count()
+              console.log('total', a)
+              result.forEach(data => {
+                if (data.label === 'play') {
+                  totalSpend += data.timeTotal
+                }
+              })
 
-            var hourCalculator = Math.floor(totalSpend / 60000) * 60000
-            console.log('title:', tabs[0].title, 'time:', totalSpend, new Date())
-            if (
-              totalSpend > hourCalculator &&
-              totalSpend < hourCalculator + 12000 &&
-              totalSpend > 10000
-            ) {
-              makeTimeNotification(tabs[0].title, totalSpend)
+              var hourCalculator = Math.floor(totalSpend / 60000) * 60000
+              console.log('title:', tabs[0].title, 'time:', totalSpend, new Date())
+              if (
+                totalSpend > hourCalculator &&
+                totalSpend < hourCalculator + 12000 &&
+                totalSpend > 10000
+              ) {
+                makeTimeNotification(totalSpend)
+              }
             }
           }
         })
@@ -379,14 +387,14 @@ function timeNotification() {
   })
 }
 
-function makeTimeNotification(title, time) {
+function makeTimeNotification(time) {
   var timeprint = timeCalculator(time)
 
   chrome.notifications.create({
     type: 'basic',
-    title: 'Your non-productive time spend',
+    title: '!!  WATCH OUT  !!',
     iconUrl: 'heartwatch.png',
-    message: titleCutter(title) + ' : \n' + 'Total ' + timeprint + ' today'
+    message: 'Your total non-productive time today' + ' : \n' + timeprint
   })
 }
 
@@ -403,8 +411,8 @@ function timeTracker() {
         })
         .then(async data => {
           if (
-            new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
-            30000
+            data && new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
+            10000
           ) {
             db.history.update(data.id, {
               timeEnd: new Date().valueOf(),
@@ -414,7 +422,7 @@ function timeTracker() {
             db.history.put({
               url: new URL(tabs[0].url).hostname,
               timeStart: new Date().valueOf(),
-              timeEnd: undefined,
+              timeEnd: new Date().valueOf(),
               timeTotal: 0,
               label: await classifyDocumentIfBayesModel(tabs[0].title)
             })
