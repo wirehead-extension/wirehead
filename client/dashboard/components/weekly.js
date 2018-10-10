@@ -41,13 +41,22 @@ var dataParse = data => {
 
 var colorrange = ['#FF96A3', '#9CFEFF', '#A18CE8']
 
+const legendData = [
+    {"color": "#A18CE8", "type" : "play"},
+    {"color": "#FF96A3", "type" : "work"}
+]
 class Weekly extends React.Component {
   componentDidMount() {
     // d3.select("svg").remove()
     this.props.fetchData(eightDaysAgo(), 7, 'sumByDayBySite')
+    // .then(this.chart('#graphs', this.props.data))
 
     // this.createChart(this.props.data)
   }
+
+//   componentDidUpdate() {
+//       this.chart('#graphs', this.props)
+//   }
 
   // data.forEach(function(d){d.date = format.parse(d.date); };
   handleDatesRangeChange = dateRange => {
@@ -62,15 +71,14 @@ class Weekly extends React.Component {
     const width = document.body.clientWidth - margin.left - margin.right
     const height = 400 - margin.top - margin.bottom
 
-    const tooltip = d3
-      .select('body')
-      .append('div')
-      .attr('class', 'remove')
-      .style('position', 'absolute')
-      .style('z-index', '20')
-      .style('visibility', 'hidden')
-      .style('top', '330px')
-      .style('left', '1150px')
+    const tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "remove")
+        .style("position", "absolute")
+        .style("z-index", "20")
+        .style("visibility", "hidden")
+        .style("top", "470px")
+        .style("left", "1250px")
 
     const x = d3
       .scaleTime()
@@ -115,30 +123,29 @@ class Weekly extends React.Component {
         return y(e[1])
       })
 
-    var svg = d3
-      .select('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+      var svg = d3.select("body")
+      .attr("width", width + margin.left + margin.right + 40)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("svg")
+      .attr("width", 1400)
+      .attr("height", height + margin.top + margin.bottom)
+      .attr("transform", "translate(150, 150)")
+  .append("g")
+      .attr("transform", "translate(80," + margin.top + ")")
+
+      svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left - 12)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Hours Per Day"); 
 
     var layers = stack(data)
 
-    console.log('layers', layers)
-    console.log('thefuckingdata', layers[0][0].data)
-
-    // svg.selectAll(".layer")
-    //     .data(layers)
-    // .enter().append("path")
-    //     .attr("d", area)
-    //     .style("fill", function(d, i) { return z(i); })
-
     var g = svg
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+      .attr('transform', 'translate(0,' + margin.top + ')')
 
     var layer = g
       .selectAll('.layer')
@@ -146,7 +153,8 @@ class Weekly extends React.Component {
       .enter()
       .append('g')
       .attr('class', 'layer')
-      .attr('transform', 'translate(-29, 0)')
+      .attr("transform", "translate(0, 0)")
+
 
     svg
       .selectAll('.layer')
@@ -265,20 +273,77 @@ class Weekly extends React.Component {
       .call(yAxis)
   }
 
-  render() {
-    console.log('weekly data', this.props)
-    // this.createChart(this.props.data)
-    if (this.props.data[1].start) {
-      let newData = dataParse(this.props.data)
-      console.log('parsed data', dataParse(this.props.data))
-      this.chart(newData)
+  legendTwo(data) {
+
+    const leg = {}
+
+
+    // create table for the legend
+    const legend = d3.select('body')
+        .append('table')
+        .style("position", "absolute")
+        .style("z-index", "990")
+        .style("top", "550px")
+        .style("left", "1250px")
+
+
+
+
+    // create one row per segment
+    const tr = legend
+        .append('tbody')
+        .selectAll('tr')
+        .data(data)
+        .enter()
+        .append('tr')
+
+    // create the first column for each segment
+    tr.append('td')
+        .append('svg')
+        .attr('width', '16')
+        .attr('height', '16')
+        .append('rect')
+        .attr('width', '16')
+        .attr('height', '16')
+        .attr('fill', function(d) {
+            return d.color
+        })
+
+    // create the second column for each segment
+    tr.append('td').text(function(d) {
+        return d.type
+    })
+
+}
+
+render(){            
+    if (this.props.data[1].start){
+        let newData = dataParse(this.props.data)
+        this.chart(newData)
+        this.legendTwo(legendData)
     }
-    return (
-      <React.Fragment>
-        <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
-        <svg ref={node => (this.node = node)} width={500} height={500} />
-      </React.Fragment>
+    return(    
+    <React.Fragment>  
+    <h3 id="graphHeader">One Week of Browsing</h3>
+    <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
+    <div id="dashboard" />
+    </React.Fragment>  
     )
+
+//   render() {
+//     console.log('weekly data', this.props)
+//     // this.createChart(this.props.data)
+//     if (this.props.data[1].start) {
+//       let newData = dataParse(this.props.data)
+//       console.log('parsed data', dataParse(this.props.data))
+//       this.chart(newData)
+//     }
+//     return (
+//       <React.Fragment>
+//         <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
+//         <svg ref={node => (this.node = node)} width={500} height={500} />
+//       </React.Fragment>
+//     )
   }
 }
 
