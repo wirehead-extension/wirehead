@@ -189,13 +189,8 @@ rect:hover {
 
 #graphHeader {
   position: absolute;
-<<<<<<< HEAD
-  left: 630px;
-  top: 250px;
-=======
   left: 610px;
   top: 250px
->>>>>>> 438c1ec602a70f84f279c2997fe88c1eaa5a8943
 }
 
 #dailydiv {
