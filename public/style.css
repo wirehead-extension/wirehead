@@ -100,7 +100,7 @@ rect:hover {
 
 .header {
   /* text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384); */
-  font-family: 'Roboto Mono';
+  font-family: 'Roboto Mono' !important;
   margin: 0 !important;
 }
 
@@ -188,6 +188,7 @@ rect:hover {
 }
 
 #graphHeader {
+  font-family: 'Roboto Mono';
   position: absolute;
   left: 610px;
   top: 250px;
