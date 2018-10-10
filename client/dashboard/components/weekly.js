@@ -49,9 +49,14 @@ class Weekly extends React.Component {
   componentDidMount() {
     // d3.select("svg").remove()
     this.props.fetchData(eightDaysAgo(), 7, 'sumByDayBySite')
+    // .then(this.chart('#graphs', this.props.data))
 
     // this.createChart(this.props.data)
   }
+
+//   componentDidUpdate() {
+//       this.chart('#graphs', this.props)
+//   }
 
   // data.forEach(function(d){d.date = format.parse(d.date); };
   handleDatesRangeChange = dateRange => {
@@ -119,18 +124,18 @@ class Weekly extends React.Component {
       })
 
       var svg = d3.select("body")
-      .attr("width", width + margin.left + margin.right + 20)
+      .attr("width", width + margin.left + margin.right + 40)
       .attr("height", height + margin.top + margin.bottom)
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
+      .attr("width", 1400)
       .attr("height", height + margin.top + margin.bottom)
       .attr("transform", "translate(150, 150)")
   .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .attr("transform", "translate(80," + margin.top + ")")
 
       svg.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left - 3)
+      .attr("y", 0 - margin.left - 12)
       .attr("x",0 - (height / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
@@ -138,18 +143,9 @@ class Weekly extends React.Component {
 
     var layers = stack(data)
 
-    console.log('layers', layers)
-    console.log('thefuckingdata', layers[0][0].data)
-
-    // svg.selectAll(".layer")
-    //     .data(layers)
-    // .enter().append("path")
-    //     .attr("d", area)
-    //     .style("fill", function(d, i) { return z(i); })
-
     var g = svg
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+      .attr('transform', 'translate(0,' + margin.top + ')')
 
     var layer = g
       .selectAll('.layer')
@@ -157,7 +153,7 @@ class Weekly extends React.Component {
       .enter()
       .append('g')
       .attr('class', 'layer')
-      .attr("transform", "translate(-40, 0)")
+      .attr("transform", "translate(0, 0)")
 
 
     svg

@@ -125,22 +125,17 @@ class Daily extends React.Component {
       .append('div')
       .attr('id', 'dailydiv')
       .style('position', 'absolute')
-      .style('left', '270px')
+      .style('left', '165px')
       .style('top', '400px')
+      .style('width', '2000px')
 
     
     // function to create histogram
     function histoGram(fD) {
       // console.log('this is fd', fD)
-<<<<<<< HEAD
-      const hG = {},
-      hGDim = {t: 60, r: 0, b: 30, l: 0}
-      hGDim.w = (500 - hGDim.l - hGDim.r)
-=======
       var hG = {},
-        hGDim = {t: 60, r: 0, b: 30, l: 0}
-      hGDim.w = 500 - hGDim.l - hGDim.r
->>>>>>> master
+        hGDim = {t: 60, r: 0, b: 10, l: 0}
+      hGDim.w = 600 - hGDim.l - hGDim.r
       hGDim.h = 300 - hGDim.t - hGDim.b
 
       //create svg for histogram.
@@ -150,7 +145,7 @@ class Daily extends React.Component {
         .attr('class', 'chart')
         .attr('top', '50px')
         .attr('width', hGDim.w + hGDim.l + hGDim.r)
-        .attr('height', hGDim.h + hGDim.t + hGDim.b)
+        .attr('height', hGDim.h + hGDim.t + hGDim.b + 10)
         .append('g')
 
       // create function for x-axis mapping.
@@ -167,8 +162,9 @@ class Daily extends React.Component {
       hGsvg
         .append('g')
         .attr('class', 'x-axis')
-        .attr('transform', 'translate(0,' + hGDim.h + ')')
+        .attr('transform', 'translate(-5,270)')
         .call(d3.axisBottom(x))
+
 
       // Create function for y-axis map.
       const y = d3
@@ -193,10 +189,10 @@ class Daily extends React.Component {
       bars
         .append('rect')
         .attr('x', function(d) {
-          return x(d[0])
+          return x(d[0]) + 15
         })
         .attr('y', function(d) {
-          return y(d[1])
+          return y(d[1]) + 40
         })
         .attr('width', x.bandwidth() / 1.5)
         .attr('height', function(d) {
@@ -211,10 +207,10 @@ class Daily extends React.Component {
           return humanTime(d[1])
         })
         .attr('x', function(d) {
-          return x(d[0]) + x.bandwidth() / 2.9
+          return x(d[0]) + x.bandwidth() / 2.9 + 12
         })
         .attr('y', function(d) {
-          return y(d[1]) - 5
+          return y(d[1]) + 35
         })
         .attr('text-anchor', 'middle')
 
@@ -238,7 +234,7 @@ class Daily extends React.Component {
           .transition()
           .duration(500)
           .attr('y', function(d) {
-            return y(d[1])
+            return y(d[1]) + 40
           })
           .attr('height', function(d) {
             return hGDim.h - y(d[1])
@@ -254,7 +250,7 @@ class Daily extends React.Component {
             return humanTime(d[1])
           })
           .attr('y', function(d) {
-            return y(d[1]) - 5
+            return y(d[1]) + 35
           })
 
         hGsvg.selectAll('.x-axis').remove()
@@ -271,7 +267,7 @@ class Daily extends React.Component {
         hGsvg
           .append('g')
           .attr('class', 'x-axis')
-          .attr('transform', 'translate(0,' + hGDim.h + ')')
+          .attr('transform', 'translate(-5,270)')
           .call(d3.axisBottom(x))
       }
       return hG
@@ -386,10 +382,19 @@ class Daily extends React.Component {
       var leg = {}
 
       // create table for legend.
-      var legend = d3
-        .select('#dailydiv')
-        .append('table')
-        .attr('class', 'legend')
+      // var legend = d3
+      //   .select('#dailydiv')
+      //   .append('table')
+      //   .attr('class', 'legend')
+      //   .attr('transform', 'translate(5,10)')
+
+      const legend = d3.select('body')
+      .append('table')
+      .style("position", "absolute")
+      .style("z-index", "990")
+      .style("top", "550px")
+      .style("left", "1050px")
+
 
       // create one row per segment.
       var tr = legend
@@ -472,6 +477,7 @@ class Daily extends React.Component {
   render() {
     return (
       <Container>
+        <h3 id="graphHeader">One Day of Browsing</h3>
         <DatePicker handleDateChange={this.handleDateChange} />
         <div id="graphs" />
       </Container>
