@@ -117,6 +117,10 @@ rect:hover {
   margin: 0 0 20px 0;
 }
 
+.ui.slide.masked.reveal.image.inverted.segment {
+  background-color: white;
+}
+
 .extra.content {
   height: 60px;
   position: absolute;
