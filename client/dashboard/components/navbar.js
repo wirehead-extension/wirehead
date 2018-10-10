@@ -6,6 +6,9 @@ class Navbar extends React.Component {
     return (
       <div>
         <div>
+          <Link to="/about">About</Link>
+        </div>
+        <div>
           <Link to="/options">Options</Link>
         </div>
         <div>
