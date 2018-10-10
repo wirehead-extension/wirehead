@@ -59,7 +59,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 
   if (chromeIsInFocus) {
     currentWindow = windowInfo
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
         var url = new URL(tabs[0].url)
         var currentUrl
@@ -262,6 +262,8 @@ setInterval(() => {
   }
 }, 1000)
 
+chrome.notifications.onClicked.addListener(redirectToDashboard)
+
 function makeNotification(icon) {
   var iconUrl = 'gray.png'
   if (icon) {
@@ -279,7 +281,6 @@ function makeNotification(icon) {
       buttons: [{title: 'This is work'}, {title: 'This is play'}]
     })
     chrome.notifications.onButtonClicked.addListener(handleButton)
-    chrome.notifications.onClicked.addListener(redirectToDashboard)
   }
 }
 
