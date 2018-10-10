@@ -234,7 +234,12 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
     const options = await getOptions()
     if (options.trainingPopupFrequency !== 'never') {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-        if (tabs[0]) {
+        console.log('url', tabs[0].url)
+        if (
+          tabs[0] &&
+          tabs[0].url.startsWith('http') &&
+          !tabs[0].url.includes('newtab')
+        ) {
           makeNotification(tabs[0].favIconUrl)
         }
       })
