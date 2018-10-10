@@ -298,7 +298,7 @@ class Weekly extends React.Component {
     })
   }
 
-}
+
 
 render(){          
     
