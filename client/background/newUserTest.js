@@ -9,8 +9,7 @@ export function makeLearnMoreNotification(clickedAlready) {
       type: 'basic',
       title: 'Thanks for downloading Wirehead!',
       iconUrl: 'gray.png',
-      message:
-        "Click here to more about our app! (You'll keep getting these notifications until you give our AI some training data to work with!)"
+      message: 'Click here to learn more about our app!'
     })
   }
 }

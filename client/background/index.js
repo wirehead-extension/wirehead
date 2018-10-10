@@ -17,11 +17,7 @@ import {
   classifyDocumentIfBayesModel
 } from './bayesClassifier'
 import {initOptions, updateOptions, getOptions} from './options'
-import {
-  timeCalculator,
-  urlValidation,
-  titleCutter
-} from './utils'
+import {timeCalculator, urlValidation, titleCutter} from './utils'
 import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
 
@@ -345,16 +341,19 @@ function updateNotificationFrequency(newPeriod) {
 function timeNotification() {
   //If there's an active page, get the page title and init a notification
 
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
+    const options = await getOptions()
+    const allowShaming = options.allowShaming
+    console.log('allowShaming', allowShaming)
+    if (allowShaming && tabs[0] && urlValidation(new URL(tabs[0].url))) {
       var url = new URL(tabs[0].url).hostname
       db.history
         .where('timeStart')
         .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
         .toArray()
         .then(async result => {
-          let idx = result.length-1
-          if(result[idx].label === 'play') {
+          let idx = result.length - 1
+          if (result[idx].label === 'play') {
             var totalSpend = 0
             console.log(result)
             var a = await db.history.count()
@@ -366,7 +365,13 @@ function timeNotification() {
             })
 
             var hourCalculator = Math.floor(totalSpend / 60000) * 60000
-            console.log('title:', tabs[0].title, 'time:', totalSpend, new Date())
+            console.log(
+              'title:',
+              tabs[0].title,
+              'time:',
+              totalSpend,
+              new Date()
+            )
             if (
               totalSpend > hourCalculator &&
               totalSpend < hourCalculator + 12000 &&
