@@ -12,7 +12,7 @@ export default class DateRangePicker extends React.Component {
   componentDidMount() {
     this.setState({
       datesRange: `${moment()
-        .subtract(8, 'days')
+        .subtract(7, 'days')
         .format('MM/DD/YYYY')} - ${moment()
         .subtract(1, 'days')
         .format('MM/DD/YYYY')}`
@@ -20,21 +20,16 @@ export default class DateRangePicker extends React.Component {
   }
 
   handleClick = () => {
-    if (this.state.datesRange.split(' - ')[1])
-    this.setState({datesRange: ''})
+    if (this.state.datesRange.split(' - ')[1]) this.setState({datesRange: ''})
   }
 
-  handleChange = (e, {value}) => {    
-
+  handleChange = (e, {value}) => {
     this.setState({datesRange: value})
     if (value.split(' - ')[1]) {
-      d3.selectAll('svg')
-      .remove() 
-      d3.selectAll('table')
-      .remove()
+      d3.selectAll('svg').remove()
+      d3.selectAll('table').remove()
       this.props.handleDatesRangeChange(value)
     }
-
   }
 
   render() {

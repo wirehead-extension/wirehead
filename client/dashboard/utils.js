@@ -25,7 +25,7 @@ export const humanTime = ms => {
 export const eightDaysAgo = () => {
   return new Date(
     moment()
-      .subtract(8, 'days')
+      .subtract(7, 'days')
       .hours(0)
       .minutes(0)
       .seconds(0)
@@ -36,6 +36,6 @@ export const parseDateRange = dates => {
   const [begin, end] = dates.split(' - ')
   return [
     new Date(moment(begin, 'MM/DD/YYYY')).valueOf(),
-    new Date(moment(end, 'MM/DD/YYYY')).valueOf()
+    new Date(moment(end, 'MM/DD/YYYY').add(1, 'day')).valueOf()
   ]
 }

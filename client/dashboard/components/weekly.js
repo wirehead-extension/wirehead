@@ -4,7 +4,7 @@ import * as d3 from 'd3'
 import DateRangePicker from './DateRangePicker'
 import {fetchData} from '../../store'
 import {parseDateRange, eightDaysAgo} from '../utils'
-import { lt } from 'semver';
+import {lt} from 'semver'
 
 const mapStateToProps = state => {
   return {
@@ -14,7 +14,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {fetchData}
 
-var datearray = []
 var dataParse = data => {
   const newData = []
   for (let i = 0; i < data.length; i++) {
@@ -40,8 +39,8 @@ var dataParse = data => {
 var colorrange = ['#FF96A3', '#9CFEFF', '#A18CE8']
 
 const legendData = [
-    {"color": "#A18CE8", "type" : "play"},
-    {"color": "#FF96A3", "type" : "work"}
+  {color: '#A18CE8', type: 'play'},
+  {color: '#FF96A3', type: 'work'}
 ]
 class Weekly extends React.Component {
   componentDidMount() {
@@ -56,14 +55,11 @@ class Weekly extends React.Component {
   }
 
   componentDidUpdate() {
-    d3.selectAll('svg')
-    .remove() 
-    d3.selectAll('table')
-    .remove()
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
     let newData = dataParse(this.props.data)
     this.chart(newData)
     this.legendTwo(legendData)
-
   }
 
   handleDatesRangeChange = dateRange => {
@@ -72,11 +68,9 @@ class Weekly extends React.Component {
   }
 
   chart(data) {
-
     const margin = {top: 20, right: 40, bottom: 30, left: 30}
     const width = 900 - margin.left - margin.right
     const height = 400 - margin.top - margin.bottom
-
 
 
     const x = d3
@@ -262,6 +256,7 @@ class Weekly extends React.Component {
   }
 
   legendTwo(data) {
+    const leg = {}
 
     // create table for the legend
     const legend = d3.select('#subDiv')
@@ -279,28 +274,29 @@ class Weekly extends React.Component {
 
     // create one row per segment
     const tr = legend
-        .append('tbody')
-        .selectAll('tr')
-        .data(data)
-        .enter()
-        .append('tr')
+      .append('tbody')
+      .selectAll('tr')
+      .data(data)
+      .enter()
+      .append('tr')
 
     // create the first column for each segment
     tr.append('td')
-        .append('svg')
-        .attr('width', '16')
-        .attr('height', '16')
-        .append('rect')
-        .attr('width', '16')
-        .attr('height', '16')
-        .attr('fill', function(d) {
-            return d.color
-        })
+      .append('svg')
+      .attr('width', '16')
+      .attr('height', '16')
+      .append('rect')
+      .attr('width', '16')
+      .attr('height', '16')
+      .attr('fill', function(d) {
+        return d.color
+      })
 
-    // create the second column for each segment    
+    // create the second column for each segment
     tr.append('td').text(function(d) {
-        return d.type
+      return d.type
     })
+  }
 
 }
 
@@ -314,6 +310,21 @@ render(){
     <div id="dashboard" />
     </React.Fragment>  
     )
+
+    //   render() {
+    //     console.log('weekly data', this.props)
+    //     // this.createChart(this.props.data)
+    //     if (this.props.data[1].start) {
+    //       let newData = dataParse(this.props.data)
+    //       console.log('parsed data', dataParse(this.props.data))
+    //       this.chart(newData)
+    //     }
+    //     return (
+    //       <React.Fragment>
+    //         <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
+    //         <svg ref={node => (this.node = node)} width={500} height={500} />
+    //       </React.Fragment>
+    //     )
   }
 }
 
