@@ -4,6 +4,7 @@ import * as d3 from 'd3'
 import DateRangePicker from './DateRangePicker'
 import {fetchData} from '../../store'
 import {parseDateRange, eightDaysAgo} from '../utils'
+import {lt} from 'semver'
 
 const mapStateToProps = state => {
   return {
@@ -31,9 +32,6 @@ var dataParse = data => {
       play: dailyPlay,
       uncategorized: dailyUncategorized
     })
-    // newData.push({date: dateObject, key: 'work', time: dailyWork})
-    // newData.push({date: dateObject, key: 'uncategorized', time: dailyUncategorized})
-    // newData.push({date: dateObject, key: 'play', time: dailyPlay})
   }
   return newData
 }
@@ -46,26 +44,28 @@ const legendData = [
 ]
 class Weekly extends React.Component {
   componentDidMount() {
-    // d3.select("svg").remove()
     this.props.fetchData(eightDaysAgo(), 7, 'sumByDayBySite')
-    // .then(this.chart('#graphs', this.props.data))
-
-    // this.createChart(this.props.data)
+    if (this.props.data[1] && this.props.data[1].start) {
+      let newData = dataParse(this.props.data)
+      this.chart(newData)
+      this.legendTwo(legendData)
+    }
   }
 
-  //   componentDidUpdate() {
-  //       this.chart('#graphs', this.props)
-  //   }
+  componentDidUpdate() {
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
+    let newData = dataParse(this.props.data)
+    this.chart(newData)
+    this.legendTwo(legendData)
+  }
 
-  // data.forEach(function(d){d.date = format.parse(d.date); };
   handleDatesRangeChange = dateRange => {
     const dates = parseDateRange(dateRange)
     this.props.fetchData(...dates, 'sumByDayBySite')
   }
 
   chart(data) {
-    // const strokecolor = colorrange[0];
-
     const margin = {top: 20, right: 40, bottom: 30, left: 30}
     const width = document.body.clientWidth - margin.left - margin.right
     const height = 400 - margin.top - margin.bottom
@@ -110,7 +110,7 @@ class Weekly extends React.Component {
       .keys(['work', 'uncategorized', 'play'])
       .offset(d3.stackOffsetSilhouette)
 
-    var area = d3
+    const area = d3
       .area()
       .curve(d3.curveCardinal)
       .x(function(e, i) {
@@ -123,11 +123,12 @@ class Weekly extends React.Component {
         return y(e[1])
       })
 
-    var svg = d3
+    const svg = d3
       .select('body')
       .attr('width', width + margin.left + margin.right + 40)
       .attr('height', height + margin.top + margin.bottom)
       .append('svg')
+      .attr('class', 'chart')
       .attr('width', 1400)
       .attr('height', height + margin.top + margin.bottom)
       .attr('transform', 'translate(150, 150)')
@@ -143,11 +144,13 @@ class Weekly extends React.Component {
       .style('text-anchor', 'middle')
       .text('Hours Per Day')
 
-    var layers = stack(data)
+    const layers = stack(data)
 
-    var g = svg.append('g').attr('transform', 'translate(0,' + margin.top + ')')
+    const g = svg
+      .append('g')
+      .attr('transform', 'translate(0,' + margin.top + ')')
 
-    var layer = g
+    const layer = g
       .selectAll('.layer')
       .data(layers)
       .enter()
@@ -173,11 +176,11 @@ class Weekly extends React.Component {
         mousex = mousex[0]
 
         //converst that x position to the date associated with it
-        var invertedx = x.invert(mousex)
-        var xIndex = invertedx.getDay()
+        const invertedx = x.invert(mousex)
+        const xIndex = invertedx.getDay()
 
         //grabs the data point of the date
-        var xIndexData = d[xIndex]
+        const xIndexData = d[xIndex]
 
         //puts the date, key, and amount of time spent in a variable for the tooltip to access
         let tooltipData = []
@@ -207,12 +210,6 @@ class Weekly extends React.Component {
               ' hours</p>'
           )
           .style('visibility', 'visible')
-
-        //     d3.select(this)
-        //     .classed("hover", true)
-        //     .attr("stroke", strokecolor)
-        //     .attr("stroke-width", "0.5px"),
-        //     tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" ).style("visibility", "visible");
       })
       .on('mouseout', function(d, i) {
         svg
@@ -226,22 +223,6 @@ class Weekly extends React.Component {
           .attr('stroke-width', '0px'),
           tooltip.html('<p>').style('visibility', 'hidden')
       })
-
-    var vertical = d3
-      .select('.chart')
-      .append('div')
-      .attr('class', 'remove')
-      .style('position', 'absolute')
-      .style('z-index', '19')
-      .style('width', '1px')
-      .style('height', '380px')
-      .style('top', '10px')
-      .style('bottom', '30px')
-      .style('left', '0px')
-      .style('background', '#fff')
-      .attr('transform', 'translate(-100, -200')
-
-    console.log('the data', data)
 
     layer
       .append('path')
@@ -318,7 +299,7 @@ class Weekly extends React.Component {
     }
     return (
       <React.Fragment>
-        <h3 id="graphHeader">One Week of Browsing</h3>
+        <h3 id="graphHeader">Your Browsing Behavior Over Time</h3>
         <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
         <div id="dashboard" />
       </React.Fragment>
