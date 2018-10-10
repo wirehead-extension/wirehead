@@ -59,7 +59,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 
   if (chromeIsInFocus) {
     currentWindow = windowInfo
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
         var url = new URL(tabs[0].url)
         var currentUrl
