@@ -96,7 +96,7 @@ class Daily extends React.Component {
       return {work: '#807dba', play: '#e08214'}[c]
     }
 
-    // calculate total frequency by segment for all state.
+
     var tF = ['play', 'work'].map(function(d) {
       return {
         type: d,
@@ -109,37 +109,45 @@ class Daily extends React.Component {
         )
       }
     })
-    // console.log('this is tf', tF)
 
-    // calculate total frequency by state for all segment.
+
     var sF = topFiveTotal.map(function(d) {
       return [d.url, d.play + d.work]
     })
-    // console.log('this is sf for histomogram', sF)
+
     var hG = histoGram(sF), // create the histogram.
       pC = pieChart(tF), // create the pie-chart.
       leg = legend(tF) // create the legend.
 
-    // function to handle histogram.
+
+    d3.select(id)
+      .append('div')
+      .attr('id', 'dailydiv')
+      .style('position', 'absolute')
+      .style('left', '270px')
+      .style('top', '400px')
+
+    
+    // function to create histogram
     function histoGram(fD) {
       // console.log('this is fd', fD)
-      var hG = {},
+      const hG = {},
       hGDim = {t: 60, r: 0, b: 30, l: 0}
       hGDim.w = (500 - hGDim.l - hGDim.r)
       hGDim.h = 300 - hGDim.t - hGDim.b
 
       //create svg for histogram.
-      var hGsvg = d3
-        .select(id)
+      const hGsvg = d3
+        .select('#dailydiv')
         .append('svg')
         .attr('class', 'chart')
+        .attr('top', '50px')
         .attr('width', hGDim.w + hGDim.l + hGDim.r)
         .attr('height', hGDim.h + hGDim.t + hGDim.b)
         .append('g')
-        .attr('transform', 'translate(' + hGDim.l + ',' + hGDim.t + ')')
 
       // create function for x-axis mapping.
-      var x = d3
+      let x = d3
         .scaleBand([0, hGDim.w], 0.1)
         .range([0, hGDim.w])
         .domain(
@@ -156,7 +164,7 @@ class Daily extends React.Component {
         .call(d3.axisBottom(x))
 
       // Create function for y-axis map.
-      var y = d3
+      const y = d3
         .scaleLinear()
         .range([hGDim.h, 0])
         .domain([
@@ -167,7 +175,7 @@ class Daily extends React.Component {
         ])
 
       // Create bars for histogram to contain rectangles and freq labels.
-      var bars = hGsvg
+      const bars = hGsvg
         .selectAll('.bar')
         .data(fD)
         .enter()
@@ -215,7 +223,7 @@ class Daily extends React.Component {
         ])
 
         // Attach the new data to the bars.
-        var bars = hGsvg.selectAll('.bar').data(nD)
+        const bars = hGsvg.selectAll('.bar').data(nD)
 
         // transition the height and color of rectangles.
         bars
@@ -270,7 +278,7 @@ class Daily extends React.Component {
 
       // create svg for pie chart.
       var piesvg = d3
-        .select(id)
+        .select('#dailydiv')
         .append('svg')
         .attr('class', 'chart')
         .attr('width', pieDim.w)
@@ -340,16 +348,15 @@ class Daily extends React.Component {
         //     return [v.label,v.time[d.data.type]];}),segColor(d.data.type));
       }
 
-      var sF = topFiveTotal.map(function(d) {
-        return [d.url, d.play, d.work]
-      })
+
 
       //Utility function to be called on mouseout a pie slice.
       function mouseout() {
         // call the update function of histogram with all data.
         hG.update(
           topFiveTotal.map(function(t) {
-            return [t.url, t.play, t.work]
+            console.log('this is t', t)
+            return [t.url, t.play + t.work]
           }),
           barColor
         )
@@ -373,7 +380,7 @@ class Daily extends React.Component {
 
       // create table for legend.
       var legend = d3
-        .select(id)
+        .select('#dailydiv')
         .append('table')
         .attr('class', 'legend')
 
@@ -479,3 +486,5 @@ export default withRouter(
     mapDispatchToProps
   )(Daily)
 )
+
+

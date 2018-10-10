@@ -37,6 +37,11 @@ var dataParse = (data) => {
 
 var colorrange = ["#FF96A3", "#9CFEFF", "#A18CE8"];
 
+const legendData = [
+    {"color": "#FF96A3", "type" : "work"},
+    {"color": "#A18CE8", "type" : "play"}
+]
+
 
 class Weekly extends React.Component {
     constructor(){
@@ -63,7 +68,7 @@ class Weekly extends React.Component {
     chart(data) {
         // const strokecolor = colorrange[0];
 
-        const margin = {top: 20, right: 40, bottom: 30, left: 30};
+        const margin = {top: 20, right: 40, bottom: 30, left: 40};
         const width = document.body.clientWidth - margin.left - margin.right;
         const height = 400 - margin.top - margin.bottom;
 
@@ -73,8 +78,8 @@ class Weekly extends React.Component {
             .style("position", "absolute")
             .style("z-index", "20")
             .style("visibility", "hidden")
-            .style("top", "330px")
-            .style("left", "1150px")
+            .style("top", "470px")
+            .style("left", "1250px")
 
         const x = d3.scaleTime()
             .range([0, width])
@@ -95,7 +100,8 @@ class Weekly extends React.Component {
             .scale(y);
         
         const yAxisr = d3.axisRight()
-            .scale(y);
+            .scale(y)
+
 
         const stack = d3.stack()
             .keys(["work", "uncategorized", "play"])
@@ -109,28 +115,28 @@ class Weekly extends React.Component {
             .y1(function(e) { return y(e[1]); })
 
 
-        var svg = d3.select("svg")
-            .attr("width", width + margin.left + margin.right)
+
+        var svg = d3.select("body")
+            .attr("width", width + margin.left + margin.right + 20)
             .attr("height", height + margin.top + margin.bottom)
             .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
+            .attr("transform", "translate(150, 150)")
         .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+            svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left - 3)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Hours Per Day"); 
 
 
         var layers = stack(data)
 
-        console.log('layers', layers)
-        console.log('thefuckingdata', layers[0][0].data)
-
-
-        // svg.selectAll(".layer")
-        //     .data(layers)
-        // .enter().append("path")
-        //     .attr("d", area)
-        //     .style("fill", function(d, i) { return z(i); })
-            
         var g = svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -138,7 +144,7 @@ class Weekly extends React.Component {
             .data(layers)
             .enter().append("g")
                 .attr("class", "layer")
-            .attr("transform", "translate(-29, 0)")
+            .attr("transform", "translate(-40, 0)")
 
 
         svg.selectAll(".layer")
@@ -181,16 +187,6 @@ class Weekly extends React.Component {
                 tooltip.html("<p>Date: " + tooltipData[0] + "<br>Category: " + tooltipData[1] + "<br>Time Spent: " + tooltipData[2] + " hours</p>")
                     .style("visibility", "visible")
 
-
-
-
-          
-            //     d3.select(this)
-            //     .classed("hover", true)
-            //     .attr("stroke", strokecolor)
-            //     .attr("stroke-width", "0.5px"), 
-            //     tooltip.html( "<p>" + d.key + "<br>" + pro + "</p>" ).style("visibility", "visible");
-                
               })
               .on("mouseout", function(d, i) {
                svg.selectAll(".layer")
@@ -236,21 +232,70 @@ class Weekly extends React.Component {
         svg.append("g")
             .attr("class", "y axis")
             .call(yAxis)
+      
     }
 
+    // const legendData = [
+    //     {"color": "#FF96A3", "type" : "work"},
+    //     {"color": "#A18CE8", "type" : "work"}
+    // ]
+
+    legendTwo(data) {
+
+        const leg = {}
+
+
+        // create table for the legend
+        const legend = d3.select('body')
+            .append('table')
+            .style("position", "absolute")
+            .style("z-index", "990")
+            .style("top", "550px")
+            .style("left", "1250px")
+
+
+
+
+        // create one row per segment
+        const tr = legend
+            .append('tbody')
+            .selectAll('tr')
+            .data(data)
+            .enter()
+            .append('tr')
+
+        // create the first column for each segment
+        tr.append('td')
+            .append('svg')
+            .attr('width', '16')
+            .attr('height', '16')
+            .append('rect')
+            .attr('width', '16')
+            .attr('height', '16')
+            .attr('fill', function(d) {
+                return d.color
+            })
+
+        // create the second column for each segment
+        tr.append('td').text(function(d) {
+            return d.type
+        })
+
+    }
+
+
+
     render(){            
-        console.log('weekly data', this.props)
-        // this.createChart(this.props.data)
         if (this.props.data[1].start){
             let newData = dataParse(this.props.data)
-            console.log('parsed data', dataParse(this.props.data))
             this.chart(newData)
-
-
+            this.legendTwo(legendData)
         }
-        return(
-            <svg ref={node => this.node = node}
-            width={500} height={500} />
+        return(    
+        <React.Fragment>  
+        <h3 id="graphHeader">One Week of Browsing</h3>
+        <div id="dashboard" />
+        </React.Fragment>  
         )
     }
 }

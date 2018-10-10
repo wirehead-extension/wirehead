@@ -171,3 +171,16 @@ rect:hover {
   width: 280px;
   text-align: left;
 }
+
+#graphHeader {
+  position: absolute;
+  left: 570px;
+  top: 250px
+}
+
+#dailydiv { 
+  position: absolute;
+  left: 200;
+  top: 200
+}
+
