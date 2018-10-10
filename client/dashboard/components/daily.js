@@ -4,7 +4,7 @@ import {fetchData} from '../../store'
 import {withRouter} from 'react-router-dom'
 import {humanTime} from '../utils'
 import {DatePicker} from './'
-import {Container} from 'semantic-ui-react'
+import {Container, Header} from 'semantic-ui-react'
 import * as d3 from 'd3'
 
 class Daily extends React.Component {
@@ -97,7 +97,6 @@ class Daily extends React.Component {
       return {work: '#807dba', play: '#e08214'}[c]
     }
 
-
     var tF = ['play', 'work'].map(function(d) {
       return {
         type: d,
@@ -111,7 +110,6 @@ class Daily extends React.Component {
       }
     })
 
-
     var sF = topFiveTotal.map(function(d) {
       return [d.url, d.play + d.work]
     })
@@ -119,7 +117,6 @@ class Daily extends React.Component {
     var hG = histoGram(sF), // create the histogram.
       pC = pieChart(tF), // create the pie-chart.
       leg = legend(tF) // create the legend.
-
 
     d3.select(id)
       .append('div')
@@ -129,7 +126,6 @@ class Daily extends React.Component {
       .style('top', '400px')
       .style('width', '2000px')
 
-    
     // function to create histogram
     function histoGram(fD) {
       // console.log('this is fd', fD)
@@ -164,7 +160,6 @@ class Daily extends React.Component {
         .attr('class', 'x-axis')
         .attr('transform', 'translate(-5,270)')
         .call(d3.axisBottom(x))
-
 
       // Create function for y-axis map.
       const y = d3
@@ -351,8 +346,6 @@ class Daily extends React.Component {
         //     return [v.label,v.time[d.data.type]];}),segColor(d.data.type));
       }
 
-
-
       //Utility function to be called on mouseout a pie slice.
       function mouseout() {
         // call the update function of histogram with all data.
@@ -388,13 +381,13 @@ class Daily extends React.Component {
       //   .attr('class', 'legend')
       //   .attr('transform', 'translate(5,10)')
 
-      const legend = d3.select('body')
-      .append('table')
-      .style("position", "absolute")
-      .style("z-index", "990")
-      .style("top", "550px")
-      .style("left", "1050px")
-
+      const legend = d3
+        .select('body')
+        .append('table')
+        .style('position', 'absolute')
+        .style('z-index', '990')
+        .style('top', '550px')
+        .style('left', '1050px')
 
       // create one row per segment.
       var tr = legend
@@ -476,10 +469,12 @@ class Daily extends React.Component {
 
   render() {
     return (
-      <Container>
-        <h3 id="graphHeader">One Day of Browsing</h3>
+      <Container fluid>
+        <Header as="h3" id="graphHeader">
+          One Day of Browsing
+        </Header>
         <DatePicker handleDateChange={this.handleDateChange} />
-        <div id="graphs" />
+        <Container fluid id="graphs" />
       </Container>
     )
   }
@@ -499,5 +494,3 @@ export default withRouter(
     mapDispatchToProps
   )(Daily)
 )
-
-

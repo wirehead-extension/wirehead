@@ -59,7 +59,7 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
 
   if (chromeIsInFocus) {
     currentWindow = windowInfo
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
         var url = new URL(tabs[0].url)
         var currentUrl
@@ -173,34 +173,38 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 //This function updates the icon and badge according to ML prediction
 async function updateIcon(tab) {
-  //page classification is either "work" or "play"
-  const pageClassification = await classifyDocumentIfBayesModel(tab.title)
-  //We format the raw output of machine learning model (const probabilities, decimals)
-  const probabilities = await getClassifications(tab.title)
-  //as a percentage (certainty)
-  let certainty
-  if (probabilities.length > 0) {
-    certainty =
-      (probabilities[0].value /
-        (probabilities[0].value + probabilities[1].value)) *
-      100
-  }
+  if (!tab.url.startsWith('http') || tab.url.includes('newtab')) {
+    chrome.browserAction.setBadgeText({text: ''})
+  } else {
+    //page classification is either "work" or "play"
+    const pageClassification = await classifyDocumentIfBayesModel(tab.title)
+    //We format the raw output of machine learning model (const probabilities, decimals)
+    const probabilities = await getClassifications(tab.title)
+    //as a percentage (certainty)
+    let certainty
+    if (probabilities.length > 0) {
+      certainty =
+        (probabilities[0].value /
+          (probabilities[0].value + probabilities[1].value)) *
+        100
+    }
 
-  if (pageClassification === 'work') {
-    chrome.browserAction.setBadgeBackgroundColor({color: 'green'})
-  } else if (pageClassification === 'play') {
-    chrome.browserAction.setBadgeBackgroundColor({color: 'red'})
-  } else {
-    chrome.browserAction.setBadgeBackgroundColor({color: 'gray'})
-  }
-  if (certainty) {
-    chrome.browserAction.setBadgeText({
-      text: String(certainty).slice(0, 2) + '%'
-    })
-  } else {
-    chrome.browserAction.setBadgeText({
-      text: '??%'
-    })
+    if (pageClassification === 'work') {
+      chrome.browserAction.setBadgeBackgroundColor({color: 'green'})
+    } else if (pageClassification === 'play') {
+      chrome.browserAction.setBadgeBackgroundColor({color: 'red'})
+    } else {
+      chrome.browserAction.setBadgeBackgroundColor({color: 'gray'})
+    }
+    if (certainty) {
+      chrome.browserAction.setBadgeText({
+        text: String(certainty).slice(0, 2) + '%'
+      })
+    } else {
+      chrome.browserAction.setBadgeText({
+        text: '??%'
+      })
+    }
   }
 }
 
@@ -238,7 +242,12 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
     const options = await getOptions()
     if (options.trainingPopupFrequency !== 'never') {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-        if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
+        if (
+          tabs[0] &&
+          urlValidation(new URL(tabs[0].url)) &&
+          tabs[0].url.startsWith('http') &&
+          !tabs[0].url.includes('newtab')
+        ) {
           makeNotification(tabs[0].favIconUrl)
         }
       })
@@ -252,6 +261,8 @@ setInterval(() => {
     timeTracker()
   }
 }, 1000)
+
+chrome.notifications.onClicked.addListener(redirectToDashboard)
 
 function makeNotification(icon) {
   var iconUrl = 'gray.png'
@@ -270,7 +281,6 @@ function makeNotification(icon) {
       buttons: [{title: 'This is work'}, {title: 'This is play'}]
     })
     chrome.notifications.onButtonClicked.addListener(handleButton)
-    chrome.notifications.onClicked.addListener(redirectToDashboard)
   }
 }
 
