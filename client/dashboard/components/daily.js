@@ -22,15 +22,13 @@ class Daily extends React.Component {
     d3.selectAll('table').remove()
     this.props
       .fetchData(new Date().setHours(0, 0, 0, 0).valueOf(), 1, 'sumBySite')
-      .then(this.createDashboard('#graphs', this.props.data))
+      .then(this.createDashboard('#subDiv', this.props.data))
   }
 
   componentDidUpdate() {
     d3.selectAll('svg').remove()
     d3.selectAll('table').remove()
-    // this.removeDashboard('svg')
-    // this.removeDashboard('table')
-    this.createDashboard('#graphs', this.props.data)
+    this.createDashboard('#subDiv', this.props.data)
   }
 
   componentWillUnmount() {
@@ -120,13 +118,13 @@ class Daily extends React.Component {
       pC = pieChart(tF), // create the pie-chart.
       leg = legend(tF) // create the legend.
 
-    d3.select(id)
-      .append('div')
-      .attr('id', 'dailydiv')
-      .style('position', 'absolute')
-      .style('left', '165px')
-      .style('top', '400px')
-      .style('width', '2000px')
+    // d3.select(id)
+    //   .append('div')
+    //   .attr('id', 'dailydiv')
+      // .style('position', 'relative')
+      // .style('left', '165px')
+      // .style('top', '400px')
+      // .style('width', '2000px')
 
     // function to create histogram
     function histoGram(fD) {
@@ -138,17 +136,19 @@ class Daily extends React.Component {
 
       //create svg for histogram.
       const hGsvg = d3
-        .select('#dailydiv')
+        .select('#subDiv')
         .append('svg')
         .attr('class', 'chart')
-        .attr('top', '50px')
+        // .attr('top', '50px')
+        // .attr('left', '200px')
         .attr('width', hGDim.w + hGDim.l + hGDim.r)
         .attr('height', hGDim.h + hGDim.t + hGDim.b + 10)
+        .style('float', 'left')
         .append('g')
 
       // create function for x-axis mapping.
       let x = d3
-        .scaleBand([0, hGDim.w], 0.1)
+        .scaleBand([0, hGDim.w], 1)
         .range([0, hGDim.w])
         .domain(
           fD.map(function(d) {
@@ -160,7 +160,7 @@ class Daily extends React.Component {
       hGsvg
         .append('g')
         .attr('class', 'x-axis')
-        .attr('transform', 'translate(-5,270)')
+        .attr('transform', 'translate(20,270)')
         .call(d3.axisBottom(x))
 
       // Create function for y-axis map.
@@ -186,7 +186,7 @@ class Daily extends React.Component {
       bars
         .append('rect')
         .attr('x', function(d) {
-          return x(d[0]) + 15
+          return x(d[0]) + 40
         })
         .attr('y', function(d) {
           return y(d[1]) + 40
@@ -204,7 +204,7 @@ class Daily extends React.Component {
           return humanTime(d[1])
         })
         .attr('x', function(d) {
-          return x(d[0]) + x.bandwidth() / 2.9 + 12
+          return x(d[0]) + x.bandwidth() / 2.9 + 36
         })
         .attr('y', function(d) {
           return y(d[1]) + 35
@@ -264,7 +264,7 @@ class Daily extends React.Component {
         hGsvg
           .append('g')
           .attr('class', 'x-axis')
-          .attr('transform', 'translate(-5,270)')
+          .attr('transform', 'translate(20,270)')
           .call(d3.axisBottom(x))
       }
       return hG
@@ -278,9 +278,12 @@ class Daily extends React.Component {
 
       // create svg for pie chart.
       const piesvg = d3
-        .select('#dailydiv')
+        .select('#subDiv')
         .append('svg')
+        .style('float', 'left')
         .attr('class', 'chart')
+        .style('margin-top', '50px')
+        .style('margin-left', '50px')
         .attr('width', pieDim.w)
         .attr('height', pieDim.h)
         .append('g')
@@ -376,12 +379,14 @@ class Daily extends React.Component {
       let leg = {}
 
       const legend = d3
-        .select('body')
+        .select('#subRightWrapper')
         .append('table')
-        .style('position', 'absolute')
-        .style('z-index', '990')
-        .style('top', '550px')
-        .style('left', '1050px')
+        .style('float', 'left')
+        .style('margin-top', '210px')
+
+        // .style('z-index', '990')
+        // .style('top', '550px')
+        // .style('left', '1050px')
 
       // create one row per segment.
       const tr = legend
@@ -405,14 +410,14 @@ class Daily extends React.Component {
 
       // create the second column for each segment.
       tr.append('td').text(function(d) {
-        return d.type
+        return d.type + ' //'
       })
 
       // create the third column for each segment.
       tr.append('td')
         .attr('class', 'legendFreq')
         .text(function(d) {
-          return humanTime(d.time)
+          return humanTime(d.time) + ' //'
         })
 
       // create the fourth column for each segment.
@@ -464,11 +469,8 @@ class Daily extends React.Component {
   render() {
     return (
       <Container fluid>
-        <Header as="h3" id="graphHeader">
-          One Day of Browsing
-        </Header>
         <DatePicker handleDateChange={this.handleDateChange} />
-        <Container fluid id="graphs" />
+        {/* <Container fluid id="graphs" /> */}
       </Container>
     )
   }

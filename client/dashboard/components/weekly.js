@@ -45,12 +45,14 @@ const legendData = [
 ]
 class Weekly extends React.Component {
   componentDidMount() {
-    this.props.fetchData(eightDaysAgo(), 7, 'sumByDayBySite')  
+    this.props.fetchData(eightDaysAgo(), 7, 'sumByDayBySite') 
+    if(this.props.data[1]){
     if (this.props.data[1].start){
-    let newData = dataParse(this.props.data)
+    let newData = dataParse(this.props.data)    
     this.chart(newData)
     this.legendTwo(legendData)
-    }
+
+    }} 
   }
 
   componentDidUpdate() {
@@ -72,17 +74,10 @@ class Weekly extends React.Component {
   chart(data) {
 
     const margin = {top: 20, right: 40, bottom: 30, left: 30}
-    const width = document.body.clientWidth - margin.left - margin.right
+    const width = 900 - margin.left - margin.right
     const height = 400 - margin.top - margin.bottom
 
-    const tooltip = d3.select("body")
-        .append("div")
-        .attr("class", "remove")
-        .style("position", "absolute")
-        .style("z-index", "20")
-        .style("visibility", "hidden")
-        .style("top", "470px")
-        .style("left", "1250px")
+
 
     const x = d3
       .scaleTime()
@@ -127,16 +122,18 @@ class Weekly extends React.Component {
         return y(e[1])
       })
 
-      const svg = d3.select("body")
-      .attr("width", width + margin.left + margin.right + 40)
+      const svg = d3.select("#subDiv")
+      .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("svg")
       .attr("class", "chart")
-      .attr("width", 1400)
+      .attr("width", 900)
       .attr("height", height + margin.top + margin.bottom)
-      .attr("transform", "translate(150, 150)")
+      // .attr("transform", "translate(20, 20)")
   .append("g")
-      .attr("transform", "translate(80," + margin.top + ")")
+    .attr("transform", "translate(40, 20)")
+
+
 
       svg.append("text")
       .attr("transform", "rotate(-90)")
@@ -160,6 +157,13 @@ class Weekly extends React.Component {
       .attr('class', 'layer')
       .attr("transform", "translate(0, 0)")
 
+      const tooltip = d3.select("#subRightWrapper")
+      .append("div")
+      .attr("class", "remove")
+      .style("float","left")
+      .style("visibility", "hidden")
+      .style('margin-top','220px')
+
 
     svg
       .selectAll('.layer')
@@ -177,6 +181,7 @@ class Weekly extends React.Component {
         // gets the mouse's x position on the svg
         let mousex = d3.mouse(this)
         mousex = mousex[0]
+
 
         //converst that x position to the date associated with it
         const invertedx = x.invert(mousex)
@@ -259,12 +264,15 @@ class Weekly extends React.Component {
   legendTwo(data) {
 
     // create table for the legend
-    const legend = d3.select('body')
+    const legend = d3.select('#subDiv')
         .append('table')
-        .style("position", "absolute")
-        .style("z-index", "990")
-        .style("top", "550px")
-        .style("left", "1250px")
+        .style("float", "right")
+        .style('margin-top','160px')
+        .style('margin-right','20px')
+
+        // .style("z-index", "990")
+        // .style("top", "550px")
+        // .style("left", "1250px")
 
 
 
@@ -301,7 +309,7 @@ render(){
     console.log('da props', this.props)
     return(    
     <React.Fragment>  
-    <h3 id="graphHeader">Your Browsing Behavior Over Time</h3>
+
     <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
     <div id="dashboard" />
     </React.Fragment>  
