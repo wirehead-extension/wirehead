@@ -3,8 +3,8 @@ import {Container, Divider, Header} from 'semantic-ui-react'
 
 const About = () => {
   return (
-    <Container text>
-      <Header as="h1">Welcome to Wirehead</Header>
+    <Container text id="about">
+      <Header as="h1">About</Header>
       <Divider />
       <p>
         Wirehead is smart, but it's only as smart as you teach it to be.

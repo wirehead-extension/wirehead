@@ -229,7 +229,6 @@ rect:hover {
 
 #mainDiv{
   flex-grow: 4;
-  white-space: nowrap;
   max-width: 1300px;
 
 }
@@ -262,3 +261,7 @@ rect:hover {
   flex-grow: 6
 }
 
+#about{
+  float: right;
+  margin-left: 300px
+}
