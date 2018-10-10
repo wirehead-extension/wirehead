@@ -402,9 +402,9 @@ function makeTimeNotification(title, time) {
 
   chrome.notifications.create({
     type: 'basic',
-    title: 'Your non-productive time spend',
+    title: 'Your unproductive interent use',
     iconUrl: 'heartwatch.png',
-    message: titleCutter(title) + ' : \n' + 'Total ' + timeprint + ' today'
+    message: "Today's total: " + timeprint
   })
 }
 
