@@ -186,13 +186,13 @@ rect:hover {
 #graphHeader {
   position: absolute;
   left: 630px;
-  top: 250px
+  top: 250px;
 }
 
-#dailydiv { 
+#dailydiv {
   position: absolute;
   left: 200;
-  top: 200
+  top: 200;
 }
 
 #list {
@@ -200,7 +200,7 @@ rect:hover {
 }
 
 #list-title {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 #hidden {
@@ -218,4 +218,3 @@ rect:hover {
   position: fixed;
   z-index: 100;
 }
-

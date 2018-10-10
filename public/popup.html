@@ -21,7 +21,7 @@
 
 
   <div class="ui card">
-    <span id="hidden">MACHINE RECORDED</span>
+    <span id="hidden">Training data added</span>
     <div class="ui buttons">
       <button class="ui positive button" id="work-button">
         <i class="book icon"></i>
@@ -35,7 +35,7 @@
     </div>
     <div class="content">
       <div data-tooltip="Current Info" data-position="left center" data-inverted="">
-        <img id="favIcon" src="chrome.png" height="30" width="30"/>
+        <img id="favIcon" src="chrome.png" height="30" width="30" />
       </div>
       <h3 class="header">
         <p id="current-title"></p>
@@ -47,33 +47,33 @@
       </div>
     </div>
     <div class="ui slide masked reveal image black inverted segment">
-      <div class="visible content">
-        <div id="current"></div>
-        <p class="status">ON THIS WEB</p>
-      </div>
       <div class="hidden content">
         <div id="current-total"></div>
-        <p class="status">TOTAL ON THIS WEB</p>
+        <p class="status">ON THIS SITE TODAY</p>
+      </div>
+      <div class="visible content">
+        <div id="current"></div>
+        <p class="status">SESSION LENGTH</p>
       </div>
     </div>
     <!-- <div> -->
-      <!-- <h2 id="total">Total Time</h2> -->
-      <!-- <div id="list"></div> -->
+    <!-- <h2 id="total">Total Time</h2> -->
+    <!-- <div id="list"></div> -->
 
-      <div class="dropdown is-hoverable is-up">
-        <div class="dropdown-trigger">
-          <h2 id="total">Total Time</h2>
-          <div class="dropdown-item">
-              <span id="list-title">The most website today</span>
-              <p></p>
-              <div id="list"></div>
-          </div>
+    <div class="dropdown is-hoverable is-up">
+      <div class="dropdown-trigger">
+        <h2 id="total">Time online today</h2>
+        <div class="dropdown-item">
+          <span id="list-title">Today's total:</span>
+          <p></p>
+          <div id="list"></div>
         </div>
-        <!-- <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+      </div>
+      <!-- <div class="dropdown-menu" id="dropdown-menu4" role="menu">
           <div class="dropdown-content">
           </div>
         </div> -->
-      </div>
+    </div>
 
     <!-- </div> -->
   </div>
