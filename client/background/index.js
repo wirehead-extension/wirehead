@@ -187,15 +187,19 @@ async function updateIcon(tab) {
   }
 
   if (pageClassification === 'work') {
-    chrome.browserAction.setIcon({path: './green.png'})
+    chrome.browserAction.setBadgeBackgroundColor({color: 'green'})
   } else if (pageClassification === 'play') {
-    chrome.browserAction.setIcon({path: './red.png'})
+    chrome.browserAction.setBadgeBackgroundColor({color: 'red'})
   } else {
-    chrome.browserAction.setIcon({path: './gray.png'})
+    chrome.browserAction.setBadgeBackgroundColor({color: 'gray'})
   }
   if (certainty) {
     chrome.browserAction.setBadgeText({
       text: String(certainty).slice(0, 2) + '%'
+    })
+  } else {
+    chrome.browserAction.setBadgeText({
+      text: '??%'
     })
   }
 }
