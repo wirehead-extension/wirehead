@@ -183,6 +183,18 @@ rect:hover {
   min-height: 130px;
 }
 
+#graphHeader {
+  position: absolute;
+  left: 630px;
+  top: 250px
+}
+
+#dailydiv { 
+  position: absolute;
+  left: 200;
+  top: 200
+}
+
 #list {
   font-size: 12px;
 }
