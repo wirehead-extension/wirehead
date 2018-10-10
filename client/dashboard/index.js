@@ -10,7 +10,11 @@ import '../semantic/dist/semantic.min.css'
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <App />
+      <div id="bodyWrapper">
+        <div id="leftWrapper" />
+        <App />
+        <div id="rightWrapper" />
+      </div>
     </Router>
   </Provider>,
   document.getElementById('app')
