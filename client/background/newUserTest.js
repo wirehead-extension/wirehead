@@ -8,7 +8,7 @@ export function makeLearnMoreNotification(clickedAlready) {
     chrome.notifications.create('dashboard.html#about', {
       type: 'basic',
       title: 'Thanks for downloading Wirehead!',
-      iconUrl: 'gray.png',
+      iconUrl: 'plug.png',
       message: 'Click here to learn more about our app!'
     })
   }
