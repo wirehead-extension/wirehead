@@ -82,10 +82,6 @@ rect:hover {
   width: 50px;
 }
 
-
-
-
-
 .popup {
   width: 300px;
   height: 340px;
@@ -103,13 +99,14 @@ rect:hover {
 }
 
 .header {
-  text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384);
+  /* text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384); */
+  font-family: 'Roboto Mono';
   margin: 0 !important;
 }
 
-.meta {
+/* .meta {
   text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384);
-}
+} */
 
 .ui.card {
   width: 320px !important;
