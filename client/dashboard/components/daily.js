@@ -97,7 +97,7 @@ class Daily extends React.Component {
       return {work: '#807dba', play: '#e08214'}[c]
     }
 
-    // calculate total frequency by segment for all state.
+
     var tF = ['play', 'work'].map(function(d) {
       return {
         type: d,
@@ -110,37 +110,46 @@ class Daily extends React.Component {
         )
       }
     })
-    // console.log('this is tf', tF)
 
-    // calculate total frequency by state for all segment.
+
     var sF = topFiveTotal.map(function(d) {
       return [d.url, d.play + d.work]
     })
-    // console.log('this is sf for histomogram', sF)
+
     var hG = histoGram(sF), // create the histogram.
       pC = pieChart(tF), // create the pie-chart.
       leg = legend(tF) // create the legend.
 
-    // function to handle histogram.
+
+    d3.select(id)
+      .append('div')
+      .attr('id', 'dailydiv')
+      .style('position', 'absolute')
+      .style('left', '165px')
+      .style('top', '400px')
+      .style('width', '2000px')
+
+    
+    // function to create histogram
     function histoGram(fD) {
       // console.log('this is fd', fD)
       var hG = {},
-        hGDim = {t: 60, r: 0, b: 30, l: 0}
-      hGDim.w = 500 - hGDim.l - hGDim.r
+        hGDim = {t: 60, r: 0, b: 10, l: 0}
+      hGDim.w = 600 - hGDim.l - hGDim.r
       hGDim.h = 300 - hGDim.t - hGDim.b
 
       //create svg for histogram.
-      var hGsvg = d3
-        .select(id)
+      const hGsvg = d3
+        .select('#dailydiv')
         .append('svg')
         .attr('class', 'chart')
+        .attr('top', '50px')
         .attr('width', hGDim.w + hGDim.l + hGDim.r)
-        .attr('height', hGDim.h + hGDim.t + hGDim.b)
+        .attr('height', hGDim.h + hGDim.t + hGDim.b + 10)
         .append('g')
-        .attr('transform', 'translate(' + hGDim.l + ',' + hGDim.t + ')')
 
       // create function for x-axis mapping.
-      var x = d3
+      let x = d3
         .scaleBand([0, hGDim.w], 0.1)
         .range([0, hGDim.w])
         .domain(
@@ -153,11 +162,12 @@ class Daily extends React.Component {
       hGsvg
         .append('g')
         .attr('class', 'x-axis')
-        .attr('transform', 'translate(0,' + hGDim.h + ')')
+        .attr('transform', 'translate(-5,270)')
         .call(d3.axisBottom(x))
 
+
       // Create function for y-axis map.
-      var y = d3
+      const y = d3
         .scaleLinear()
         .range([hGDim.h, 0])
         .domain([
@@ -168,7 +178,7 @@ class Daily extends React.Component {
         ])
 
       // Create bars for histogram to contain rectangles and freq labels.
-      var bars = hGsvg
+      const bars = hGsvg
         .selectAll('.bar')
         .data(fD)
         .enter()
@@ -179,10 +189,10 @@ class Daily extends React.Component {
       bars
         .append('rect')
         .attr('x', function(d) {
-          return x(d[0])
+          return x(d[0]) + 15
         })
         .attr('y', function(d) {
-          return y(d[1])
+          return y(d[1]) + 40
         })
         .attr('width', x.bandwidth() / 1.5)
         .attr('height', function(d) {
@@ -197,10 +207,10 @@ class Daily extends React.Component {
           return humanTime(d[1])
         })
         .attr('x', function(d) {
-          return x(d[0]) + x.bandwidth() / 2.9
+          return x(d[0]) + x.bandwidth() / 2.9 + 12
         })
         .attr('y', function(d) {
-          return y(d[1]) - 5
+          return y(d[1]) + 35
         })
         .attr('text-anchor', 'middle')
 
@@ -216,7 +226,7 @@ class Daily extends React.Component {
         ])
 
         // Attach the new data to the bars.
-        var bars = hGsvg.selectAll('.bar').data(nD)
+        const bars = hGsvg.selectAll('.bar').data(nD)
 
         // transition the height and color of rectangles.
         bars
@@ -224,7 +234,7 @@ class Daily extends React.Component {
           .transition()
           .duration(500)
           .attr('y', function(d) {
-            return y(d[1])
+            return y(d[1]) + 40
           })
           .attr('height', function(d) {
             return hGDim.h - y(d[1])
@@ -240,7 +250,7 @@ class Daily extends React.Component {
             return humanTime(d[1])
           })
           .attr('y', function(d) {
-            return y(d[1]) - 5
+            return y(d[1]) + 35
           })
 
         hGsvg.selectAll('.x-axis').remove()
@@ -257,7 +267,7 @@ class Daily extends React.Component {
         hGsvg
           .append('g')
           .attr('class', 'x-axis')
-          .attr('transform', 'translate(0,' + hGDim.h + ')')
+          .attr('transform', 'translate(-5,270)')
           .call(d3.axisBottom(x))
       }
       return hG
@@ -271,7 +281,7 @@ class Daily extends React.Component {
 
       // create svg for pie chart.
       var piesvg = d3
-        .select(id)
+        .select('#dailydiv')
         .append('svg')
         .attr('class', 'chart')
         .attr('width', pieDim.w)
@@ -341,16 +351,15 @@ class Daily extends React.Component {
         //     return [v.label,v.time[d.data.type]];}),segColor(d.data.type));
       }
 
-      var sF = topFiveTotal.map(function(d) {
-        return [d.url, d.play, d.work]
-      })
+
 
       //Utility function to be called on mouseout a pie slice.
       function mouseout() {
         // call the update function of histogram with all data.
         hG.update(
           topFiveTotal.map(function(t) {
-            return [t.url, t.play, t.work]
+            console.log('this is t', t)
+            return [t.url, t.play + t.work]
           }),
           barColor
         )
@@ -373,10 +382,19 @@ class Daily extends React.Component {
       var leg = {}
 
       // create table for legend.
-      var legend = d3
-        .select(id)
-        .append('table')
-        .attr('class', 'legend')
+      // var legend = d3
+      //   .select('#dailydiv')
+      //   .append('table')
+      //   .attr('class', 'legend')
+      //   .attr('transform', 'translate(5,10)')
+
+      const legend = d3.select('body')
+      .append('table')
+      .style("position", "absolute")
+      .style("z-index", "990")
+      .style("top", "550px")
+      .style("left", "1050px")
+
 
       // create one row per segment.
       var tr = legend
@@ -459,6 +477,7 @@ class Daily extends React.Component {
   render() {
     return (
       <Container>
+        <h3 id="graphHeader">One Day of Browsing</h3>
         <DatePicker handleDateChange={this.handleDateChange} />
         <div id="graphs" />
       </Container>
@@ -480,3 +499,5 @@ export default withRouter(
     mapDispatchToProps
   )(Daily)
 )
+
+
