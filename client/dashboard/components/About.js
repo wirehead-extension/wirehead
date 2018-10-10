@@ -17,8 +17,8 @@ const About = () => {
         After you first download Wirehead, you'll be seeing a lot of
         notifications, asking you whether you're working right now.
         <em> Don't worry!</em>
-        Pretty soon, our AI will learn your ways, and then we'll only have to
-        bother you every once in a while. We'll never stop bothering you
+        &nbsp; Pretty soon, our AI will learn your ways, and then we'll only
+        have to bother you every once in a while. We'll never stop bothering you
         completely, because Wirehead's motto is to always be learning, always be
         improving.
       </p>
