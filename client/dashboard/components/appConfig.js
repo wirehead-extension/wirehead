@@ -20,9 +20,7 @@ class AppConfig extends React.Component {
   }
 
   async componentDidMount() {
-    console.log('comp mounted')
     const currentOptions = await getOptions()
-    console.log('options in comp did mount', currentOptions)
     this.setState(currentOptions)
   }
 
@@ -40,10 +38,6 @@ class AppConfig extends React.Component {
   handleChangeShaming = (e, {value}) => this.setState({allowShaming: value})
 
   render() {
-    console.log('rendered')
-    console.log('this.state', this.state)
-    console.log('condition?', Object.keys(this.state).length)
-    console.log('keys', Object.keys(this.state))
     let trainingPopupFrequency = this.state.trainingPopupFrequency
     let allowShaming = this.state.allowShaming
     return (
