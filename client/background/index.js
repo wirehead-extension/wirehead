@@ -413,9 +413,9 @@ function makeTimeNotification(time) {
 
   chrome.notifications.create({
     type: 'basic',
-    title: '!!  WATCH OUT  !!',
+    title: 'Unproductive time today',
     iconUrl: 'heartwatch.png',
-    message: 'Your total non-productive time today' + ' : \n' + timeprint
+    message: 'Total: ' + timeprint
   })
 }
 
