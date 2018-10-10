@@ -14,10 +14,10 @@ const About = () => {
         means we have to bother you.
       </p>
       <p>
-        After you first download Wirehead, you'll be seeing a lot of popups,
-        asking you whether you're working right now.
-        <em>Don't worry!</em>
-        Pretty soon, our model will learn your ways, and then we'll only have to
+        After you first download Wirehead, you'll be seeing a lot of
+        notifications, asking you whether you're working right now.
+        <em> Don't worry!</em>
+        Pretty soon, our AI will learn your ways, and then we'll only have to
         bother you every once in a while. We'll never stop bothering you
         completely, because Wirehead's motto is to always be learning, always be
         improving.
@@ -30,7 +30,7 @@ const About = () => {
         on the popup and let it know. Is it red? That means Wirehead thinks
         you're wasting time. Wirehead is never 100% confident in its
         predictions, but it can get close. Wirehead will tell you how confident
-        it is - check the text in the icon.
+        it is - check the percentage under the icon.
       </p>
     </Container>
   )
