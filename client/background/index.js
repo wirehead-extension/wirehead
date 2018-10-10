@@ -253,6 +253,8 @@ setInterval(() => {
   }
 }, 1000)
 
+chrome.notifications.onClicked.addListener(redirectToDashboard)
+
 function makeNotification(icon) {
   var iconUrl = 'gray.png'
   if (icon) {
@@ -270,7 +272,6 @@ function makeNotification(icon) {
       buttons: [{title: 'This is work'}, {title: 'This is play'}]
     })
     chrome.notifications.onButtonClicked.addListener(handleButton)
-    chrome.notifications.onClicked.addListener(redirectToDashboard)
   }
 }
 
