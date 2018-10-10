@@ -29,7 +29,8 @@ db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date()
     if (urlValidation(new URL(tabs[0].url))) {
       document.querySelector('#current').innerText = currentTimeCalculator(new Date().valueOf()-data.timeStart)
     } else {
-      document.querySelector('.ui.slide.masked.reveal.image.black.inverted.segment').remove()
+      // document.querySelector('.ui.slide.masked.reveal.image.black.inverted.segment').remove()
+      document.querySelector('.ui.slide.masked.reveal.image.black.inverted.segment').classList.remove('black')
     }
   })
 })
