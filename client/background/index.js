@@ -271,7 +271,8 @@ function makeNotification(icon) {
 }
 
 function redirectToDashboard(notificationId) {
-  chrome.tabs.create({url: 'dashboard.html'})
+  if (notificationId !== 'dashboard.html#about')
+    chrome.tabs.create({url: 'dashboard.html'})
 }
 
 function killNotification() {
@@ -347,21 +348,19 @@ function updateNotificationFrequency(newPeriod) {
 function timeNotification() {
   //If there's an active page, get the page title and init a notification
 
-
   chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
     const options = await getOptions()
     const allowShaming = options.allowShaming
     console.log('allowShaming', allowShaming)
     if (allowShaming && tabs[0] && urlValidation(new URL(tabs[0].url))) {
-
       db.history
         .where('timeStart')
         .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
         .toArray()
         .then(async result => {
           if (result) {
-            let idx = result.length-1
-            if(result[idx].label === 'play') {
+            let idx = result.length - 1
+            if (result[idx].label === 'play') {
               var totalSpend = 0
               console.log(result)
               var a = await db.history.count()
@@ -373,7 +372,13 @@ function timeNotification() {
               })
 
               var hourCalculator = Math.floor(totalSpend / 60000) * 60000
-              console.log('title:', tabs[0].title, 'time:', totalSpend, new Date())
+              console.log(
+                'title:',
+                tabs[0].title,
+                'time:',
+                totalSpend,
+                new Date()
+              )
               if (
                 totalSpend > hourCalculator &&
                 totalSpend < hourCalculator + 12000 &&
@@ -381,7 +386,6 @@ function timeNotification() {
               ) {
                 makeTimeNotification(totalSpend)
               }
-
             }
           }
         })
@@ -413,8 +417,9 @@ function timeTracker() {
         })
         .then(async data => {
           if (
-            data && new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
-            10000
+            data &&
+            new Date().valueOf() - (data.timeEnd || new Date().valueOf()) <
+              10000
           ) {
             db.history.update(data.id, {
               timeEnd: new Date().valueOf(),
