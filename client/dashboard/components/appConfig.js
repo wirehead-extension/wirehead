@@ -9,7 +9,6 @@ import {
   Radio
 } from 'semantic-ui-react'
 import {getOptions, updateOptions} from '../../background/options.js'
-import * as d3 from 'd3'
 
 class AppConfig extends React.Component {
   constructor() {
