@@ -21,14 +21,15 @@
 
 
   <div class="ui card">
+    <span id="hidden">MACHINE RECORDED</span>
     <div class="ui buttons">
       <button class="ui positive button" id="work-button">
         <i class="book icon"></i>
-        Work?
+        Work
       </button>
       <div id="or" class="or"></div>
       <button class="ui negative button" id="play-button">
-        Play?
+        Play
         <i class="coffee icon"></i>
       </button>
     </div>
@@ -45,33 +46,33 @@
         </span>
       </div>
     </div>
-    <div class="ui slide masked reveal image teal inverted segment">
+    <div class="ui slide masked reveal image black inverted segment">
       <div class="visible content">
         <div id="current"></div>
-        <p class="status">C U R R E N T</p>
+        <p class="status">ON THIS WEB</p>
       </div>
       <div class="hidden content">
         <div id="current-total"></div>
-        <p class="status">T O T A L</p>
+        <p class="status">TOTAL ON THIS WEB</p>
       </div>
     </div>
     <!-- <div> -->
-      <!-- <h2 id="total">Total Time</h2>
-      <div id="list"></div> -->
+      <!-- <h2 id="total">Total Time</h2> -->
+      <!-- <div id="list"></div> -->
 
       <div class="dropdown is-hoverable is-up">
         <div class="dropdown-trigger">
           <h2 id="total">Total Time</h2>
-        </div>
-        <div class="dropdown-menu" id="dropdown-menu4" role="menu">
-          <div class="dropdown-content">
-            <div class="dropdown-item">
-                <span>The most website today</span>
-                <p></p>
-                <div id="list"></div>
-            </div>
+          <div class="dropdown-item">
+              <span id="list-title">The most website today</span>
+              <p></p>
+              <div id="list"></div>
           </div>
         </div>
+        <!-- <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+          <div class="dropdown-content">
+          </div>
+        </div> -->
       </div>
 
     <!-- </div> -->
@@ -79,7 +80,7 @@
 
   <div class="extra content">
     <a href='dashboard.html' target="_blank">
-      <button class="ui linkedin button">
+      <button class="ui gray button">
         <i class="chart pie icon"></i>
         Dashboard
       </button>
