@@ -4,10 +4,10 @@ import Routes from './routes'
 
 const App = () => {
   return (
-    <div>
+    <React.Fragment>
       <Navbar />
       <Routes />
-    </div>
+    </React.Fragment>
   )
 }
 

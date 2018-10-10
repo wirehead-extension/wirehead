@@ -5,7 +5,7 @@
   "description": "This app helps you maintain your focus on the internet",
   "version": "0.0.1",
   "icons": {
-    "16": "gray.png"
+    "16": "plug.png"
   },
   "browser_action": {
     "default_popup": "popup.html"

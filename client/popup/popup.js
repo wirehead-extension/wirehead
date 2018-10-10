@@ -29,7 +29,7 @@ db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date()
     if (urlValidation(new URL(tabs[0].url))) {
       document.querySelector('#current').innerText = currentTimeCalculator(new Date().valueOf()-data.timeStart)
     } else {
-      document.querySelector('.ui.slide.masked.reveal.image.teal.inverted.segment').remove()
+      document.querySelector('.ui.slide.masked.reveal.image.black.inverted.segment').remove()
     }
   })
 })
@@ -78,7 +78,7 @@ db.history.where('timeStart').between(new Date().setHours(0, 0, 0, 0),new Date()
       var newDiv = document.createElement('ul')
       var objectDiv = document.querySelector('#list')
       objectDiv.insertBefore(newDiv, objectDiv.firstChild)
-      newDiv.appendChild(document.createTextNode(count + ' : ' + elem.url + ' / '))
+      newDiv.appendChild(document.createTextNode(count + ' : ' + titleCutter(elem.url) + ' / '))
       newDiv.appendChild(document.createTextNode(timeCalculator(elem.time)))
     count--
     document.querySelector('#total').innerText = "Today: " + timeCalculator(todayTotal)

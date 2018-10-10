@@ -95,6 +95,7 @@ rect:hover {
   justify-content: space-between;
   flex-direction: column;
   align-items: center;
+  margin-top: 36px !important;
 }
 
 .header {
@@ -120,20 +121,22 @@ rect:hover {
   height: 60px;
   position: absolute;
   z-index: 1;
-  top: 280px;
+  top: 242px;
 }
 
 .dropdown.is-hoverable.is-up {
-  margin-bottom: 60px;
+  margin: 60px 0 80px 0;
   align-items: center;
-  padding: 0 5%;
+  padding: 0 3%;
 }
 
 .dropdown-trigger {
   padding-left: 10px;
+  margin-right: 3%;
+  width: 100%;
 }
 
-.ui.linkedin.button {
+.ui.gray.button {
   width: 320px;
   height: 60px;
   font-size: 20px;
@@ -142,11 +145,13 @@ rect:hover {
 .visible.content {
   padding-top: 35px;
   height: 100px;
+  margin: 0 !important;
 }
 
 .hidden.content {
   padding-top: 35px;
   height: 100px;
+  margin: 0 !important;
 }
 
 #current {
@@ -164,6 +169,7 @@ rect:hover {
 .status {
   /* font-family: 'Squada One', cursive; */
   font-size: 25px;
+  font-family: 'Roboto Mono';
 }
 
 #total {
@@ -172,8 +178,9 @@ rect:hover {
 }
 
 .dropdown-item {
-  width: 280px;
+  width: 300px;
   text-align: left;
+  min-height: 130px;
 }
 
 #graphHeader {
@@ -189,16 +196,26 @@ rect:hover {
 }
 
 #list {
-  font-size: 6px;
+  font-size: 12px;
 }
 
-#hide-background {
+#list-title {
+  font-size: 16px;
+}
+
+#hidden {
+  font-family: 'Roboto Mono';
+  font-size: 20px;
   height: 36px;
   width: 100%;
-  position: fixed;
+  position: absolute;
+  padding-top: 8px;
 }
 
 .ui.buttons {
   height: 36px;
   width: 320px;
+  position: fixed;
+  z-index: 100;
 }
+
