@@ -17,11 +17,7 @@ import {
   classifyDocumentIfBayesModel
 } from './bayesClassifier'
 import {initOptions, updateOptions, getOptions} from './options'
-import {
-  timeCalculator,
-  urlValidation,
-  titleCutter
-} from './utils'
+import {timeCalculator, urlValidation, titleCutter} from './utils'
 import {makeLearnMoreNotification} from './newUserTest'
 import db from '../db'
 
@@ -178,24 +174,22 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //This function updates the icon and badge according to ML prediction
 async function updateIcon(tab) {
   //page classification is either "work" or "play"
-  const pageClassification = await classifyDocument(tab.title)
+  const pageClassification = await classifyDocumentIfBayesModel(tab.title)
   //We format the raw output of machine learning model (const probabilities, decimals)
   const probabilities = await getClassifications(tab.title)
   //as a percentage (certainty)
   let certainty
-  if (probabilities) {
+  if (probabilities.length > 0) {
     certainty =
       (probabilities[0].value /
         (probabilities[0].value + probabilities[1].value)) *
       100
   }
 
-  if (pageClassification) {
-    chrome.browserAction.setIcon(
-      pageClassification === 'work'
-        ? {path: './green.png'}
-        : {path: './red.png'}
-    )
+  if (pageClassification === 'work') {
+    chrome.browserAction.setIcon({path: './green.png'})
+  } else if (pageClassification === 'play') {
+    chrome.browserAction.setIcon({path: './red.png'})
   } else {
     chrome.browserAction.setIcon({path: './gray.png'})
   }
@@ -238,7 +232,7 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
     timeNotification()
   } else if (alarm.name === 'make notification') {
     const options = await getOptions()
-    if (options.allowTrainingPopups) {
+    if (options.trainingPopupFrequency !== 'never') {
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
           makeNotification(tabs[0].favIconUrl)
@@ -277,7 +271,6 @@ function makeNotification(icon) {
 }
 
 function redirectToDashboard(notificationId) {
-  console.log('hello world!')
   chrome.tabs.create({url: 'dashboard.html'})
 }
 
@@ -313,11 +306,12 @@ async function processNewTrainingExample(currentTab, label) {
     time: new Date().getTime()
   })
 
-  const numberExamples = await getNumberOfTrainingExamples()
+  checkForAlarmUpdates()
+
   //Slowly decrease frequency of popup (in minutes) as user uses the extension more
-  checkForAlarmUpdates(numberExamples)
   //stop constantly updating the bayes model if we have a lots of training examples,
   //so as not to make chrome really slow
+  const numberExamples = await getNumberOfTrainingExamples()
   if (numberExamples < LOTS_OF_TRAINING_EXAMPLES) {
     await updateBayesModel()
     updateIcon(currentTab)
@@ -329,15 +323,18 @@ async function processNewTrainingExample(currentTab, label) {
 }
 
 //Once we have a lot of Bayes examples, we can annoy the user for training data less often
-function checkForAlarmUpdates(numberExamples) {
-  if (numberExamples === 100) {
-    updateNotificationFrequency(10)
-  } else if (numberExamples === 200) {
-    updateNotificationFrequency(20)
-  } else if (numberExamples === 500) {
-    updateNotificationFrequency(30)
-  } else if (numberExamples === 1000) {
+async function checkForAlarmUpdates() {
+  const numberExamples = await getNumberOfTrainingExamples()
+  const options = await getOptions()
+  const trainingPopupFrequency = options.trainingPopupFrequency
+  if (numberExamples > 1000 || trainingPopupFrequency === 'low') {
     updateNotificationFrequency(60)
+  } else if (numberExamples > 500) {
+    updateNotificationFrequency(30)
+  } else if (numberExamples > 200) {
+    updateNotificationFrequency(20)
+  } else if (numberExamples > 100) {
+    updateNotificationFrequency(10)
   }
 }
 
@@ -350,9 +347,11 @@ function updateNotificationFrequency(newPeriod) {
 function timeNotification() {
   //If there's an active page, get the page title and init a notification
 
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
-      // var url = new URL(tabs[0].url).hostname
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, async tabs => {
+    const options = await getOptions()
+    const allowShaming = options.allowShaming
+    console.log('allowShaming', allowShaming)
+    if (allowShaming && tabs[0] && urlValidation(new URL(tabs[0].url))) {
       db.history
         .where('timeStart')
         .between(new Date().setHours(0, 0, 0, 0), new Date().valueOf())
@@ -432,12 +431,17 @@ function timeTracker() {
   })
 }
 
+//Handles incoing messages
 chrome.runtime.onMessage.addListener(function(message) {
+  //Handles classification in the popup
   if (message.action === 'classify website' && message.label) {
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       if (tabs[0]) {
         processNewTrainingExample(tabs[0], message.label)
       }
     })
+    //Handles changing options in the dashboard
+  } else if (message.action === 'options updated') {
+    checkForAlarmUpdates()
   }
 })
