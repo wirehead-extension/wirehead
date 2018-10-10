@@ -21,8 +21,6 @@ class AppConfig extends React.Component {
   }
 
   async componentDidMount() {
-    d3.selectAll('svg').remove()
-    d3.selectAll('table').remove()
     const currentOptions = await getOptions()
     this.setState(currentOptions)
   }
