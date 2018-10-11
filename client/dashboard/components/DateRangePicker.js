@@ -2,7 +2,7 @@ import React from 'react'
 import {DatesRangeInput} from 'semantic-ui-calendar-react'
 import {Form} from 'semantic-ui-react'
 import moment from 'moment'
-import * as d3 from 'd3'
+import {selectAll} from 'd3'
 
 export default class DateRangePicker extends React.Component {
   state = {
@@ -26,8 +26,8 @@ export default class DateRangePicker extends React.Component {
   handleChange = (e, {value}) => {
     this.setState({datesRange: value})
     if (value.split(' - ')[1]) {
-      d3.selectAll('svg').remove()
-      d3.selectAll('table').remove()
+      selectAll('svg').remove()
+      selectAll('table').remove()
       this.props.handleDatesRangeChange(value)
     }
   }

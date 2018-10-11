@@ -1,12 +1,12 @@
-import * as d3 from 'd3-format'
+import {precisionFixed, format} from 'd3-format'
 import moment from 'moment'
 
 export const humanTime = ms => {
   const min = ms / 60000
   const hr = min / 60
   const day = hr / 24
-  const p = d3.precisionFixed(0.1)
-  const f = d3.format('.' + p + 'f')
+  const p = precisionFixed(0.1)
+  const f = format('.' + p + 'f')
   if (min < 1) {
     return '<1 min'
   } else if (min < 60) {

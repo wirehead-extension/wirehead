@@ -7,7 +7,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "build-client": "webpack",
+    "build-client": "webpack -p",
     "build-client-watch": "webpack -w",
     "build-theme": "cd client/semantic && gulp build && cd ../..",
     "deploy": "script/deploy",

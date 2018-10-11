@@ -1,10 +1,25 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import * as d3 from 'd3'
+import {
+  selectAll,
+  select,
+  timeDay,
+  extent,
+  scaleLinear,
+  scaleTime,
+  stack,
+  axisLeft,
+  axisRight,
+  mouse,
+  scaleOrdinal,
+  area,
+  axisBottom,
+  stackOffsetSilhouette,
+  curveCardinal
+} from 'd3'
 import DateRangePicker from './DateRangePicker'
 import {fetchData} from '../../store'
 import {parseDateRange, eightDaysAgo} from '../utils'
-import {lt} from 'semver'
 
 const mapStateToProps = state => {
   return {
@@ -55,16 +70,16 @@ class Weekly extends React.Component {
   }
 
   componentDidUpdate() {
-    d3.selectAll('svg').remove()
-    d3.selectAll('table').remove()
+    selectAll('svg').remove()
+    selectAll('table').remove()
     let newData = dataParse(this.props.data)
     this.chart(newData)
     this.legendTwo(legendData)
   }
 
   componentWillUnmount() {
-    d3.selectAll('svg').remove()
-    d3.selectAll('table').remove()
+    selectAll('svg').remove()
+    selectAll('table').remove()
   }
 
   handleDatesRangeChange = dateRange => {
@@ -77,39 +92,34 @@ class Weekly extends React.Component {
     const width = 900 - margin.left - margin.right
     const height = 400 - margin.top - margin.bottom
 
-    const x = d3
-      .scaleTime()
+    const x = scaleTime()
       .range([0, width])
       .domain(
-        d3.extent(data, function(d) {
+        extent(data, function(d) {
           return d.date
         })
       )
 
-    const y = d3
-      .scaleLinear()
+    const y = scaleLinear()
       .range([height - 10, 0])
       .domain([-12, 12])
 
-    const z = d3.scaleOrdinal().range(colorrange)
+    const z = scaleOrdinal().range(colorrange)
 
-    const xAxis = d3
-      .axisBottom()
+    const xAxis = axisBottom()
       .scale(x)
-      .ticks(d3.timeDay) //could break code, timeWeeks?
+      .ticks(timeDay) //could break code, timeWeeks?
 
-    const yAxis = d3.axisLeft().scale(y)
+    const yAxis = axisLeft().scale(y)
 
-    const yAxisr = d3.axisRight().scale(y)
+    const yAxisr = axisRight().scale(y)
 
-    const stack = d3
-      .stack()
+    const graphStack = stack()
       .keys(['work', 'uncategorized', 'play'])
-      .offset(d3.stackOffsetSilhouette)
+      .offset(stackOffsetSilhouette)
 
-    const area = d3
-      .area()
-      .curve(d3.curveCardinal)
+    const graphArea = area()
+      .curve(curveCardinal)
       .x(function(e, i) {
         return x(e.data.date)
       })
@@ -120,8 +130,7 @@ class Weekly extends React.Component {
         return y(e[1])
       })
 
-    const svg = d3
-      .select('#subDiv')
+    const svg = select('#subDiv')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('svg')
@@ -141,7 +150,7 @@ class Weekly extends React.Component {
       .style('text-anchor', 'middle')
       .text('Hours Per Day')
 
-    const layers = stack(data)
+    const layers = graphStack(data)
 
     const g = svg
       .append('g')
@@ -155,8 +164,7 @@ class Weekly extends React.Component {
       .attr('class', 'layer')
       .attr('transform', 'translate(0, 0)')
 
-    const tooltip = d3
-      .select('#subRightWrapper')
+    const tooltip = select('#subRightWrapper')
       .append('div')
       .attr('class', 'remove')
       .style('float', 'left')
@@ -177,7 +185,7 @@ class Weekly extends React.Component {
       })
       .on('mousemove', function(d, i) {
         // gets the mouse's x position on the svg
-        let mousex = d3.mouse(this)
+        let mousex = mouse(this)
         mousex = mousex[0]
 
         //converst that x position to the date associated with it
@@ -222,8 +230,7 @@ class Weekly extends React.Component {
           .transition()
           .duration(250)
           .attr('opacity', '1')
-        d3
-          .select(this)
+        select(this)
           .classed('hover', false)
           .attr('stroke-width', '0px'),
           tooltip.html('<p>').style('visibility', 'hidden')
@@ -236,7 +243,7 @@ class Weekly extends React.Component {
         return z(i)
       })
       .attr('d', function(e) {
-        return area(e)
+        return graphArea(e)
       })
 
     svg
@@ -261,8 +268,7 @@ class Weekly extends React.Component {
     const leg = {}
 
     // create table for the legend
-    const legend = d3
-      .select('#subDiv')
+    const legend = select('#subDiv')
       .append('table')
       .style('float', 'right')
       .style('margin-top', '160px')
