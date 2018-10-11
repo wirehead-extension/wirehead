@@ -95,7 +95,6 @@ class Daily extends React.Component {
       return {work: '#807dba', play: '#e08214'}[c]
     }
 
-
     let tF = ['play', 'work'].map(function(d) {
       return {
         type: d,
@@ -109,7 +108,6 @@ class Daily extends React.Component {
       }
     })
 
-
     let sF = topFiveTotal.map(function(d) {
       return [d.url, d.play + d.work]
     })
@@ -121,10 +119,10 @@ class Daily extends React.Component {
     // d3.select(id)
     //   .append('div')
     //   .attr('id', 'dailydiv')
-      // .style('position', 'relative')
-      // .style('left', '165px')
-      // .style('top', '400px')
-      // .style('width', '2000px')
+    // .style('position', 'relative')
+    // .style('left', '165px')
+    // .style('top', '400px')
+    // .style('width', '2000px')
 
     // function to create histogram
     function histoGram(fD) {
@@ -356,7 +354,6 @@ class Daily extends React.Component {
         // call the update function of histogram with all data.
         hG.update(
           topFiveTotal.map(function(t) {
-            console.log('this is t', t)
             return [t.url, t.play + t.work]
           }),
           barColor
@@ -384,9 +381,9 @@ class Daily extends React.Component {
         .style('float', 'left')
         .style('margin-top', '210px')
 
-        // .style('z-index', '990')
-        // .style('top', '550px')
-        // .style('left', '1050px')
+      // .style('z-index', '990')
+      // .style('top', '550px')
+      // .style('left', '1050px')
 
       // create one row per segment.
       const tr = legend

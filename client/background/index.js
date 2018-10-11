@@ -107,14 +107,13 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
     //Post start time data when open the tab
     if (urlValidation(new URL(tab.url))) {
-      db.history
-        .put({
-          url: url.hostname,
-          timeStart: new Date().valueOf(),
-          timeEnd: new Date().valueOf(),
-          timeTotal: 0,
-          label: await classifyDocumentIfBayesModel(tab.title)
-        })
+      db.history.put({
+        url: url.hostname,
+        timeStart: new Date().valueOf(),
+        timeEnd: new Date().valueOf(),
+        timeTotal: 0,
+        label: await classifyDocumentIfBayesModel(tab.title)
+      })
     }
   })
 })
@@ -140,14 +139,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       })
       .then(async () => {
         if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
-          db.history
-            .put({
-              url: url.hostname,
-              timeStart: new Date().valueOf(),
-              timeEnd: new Date().valueOf(),
-              timeTotal: 0,
-              label: await classifyDocumentIfBayesModel(tab.title)
-            })
+          db.history.put({
+            url: url.hostname,
+            timeStart: new Date().valueOf(),
+            timeEnd: new Date().valueOf(),
+            timeTotal: 0,
+            label: await classifyDocumentIfBayesModel(tab.title)
+          })
         }
       })
   }
