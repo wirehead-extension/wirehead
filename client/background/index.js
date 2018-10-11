@@ -51,14 +51,12 @@ const LOTS_OF_TRAINING_EXAMPLES = 2000
 //We cull old traingin examples from db after reaching MAX
 const MAX_TRAINING_EXAMPLES = 10000
 
-var currentWindow
 //Store the data when a chrome window switched
 chrome.windows.onFocusChanged.addListener(function(windowInfo) {
   //Prevent error when all of the windows are focused out which is -1
   //It runs only currentWindow ID has been changed
 
   if (chromeIsInFocus) {
-    currentWindow = windowInfo
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       updateIcon(tabs[0])
       if (tabs[0] && urlValidation(new URL(tabs[0].url))) {
@@ -360,14 +358,21 @@ function timeNotification() {
             let idx = result.length - 1
             if (result[idx].label === 'play') {
               var totalSpend = 0
+<<<<<<< HEAD
               var a = await db.history.count()
+=======
+>>>>>>> a288500a21500bdc066fd0ae78f401ac9cc3c10f
               result.forEach(data => {
                 if (data.label === 'play') {
                   totalSpend += data.timeTotal
                 }
               })
 
+<<<<<<< HEAD
               var hourCalculator = Math.floor(totalSpend / 60000) * 60000
+=======
+              var hourCalculator = Math.floor(totalSpend / 3600000) * 3600000
+>>>>>>> a288500a21500bdc066fd0ae78f401ac9cc3c10f
               if (
                 totalSpend > hourCalculator &&
                 totalSpend < hourCalculator + 12000 &&
