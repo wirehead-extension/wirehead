@@ -17,7 +17,7 @@ import {
   stackOffsetSilhouette,
   curveCardinal
 } from 'd3'
-import DateRangePicker from './DateRangePicker'
+import {DateRangePicker} from './'
 import {fetchData} from '../../store'
 import {parseDateRange, eightDaysAgo} from '../utils'
 
