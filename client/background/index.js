@@ -107,14 +107,13 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
     //Post start time data when open the tab
     if (urlValidation(new URL(tab.url))) {
-      db.history
-        .put({
-          url: url.hostname,
-          timeStart: new Date().valueOf(),
-          timeEnd: new Date().valueOf(),
-          timeTotal: 0,
-          label: await classifyDocumentIfBayesModel(tab.title)
-        })
+      db.history.put({
+        url: url.hostname,
+        timeStart: new Date().valueOf(),
+        timeEnd: new Date().valueOf(),
+        timeTotal: 0,
+        label: await classifyDocumentIfBayesModel(tab.title)
+      })
     }
   })
 })
@@ -140,14 +139,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       })
       .then(async () => {
         if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
-          db.history
-            .put({
-              url: url.hostname,
-              timeStart: new Date().valueOf(),
-              timeEnd: new Date().valueOf(),
-              timeTotal: 0,
-              label: await classifyDocumentIfBayesModel(tab.title)
-            })
+          db.history.put({
+            url: url.hostname,
+            timeStart: new Date().valueOf(),
+            timeEnd: new Date().valueOf(),
+            timeTotal: 0,
+            label: await classifyDocumentIfBayesModel(tab.title)
+          })
         }
       })
   }
@@ -358,21 +356,13 @@ function timeNotification() {
             let idx = result.length - 1
             if (result[idx].label === 'play') {
               var totalSpend = 0
-<<<<<<< HEAD
-              var a = await db.history.count()
-=======
->>>>>>> a288500a21500bdc066fd0ae78f401ac9cc3c10f
               result.forEach(data => {
                 if (data.label === 'play') {
                   totalSpend += data.timeTotal
                 }
               })
 
-<<<<<<< HEAD
-              var hourCalculator = Math.floor(totalSpend / 60000) * 60000
-=======
               var hourCalculator = Math.floor(totalSpend / 3600000) * 3600000
->>>>>>> a288500a21500bdc066fd0ae78f401ac9cc3c10f
               if (
                 totalSpend > hourCalculator &&
                 totalSpend < hourCalculator + 12000 &&
