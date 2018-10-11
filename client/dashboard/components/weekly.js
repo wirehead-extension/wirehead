@@ -44,14 +44,14 @@ const legendData = [
 ]
 class Weekly extends React.Component {
   componentDidMount() {
-    this.props.fetchData(eightDaysAgo(), 7, 'sumByDayBySite') 
-    if(this.props.data[1]){
-    if (this.props.data[1].start){
-    let newData = dataParse(this.props.data)    
-    this.chart(newData)
-    this.legendTwo(legendData)
-
-    }} 
+    this.props.fetchData(eightDaysAgo(), 7, 'sumByDayBySite')
+    if (this.props.data[1]) {
+      if (this.props.data[1].start) {
+        let newData = dataParse(this.props.data)
+        this.chart(newData)
+        this.legendTwo(legendData)
+      }
+    }
   }
 
   componentDidUpdate() {
@@ -60,6 +60,11 @@ class Weekly extends React.Component {
     let newData = dataParse(this.props.data)
     this.chart(newData)
     this.legendTwo(legendData)
+  }
+
+  componentWillUnmount() {
+    d3.selectAll('svg').remove()
+    d3.selectAll('table').remove()
   }
 
   handleDatesRangeChange = dateRange => {
@@ -71,7 +76,6 @@ class Weekly extends React.Component {
     const margin = {top: 20, right: 40, bottom: 30, left: 30}
     const width = 900 - margin.left - margin.right
     const height = 400 - margin.top - margin.bottom
-
 
     const x = d3
       .scaleTime()
@@ -116,26 +120,26 @@ class Weekly extends React.Component {
         return y(e[1])
       })
 
-      const svg = d3.select("#subDiv")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("svg")
-      .attr("class", "chart")
-      .attr("width", 900)
-      .attr("height", height + margin.top + margin.bottom)
+    const svg = d3
+      .select('#subDiv')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('svg')
+      .attr('class', 'chart')
+      .attr('width', 900)
+      .attr('height', height + margin.top + margin.bottom)
       // .attr("transform", "translate(20, 20)")
-  .append("g")
-    .attr("transform", "translate(40, 20)")
+      .append('g')
+      .attr('transform', 'translate(40, 20)')
 
-
-
-      svg.append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left - 12)
-      .attr("x",0 - (height / 2))
-      .attr("dy", "1em")
-      .style("text-anchor", "middle")
-      .text("Hours Per Day"); 
+    svg
+      .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', 0 - margin.left - 12)
+      .attr('x', 0 - height / 2)
+      .attr('dy', '1em')
+      .style('text-anchor', 'middle')
+      .text('Hours Per Day')
 
     const layers = stack(data)
 
@@ -149,15 +153,15 @@ class Weekly extends React.Component {
       .enter()
       .append('g')
       .attr('class', 'layer')
-      .attr("transform", "translate(0, 0)")
+      .attr('transform', 'translate(0, 0)')
 
-      const tooltip = d3.select("#subRightWrapper")
-      .append("div")
-      .attr("class", "remove")
-      .style("float","left")
-      .style("visibility", "hidden")
-      .style('margin-top','220px')
-
+    const tooltip = d3
+      .select('#subRightWrapper')
+      .append('div')
+      .attr('class', 'remove')
+      .style('float', 'left')
+      .style('visibility', 'hidden')
+      .style('margin-top', '220px')
 
     svg
       .selectAll('.layer')
@@ -175,7 +179,6 @@ class Weekly extends React.Component {
         // gets the mouse's x position on the svg
         let mousex = d3.mouse(this)
         mousex = mousex[0]
-
 
         //converst that x position to the date associated with it
         const invertedx = x.invert(mousex)
@@ -259,18 +262,16 @@ class Weekly extends React.Component {
     const leg = {}
 
     // create table for the legend
-    const legend = d3.select('#subDiv')
-        .append('table')
-        .style("float", "right")
-        .style('margin-top','160px')
-        .style('margin-right','20px')
+    const legend = d3
+      .select('#subDiv')
+      .append('table')
+      .style('float', 'right')
+      .style('margin-top', '160px')
+      .style('margin-right', '20px')
 
-        // .style("z-index", "990")
-        // .style("top", "550px")
-        // .style("left", "1250px")
-
-
-
+    // .style("z-index", "990")
+    // .style("top", "550px")
+    // .style("left", "1250px")
 
     // create one row per segment
     const tr = legend
@@ -298,17 +299,13 @@ class Weekly extends React.Component {
     })
   }
 
-
-
-render(){          
-    
+  render() {
     console.log('da props', this.props)
-    return(    
-    <React.Fragment>  
-
-    <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
-    <div id="dashboard" />
-    </React.Fragment>  
+    return (
+      <React.Fragment>
+        <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
+        <div id="dashboard" />
+      </React.Fragment>
     )
 
     //   render() {
