@@ -87,12 +87,6 @@ chrome.windows.onFocusChanged.addListener(function(windowInfo) {
                   timeTotal: 0,
                   label: await classifyDocumentIfBayesModel(tabs[0].title)
                 })
-                .then(i => {
-                  console.log('window wrote ' + i)
-                })
-                .catch(err => {
-                  console.error(err)
-                })
             }
           })
       }
@@ -122,12 +116,6 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
           timeEnd: new Date().valueOf(),
           timeTotal: 0,
           label: await classifyDocumentIfBayesModel(tab.title)
-        })
-        .then(i => {
-          console.log('active wrote ' + i)
-        })
-        .catch(err => {
-          console.error(err)
         })
     }
   })
@@ -161,12 +149,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
               timeEnd: new Date().valueOf(),
               timeTotal: 0,
               label: await classifyDocumentIfBayesModel(tab.title)
-            })
-            .then(i => {
-              console.log('update wrote ' + i)
-            })
-            .catch(err => {
-              console.error(err)
             })
         }
       })
@@ -379,7 +361,6 @@ function timeNotification() {
             if (result[idx].label === 'play') {
               var totalSpend = 0
               var a = await db.history.count()
-              console.log('total', a)
               result.forEach(data => {
                 if (data.label === 'play') {
                   totalSpend += data.timeTotal
@@ -387,13 +368,6 @@ function timeNotification() {
               })
 
               var hourCalculator = Math.floor(totalSpend / 60000) * 60000
-              console.log(
-                'title:',
-                tabs[0].title,
-                'time:',
-                totalSpend,
-                new Date()
-              )
               if (
                 totalSpend > hourCalculator &&
                 totalSpend < hourCalculator + 12000 &&

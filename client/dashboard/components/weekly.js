@@ -236,7 +236,6 @@ class Weekly extends React.Component {
         return z(i)
       })
       .attr('d', function(e) {
-        console.log('this is appends e', e)
         return area(e)
       })
 
@@ -300,7 +299,6 @@ class Weekly extends React.Component {
   }
 
   render() {
-    console.log('da props', this.props)
     return (
       <React.Fragment>
         <DateRangePicker handleDatesRangeChange={this.handleDatesRangeChange} />
