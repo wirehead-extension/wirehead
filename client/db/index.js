@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
-import history from '../../script/seed'
-import trainingData from '../../script/bayesClassifierTraining'
+//import history from '../../script/seed'
+//import trainingData from '../../script/bayesClassifierTraining'
 import {getHistoryRange, splitByPeriod, sumBySite, topFive} from './dbUtils'
 
 const db = new Dexie('wirehead')
@@ -11,13 +11,12 @@ db.version(5).stores({
   options: ', allowTrainingPopups, allowShaming'
 })
 
-//TODO: before entering production, remove the seed functionality!
-db.history.count().then(s=>{
+/* db.history.count().then(s=>{
   if (s < 1) {
     db.history.bulkAdd(history)
     //db.trainingData.bulkAdd(trainingData)
   }
-})
+}) */
 
 Dexie.prototype.getFullHistory = function(startDate, endDate) {
   return getHistoryRange(this, startDate, endDate).toArray()
