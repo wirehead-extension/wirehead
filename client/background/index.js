@@ -209,7 +209,7 @@ chrome.alarms.onAlarm.addListener(async function(alarm) {
 //This initializes alarm that causes notifications to be made
 chrome.runtime.onInstalled.addListener(function(details) {
   if (details.reason === 'install') {
-    chrome.alarms.create('make notification', {periodInMinutes: 0.2})
+    chrome.alarms.create('make notification', {periodInMinutes: 15})
   }
 })
 
@@ -326,11 +326,11 @@ async function checkForAlarmUpdates() {
   if (numberExamples > 1000 || trainingPopupFrequency === 'low') {
     updateNotificationFrequency(60)
   } else if (numberExamples > 500) {
-    updateNotificationFrequency(30)
+    updateNotificationFrequency(45)
   } else if (numberExamples > 200) {
-    updateNotificationFrequency(20)
+    updateNotificationFrequency(30)
   } else if (numberExamples > 100) {
-    updateNotificationFrequency(10)
+    updateNotificationFrequency(20)
   }
 }
 
