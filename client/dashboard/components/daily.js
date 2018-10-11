@@ -5,7 +5,19 @@ import {withRouter} from 'react-router-dom'
 import {humanTime} from '../utils'
 import {DatePicker} from './'
 import {Container, Header} from 'semantic-ui-react'
-import * as d3 from 'd3'
+import {
+  scaleBand,
+  scaleLinear,
+  axisBottom,
+  arc,
+  pie,
+  interpolate,
+  selectAll,
+  select,
+  format,
+  sum,
+  max
+} from 'd3'
 
 class Daily extends React.Component {
   constructor() {
@@ -18,16 +30,16 @@ class Daily extends React.Component {
   }
 
   componentDidMount() {
-    d3.selectAll('svg').remove()
-    d3.selectAll('table').remove()
+    selectAll('svg').remove()
+    selectAll('table').remove()
     this.props
       .fetchData(new Date().setHours(0, 0, 0, 0).valueOf(), 1, 'sumBySite')
       .then(this.createDashboard('#subDiv', this.props.data))
   }
 
   componentDidUpdate() {
-    d3.selectAll('svg').remove()
-    d3.selectAll('table').remove()
+    selectAll('svg').remove()
+    selectAll('table').remove()
     this.createDashboard('#subDiv', this.props.data)
   }
 
@@ -37,7 +49,7 @@ class Daily extends React.Component {
   }
 
   removeDashboard(className) {
-    d3.selectAll(className).remove()
+    selectAll(className).remove()
   }
 
   createDashboard(id, data) {
@@ -98,7 +110,7 @@ class Daily extends React.Component {
     let tF = ['play', 'work'].map(function(d) {
       return {
         type: d,
-        time: d3.sum(
+        time: sum(
           data.map(function(t) {
             if (t[d]) {
               return t[d]
@@ -133,8 +145,7 @@ class Daily extends React.Component {
       hGDim.h = 300 - hGDim.t - hGDim.b
 
       //create svg for histogram.
-      const hGsvg = d3
-        .select('#subDiv')
+      const hGsvg = select('#subDiv')
         .append('svg')
         .attr('class', 'chart')
         // .attr('top', '50px')
@@ -145,8 +156,7 @@ class Daily extends React.Component {
         .append('g')
 
       // create function for x-axis mapping.
-      let x = d3
-        .scaleBand([0, hGDim.w], 1)
+      let x = scaleBand([0, hGDim.w], 1)
         .range([0, hGDim.w])
         .domain(
           fD.map(function(d) {
@@ -159,15 +169,14 @@ class Daily extends React.Component {
         .append('g')
         .attr('class', 'x-axis')
         .attr('transform', 'translate(20,270)')
-        .call(d3.axisBottom(x))
+        .call(axisBottom(x))
 
       // Create function for y-axis map.
-      const y = d3
-        .scaleLinear()
+      const y = scaleLinear()
         .range([hGDim.h, 0])
         .domain([
           0,
-          d3.max(fD, function(d) {
+          max(fD, function(d) {
             return d[1]
           })
         ])
@@ -215,7 +224,7 @@ class Daily extends React.Component {
         // update the domain of the y-axis map to reflect change in frequencies.
         y.domain([
           0,
-          d3.max(nD, function(d) {
+          max(nD, function(d) {
             return d[1]
           })
         ])
@@ -250,8 +259,7 @@ class Daily extends React.Component {
 
         hGsvg.selectAll('.x-axis').remove()
         // change the axis tick marks to match new data
-        x = d3
-          .scaleBand([0, hGDim.w], 0.2)
+        x = scaleBand([0, hGDim.w], 0.2)
           .range([0, hGDim.w])
           .domain(
             nD.map(function(d) {
@@ -263,7 +271,7 @@ class Daily extends React.Component {
           .append('g')
           .attr('class', 'x-axis')
           .attr('transform', 'translate(20,270)')
-          .call(d3.axisBottom(x))
+          .call(axisBottom(x))
       }
       return hG
     }
@@ -275,8 +283,7 @@ class Daily extends React.Component {
       pieDim.r = Math.min(pieDim.w, pieDim.h) / 2
 
       // create svg for pie chart.
-      const piesvg = d3
-        .select('#subDiv')
+      const piesvg = select('#subDiv')
         .append('svg')
         .style('float', 'left')
         .attr('class', 'chart')
@@ -291,14 +298,12 @@ class Daily extends React.Component {
         )
 
       // create function to draw the arcs of the pie slices.
-      const arc = d3
-        .arc()
+      const pieArc = arc()
         .outerRadius(pieDim.r - 10)
         .innerRadius(0)
 
       // create a function to compute the pie slice angles.
-      const pie = d3
-        .pie()
+      const pieVar = pie()
         .sort(null)
         .value(function(d) {
           return d.time
@@ -307,10 +312,10 @@ class Daily extends React.Component {
       // Draw the pie slices.
       piesvg
         .selectAll('path')
-        .data(pie(pD))
+        .data(pieVar(pD))
         .enter()
         .append('path')
-        .attr('d', arc)
+        .attr('d', pieArc)
         .each(function(d) {
           this._current = d
         })
@@ -362,10 +367,10 @@ class Daily extends React.Component {
       // Animating the pie-slice requiring a custom function which specifies
       // how the intermediate paths should be drawn.
       function arcTween(a) {
-        var i = d3.interpolate(this._current, a)
+        var i = interpolate(this._current, a)
         this._current = i(0)
         return function(t) {
-          return arc(i(t))
+          return pieArc(i(t))
         }
       }
       return pC
@@ -375,8 +380,7 @@ class Daily extends React.Component {
     function legend(lD) {
       let leg = {}
 
-      const legend = d3
-        .select('#subRightWrapper')
+      const legend = select('#subRightWrapper')
         .append('table')
         .style('float', 'left')
         .style('margin-top', '210px')
@@ -446,10 +450,9 @@ class Daily extends React.Component {
       function getLegend(d, aD) {
         // Utility function to compute percentage.
         return (
-          d3
-            .format('%')(
+          format('%')(
               d.time /
-                d3.sum(
+                sum(
                   aD.map(function(v) {
                     return v.time
                   })
