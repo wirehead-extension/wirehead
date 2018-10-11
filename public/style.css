@@ -31,8 +31,8 @@ form div {
 }
 
 body {
-  width: 1060px;
-  margin: 50px auto;
+  /* width: 1060px; */
+  /* margin: 50px auto; */
 }
 #dashboard {
   width: 1060px;
@@ -100,7 +100,7 @@ rect:hover {
 
 .header {
   /* text-shadow: 2px 0px 9px rgba(0, 0, 128, 0.384); */
-  font-family: 'Roboto Mono';
+  font-family: 'Roboto Mono' !important;
   margin: 0 !important;
 }
 
@@ -188,6 +188,7 @@ rect:hover {
 }
 
 #graphHeader {
+  font-family: 'Roboto Mono';
   position: absolute;
   left: 610px;
   top: 250px;
@@ -222,3 +223,43 @@ rect:hover {
   position: fixed;
   z-index: 100;
 }
+
+#bodyWrapper {
+  display: flex;
+}
+
+#mainDiv{
+  flex-grow: 4;
+  white-space: nowrap;
+  max-width: 1300px;
+
+}
+
+#rightWrapper {
+  flex-grow: 2;
+}
+
+#leftWrapper {
+  flex-grow: 2;
+
+}
+
+#graphContainer{
+  display: flex;
+  flex-direction: row
+}
+
+#subLeftWrapper {
+  flex-grow: 2;
+  min-width: 3%
+}
+
+#subRightWrapper {
+  flex-grow: 2;
+  min-width: 300px
+}
+
+#subDiv {
+  flex-grow: 6
+}
+

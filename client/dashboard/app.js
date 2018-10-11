@@ -4,10 +4,10 @@ import Routes from './routes'
 
 const App = () => {
   return (
-    <React.Fragment>
-      <Navbar />
-      <Routes />
-    </React.Fragment>
+    <div id="mainDiv">
+        <Navbar />
+        <Routes />
+    </div>
   )
 }
 

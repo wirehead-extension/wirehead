@@ -88,7 +88,7 @@ class AppConfig extends React.Component {
                   onChange={this.handleChangePopups}
                 />
                 <Form.Field
-                  label="No (not recommended for new users!)"
+                  label="No"
                   control={Radio}
                   type="radio"
                   value="never"
