@@ -9,10 +9,7 @@ module.exports = {
     popup: ['@babel/polyfill', './client/popup/popup.js'],
     eventPage: ['@babel/polyfill', './client/background']
   },
-  plugins: [
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new LodashModuleReplacementPlugin()
-  ],
+  plugins: [new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)],
   output: {
     path: __dirname,
     filename: './public/[name].bundle.js'
@@ -26,11 +23,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        options: {
-          plugins: ['lodash'],
-          presets: [['@babel/env', {modules: false, targets: {node: 4}}]]
-        }
+        loader: 'babel-loader'
       },
       {
         test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,

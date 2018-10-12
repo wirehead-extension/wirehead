@@ -217,7 +217,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 })
 
 //User will be notified by hour how long they stayed on the website
-chrome.alarms.create('timer', {periodInMinutes: 0.2})
+chrome.alarms.create('timer', {periodInMinutes: 60})
 
 chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name === 'timer' && chromeIsInFocus) {
