@@ -7,7 +7,9 @@
   },
   "main": "index.js",
   "scripts": {
-    "build-client": "webpack",
+    "analyze-bundle": "npx webpack-bundle-analyzer compilation-stats.json public",
+    "build-client": "webpack -p",
+    "build-client-show-bundle-analysis": "webpack -p --profile --json > compilation-stats.json",
     "build-client-watch": "webpack -w",
     "build-theme": "cd client/semantic && gulp build && cd ../..",
     "deploy": "script/deploy",
@@ -82,6 +84,7 @@
     "axios-mock-adapter": "^1.15.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
+    "babel-plugin-lodash": "^3.3.4",
     "chai": "^4.2.0",
     "dsv-loader": "^2.0.0",
     "enzyme": "^3.7.0",
@@ -90,8 +93,9 @@
     "eslint-config-fullstack": "^6.0.0",
     "eslint-config-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.11.1",
-    "husky": "^1.1.1",
+    "husky": "^1.1.2",
     "lint-staged": "^7.3.0",
+    "lodash-webpack-plugin": "^0.11.5",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.4",
     "npm-merge-driver": "^2.3.5",
@@ -102,6 +106,7 @@
     "semantic-ui": "^2.4.0",
     "supertest": "^3.3.0",
     "webpack": "^4.20.2",
+    "webpack-bundle-analyzer": "^3.0.2",
     "webpack-cli": "^3.1.2"
   },
   "repository": {

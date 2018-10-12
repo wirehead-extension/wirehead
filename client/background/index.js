@@ -103,10 +103,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
       makeLearnMoreNotification(aboutNotificationClicked)
     }
     //this code creates a transaction and uses it to write to the db
-    var url = new URL(tab.url)
+    var url = tab.url && new URL(tab.url)
 
     //Post start time data when open the tab
-    if (urlValidation(new URL(tab.url))) {
+    if (urlValidation(tab.url && new URL(tab.url))) {
       db.history.put({
         url: url.hostname,
         timeStart: new Date().valueOf(),
@@ -123,7 +123,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   killNotification()
   updateIcon(tab)
   if (tab.active && tab.status === 'complete') {
-    var url = new URL(tab.url)
+    var url = tab.url && new URL(tab.url)
     var currentUrl
 
     //Update time end when focus out of the tab
@@ -138,7 +138,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         }
       })
       .then(async () => {
-        if (currentUrl !== url.hostname && urlValidation(new URL(tab.url))) {
+        if (
+          currentUrl !== url.hostname &&
+          urlValidation(tab.url && new URL(tab.url))
+        ) {
           db.history.put({
             url: url.hostname,
             timeStart: new Date().valueOf(),
@@ -214,7 +217,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
 })
 
 //User will be notified by hour how long they stayed on the website
-chrome.alarms.create('timer', {periodInMinutes: 0.2})
+chrome.alarms.create('timer', {periodInMinutes: 60})
 
 chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name === 'timer' && chromeIsInFocus) {

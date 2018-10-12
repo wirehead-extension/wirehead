@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const isDev = process.env.NODE_ENV === 'development'
 
 module.exports = {
@@ -7,6 +8,7 @@ module.exports = {
     popup: ['@babel/polyfill', './client/popup/popup.js'],
     eventPage: ['@babel/polyfill', './client/background']
   },
+  plugins: [new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)],
   output: {
     path: __dirname,
     filename: './public/[name].bundle.js'
