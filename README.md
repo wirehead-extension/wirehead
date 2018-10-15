@@ -2,10 +2,6 @@
 
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/wirehead-extension/wirehead.svg?columns=all)](https://waffle.io/wirehead-extension/wirehead)
 
-## Download Wirehead
-
-[Visit our landing page to download](wirehead-extension.github.io)!
-
 ## Build instructions for devolopers
 
 Instructions to add as an extension to Chrome:
