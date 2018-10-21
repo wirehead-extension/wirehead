@@ -2,6 +2,12 @@
 
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/wirehead-extension/wirehead.svg?columns=all)](https://waffle.io/wirehead-extension/wirehead)
 
+## About
+Wirehead is a chrome extension that uses machine learning to analyze your browsing behavior and show you how to become more productive.
+
+## Download Link
+https://chrome.google.com/webstore/detail/wirehead/olbnlfcplijajgbkfgpjamlddfbpbebl
+
 ## Build instructions for devolopers
 
 Instructions to add as an extension to Chrome:
