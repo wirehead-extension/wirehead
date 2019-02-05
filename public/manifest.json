@@ -3,7 +3,7 @@
 
   "name": "Wirehead",
   "description": "This app helps you maintain your focus on the internet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icons": {
     "16": "plug.png",
     "48": "plug.png",
